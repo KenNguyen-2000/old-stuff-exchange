@@ -5,11 +5,13 @@ using Application.DTOs.ReviewDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Core.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,7 +28,7 @@ namespace Application
             _mapper = mapper;
         }
 
-        public async Task<Response<Item>> Add(CreateItemDto item)
+        public async Task<Response<Item>> AddAsync(CreateItemDto item)
         {
             var newItem = new Item()
             {
@@ -102,13 +104,13 @@ namespace Application
             return new Response<ItemDto>(itemListMapped, "Get item list success", itemListMapped.Count());
         }
 
-        public async Task<Response<Item>> UpdateAsync(Item item)
+        public async Task<Response<Item>> UpdateAsync(UpdateItemDto item)
         {
             var getItem = await _itemRepository.GetByIdAsync(item.Id);
 
             if(getItem != null)
             {
-                var itemNeedUpdate = _mapper.Map<Item, Item>(getItem, item);
+                var itemNeedUpdate = _mapper.Map<UpdateItemDto, Item>(item, getItem);
 
                 var itemUpdated = await _itemRepository.UpdateAsync(itemNeedUpdate);
 

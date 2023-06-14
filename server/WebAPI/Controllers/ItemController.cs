@@ -4,6 +4,7 @@ using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -44,16 +45,24 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPost()]
         public async Task<IActionResult> CreateItem(CreateItemDto item)
         {
-            var result = await _itemService.Add(item);
-            if (!result.Succeeded)
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            if(identity != null)
             {
-                BadRequest(result);
-            }
+                var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+                item.UserId = Guid.Parse(userId);
+                var result = await _itemService.AddAsync(item);
+                if (!result.Succeeded)
+                {
+                    BadRequest(result);
+                }
 
-            return Created(nameof(CreateItem), result);
+                return Created(nameof(CreateItem), result);
+            }
+            return Unauthorized("Bearer token missing");
         }
 
         [Authorize]
@@ -71,15 +80,23 @@ namespace WebAPI.Controllers
 
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> UpdateItem([FromBody] Item item)
+        public async Task<IActionResult> UpdateItem(UpdateItemDto item)
         {
-            var result = await _itemService.UpdateAsync(item);
-            if (!result.Succeeded)
+            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+            if(identity != null)
             {
-                return BadRequest(result);
+                var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+                item.UserId = Guid.Parse(userId);
+                var result = await _itemService.UpdateAsync(item);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
             }
 
-            return Ok(result);
+            return Unauthorized();
         }
 
         [Authorize]

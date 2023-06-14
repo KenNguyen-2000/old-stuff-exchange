@@ -17,6 +17,7 @@ namespace Application.DTOs.ReviewDtos
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public Guid ItemId { get; set; }
+        [Required]
         public Guid UserId { get; set; }
     }
 }

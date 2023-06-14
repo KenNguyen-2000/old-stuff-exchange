@@ -103,8 +103,9 @@ namespace Application
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Email, userInfoDto.Email),
-                new Claim(JwtRegisteredClaimNames.Sub, userInfoDto.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, userInfoDto.Username),
                 new Claim(ClaimTypes.NameIdentifier, userInfoDto.Id.ToString()),
+                new Claim("Id", userInfoDto.Id.ToString()),
                 new Claim(ClaimTypes.Name, userInfoDto.FullName.ToString()),
                 new Claim(ClaimTypes.Role, userInfoDto.Role)
             };

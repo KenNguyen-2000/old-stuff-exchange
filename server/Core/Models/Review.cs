@@ -20,8 +20,10 @@ namespace Core.Models
         public int Rating { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; } = DateTime.Now;
+        [Required]
         public Guid ItemId { get; set; }
         public Item Item { get; set; }
+        [Required]
         public Guid UserId { get; set; }
         public User User { get; set; }
     }
