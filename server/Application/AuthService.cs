@@ -119,5 +119,13 @@ namespace Application
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
             return new Response<string>(tokenString, "Login Successfully!");
         }
+
+        public Response<UserInfoDto> LoginGoogle(string googleToken)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var data = handler.ReadToken(googleToken);
+
+            return new Response<UserInfoDto>("Login success");
+        }
     }
 }

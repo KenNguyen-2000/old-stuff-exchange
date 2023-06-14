@@ -1,6 +1,6 @@
 ﻿using Application.DTOs.AuthDtos;
 using Application.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -44,6 +44,24 @@ namespace WebAPI.Controllers
             }
 
             return Ok(userRegister);
+        }
+
+        [HttpPost("signin-google")]
+        public IActionResult LoginGoogle(string googleToken)
+        {
+            var userRes = _authService.LoginGoogle(googleToken);
+            if (!userRes.Succeeded)
+            {
+                return BadRequest(userRes);
+            }
+
+            var token = _authService.CreateAccessToken(userRes.Data);
+            if (token.Succeeded)
+            {
+                return Ok(token);
+            }
+
+            return BadRequest(token);
         }
     }
 }

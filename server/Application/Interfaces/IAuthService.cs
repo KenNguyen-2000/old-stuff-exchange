@@ -15,5 +15,7 @@ namespace Application.Interfaces
         Response<UserInfoDto> Login(LoginRequest loginRequest);
         Response<User> Register(RegisterRequest registerRequest);
         Response<string> CreateAccessToken(UserInfoDto userInfoDto);
+        Response<UserInfoDto> LoginGoogle(string googleToken);
+
     }
 }
