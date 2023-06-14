@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs
+namespace Application.DTOs.AuthDtos
 {
     public class RegisterRequest
     {
@@ -19,10 +19,8 @@ namespace Application.DTOs
         public bool IsEmailConfirmed { get; set; }
         public string PhoneNumber { get; set; }
         [Required]
-        public string Dob { get; set; }
+        public DateTime Dob { get; set; }
         [Required]
         public string Address { get; set; }
-        public int Points { get; set; }
-        public string Role { get; set; }
     }
 }

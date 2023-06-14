@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
+    public enum UserRole
+    {
+        Admin,
+        Seller,
+        Buyer,
+        User
+    }
+
     [Table("users")]
     public class User
     {
@@ -19,20 +27,21 @@ namespace Core.Models
         [Required]
         public string Username { get; set; }
         [Required]
-        public string Password { get; set; }
+        public byte[] PasswordHash { get; set; }
+        public byte[] PasswordSalt { get; set; }
+        [EmailAddress]
         public string Email { get; set; }
         public bool IsEmailConfirmed { get; set; }
         public string PhoneNumber { get; set; }
         public bool Gender { get; set; }
         [Required]
-        public string Dob { get; set; }
+        public DateTime Dob { get; set; }
         [Required]
         public string Address { get; set; }
         public int Points { get; set; }
-        public string Role { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Updated { get; set; }
+        public UserRole Role { get; set; }
         public ICollection<Item> Items { get; set; } = new List<Item>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<Bill> Bills { get; set; } = new List<Bill>();
     }
 }

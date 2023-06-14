@@ -9,7 +9,7 @@ namespace Application.Contracts
 {
     public interface IBaseRepository<T> where T : class, new()
     {
-        Task<ICollection<T>> GetListAsync(Expression<Func<T, bool>> predicate = null);
+        Task<IEnumerable<T>> GetListAsync(Expression<Func<T, bool>> predicate = null);
         Task<T> GetAsync(Expression<Func<T, bool>> predicate);
         Task<T> GetByIdAsync(Guid id);
         Task<bool> DeleteAsync(Guid id);

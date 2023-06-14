@@ -1,7 +1,10 @@
 ﻿using Application.DTOs;
+using Application.DTOs.AuthDtos;
+using Application.DTOs.UserDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Core.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -31,12 +34,12 @@ namespace Application
         public Response<UserInfoDto> Login(LoginRequest loginRequest)
         {
             var res = _userService.GetByUsername(loginRequest.Username);
-            if(res == null)
+            if(res.Data == null)
             {
                 return new Response<UserInfoDto>("Bad credentials", success: false);
             }
 
-            if(!VerifyPasswordHash(loginRequest.Password, res.Data.Password))
+            if(!VerifyPasswordHash(loginRequest.Password, res.Data.PasswordHash, res.Data.PasswordSalt))
             {
                 return new Response<UserInfoDto>("Bad credentials", success: false);
             }
@@ -51,47 +54,46 @@ namespace Application
             {
                 return new Response<User>($"Username {registerRequest.Username} already existed!");
             }
+            byte[] passwordHash, passwordSalt;
+            HashPassword(registerRequest.Password, out passwordHash, out passwordSalt);
             var newUser = new User()
             {
                 FullName = registerRequest.FullName,
                 Username = registerRequest.Username,
-                Password = HashPassword(registerRequest.Password),
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
                 Email = registerRequest.Email,
                 IsEmailConfirmed = false,
                 PhoneNumber = registerRequest.PhoneNumber,
                 Dob = registerRequest.Dob,
                 Address = registerRequest.Address,
                 Points = 100,
-                Role = "User"
+                Role = UserRole.User
             };
             _userService.Add(newUser);
             return new Response<User>(newUser, "Register successfully!");
         }
 
-        private bool VerifyPasswordHash(string password, string storedHash)
+        private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
-            // Verify the password hash and salt
-            // You would implement the appropriate hashing and verification logic here
-            // Example: using BCrypt
-            // return BCrypt.Net.BCrypt.Verify(password, storedHash);
-
-            // For demonstration purposes, we're assuming password validation logic here
-            var passwordHash = HashPassword(password);
-            return storedHash == passwordHash;
+            using var algorithm = SHA512.Create();
+            var computedHash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(password));
+            for (int i = 0; i < computedHash.Length; i++)
+            {
+                if (computedHash[i] != passwordHash[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
-        private static string HashPassword(string password)
+        private static void HashPassword(string password, out byte[] passwordHash ,out byte[] passwordSalt)
         {
-            // Hash the password using the salt
-            // You would implement the appropriate hashing logic here
-            // Example: using BCrypt
-            // return BCrypt.Net.BCrypt.HashPassword(password, salt);
-
-            // For demonstration purposes, we're using a simple hash algorithm here
             using var algorithm = SHA512.Create();
+            passwordSalt = new HMACSHA512().Key;
             var passwordBytes = Encoding.UTF8.GetBytes(password);
-            var hashBytes = algorithm.ComputeHash(passwordBytes);
-            return Convert.ToBase64String(hashBytes);
+            passwordHash = algorithm.ComputeHash(passwordBytes);
         }
 
         public Response<string> CreateAccessToken(UserInfoDto userInfoDto)
@@ -100,17 +102,11 @@ namespace Application
             var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                new Claim("Id", userInfoDto.Id.ToString()),
-                new Claim("FullName", userInfoDto.FullName),
-                new Claim("Username", userInfoDto.Username),
-                new Claim("Email", userInfoDto.Email),
-                new Claim("IsEmailConfirmed", userInfoDto.IsEmailConfirmed.ToString()),
-                new Claim("PhoneNumber", userInfoDto.PhoneNumber),
-                new Claim("Dob", userInfoDto.Dob),
-                new Claim("Gender", userInfoDto.Gender.ToString()),
-                new Claim("Address", userInfoDto.Address),
-                new Claim("Points", userInfoDto.Points.ToString()),
-                new Claim("Role", userInfoDto.Role)
+                new Claim(JwtRegisteredClaimNames.Email, userInfoDto.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, userInfoDto.Email),
+                new Claim(ClaimTypes.NameIdentifier, userInfoDto.Id.ToString()),
+                new Claim(ClaimTypes.Name, userInfoDto.FullName.ToString()),
+                new Claim(ClaimTypes.Role, userInfoDto.Role)
             };
 
             var token = new JwtSecurityToken(

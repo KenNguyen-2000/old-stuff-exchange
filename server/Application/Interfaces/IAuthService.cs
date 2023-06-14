@@ -1,4 +1,6 @@
 ﻿using Application.DTOs;
+using Application.DTOs.AuthDtos;
+using Application.DTOs.UserDtos;
 using Core.Models;
 using System;
 using System.Collections.Generic;

@@ -14,6 +14,8 @@ namespace Infrastructure
             services.AddDbContext<OldStuffExchangeContext>(opt => opt.UseMySQL(configuration.GetConnectionString("OldStuffExchangeContext")));
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IItemRepository, ItemRepository>();
+            services.AddScoped<IReviewRepository, ReviewRepository>();
         }
 
     }

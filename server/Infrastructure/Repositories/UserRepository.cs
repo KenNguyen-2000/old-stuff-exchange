@@ -51,7 +51,7 @@ namespace Infrastructure.Repositories
             return await _context.Users.FindAsync(id);
         }
 
-        public async Task<ICollection<User>> GetListAsync(Expression<Func<User, bool>> predicate = null)
+        public async Task<IEnumerable<User>> GetListAsync(Expression<Func<User, bool>> predicate = null)
         {
             return predicate == null ? await _context.Users.ToListAsync() : await _context.Users.Where(predicate).ToListAsync();
         }
@@ -59,7 +59,7 @@ namespace Infrastructure.Repositories
         public async Task<User> UpdateAsync(User user)
         {
             
-            _context.Update(user);
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
             return user;

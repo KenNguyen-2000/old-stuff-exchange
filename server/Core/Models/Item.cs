@@ -39,6 +39,7 @@ namespace Core.Models
         public DateTime Updated { get; set; } = DateTime.Now;
         public Guid UserId { get; set; }
         public User User { get; set; }
+        public Bill Bill { get; set; }
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     }

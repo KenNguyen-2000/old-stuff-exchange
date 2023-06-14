@@ -1,5 +1,6 @@
 ﻿using Application.Contracts;
 using Application.DTOs;
+using Application.DTOs.UserDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Core.Models;
