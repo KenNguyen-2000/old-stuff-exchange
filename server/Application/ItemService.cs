@@ -20,11 +20,13 @@ namespace Application
     public class ItemService : IItemService
     {
         private readonly IItemRepository _itemRepository;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public ItemService(IItemRepository itemRepository, IMapper mapper)
+        public ItemService(IItemRepository itemRepository, IUserService userService ,IMapper mapper)
         {
             _itemRepository = itemRepository;
+            _userService = userService;
             _mapper = mapper;
         }
 
@@ -118,6 +120,32 @@ namespace Application
             }
 
             return new Response<Item>("Item not found!");
+        }
+
+        public async Task<Response<Item>> PurchaseItemAsync(Guid itemId, Guid userId)
+        {
+            var getItem = await _itemRepository.GetByIdAsync(itemId);
+            if(getItem == null)
+            {
+                return new Response<Item>("Item with id not found");
+            }
+
+            if (await _userService.IsOwner(userId, itemId))
+            {
+                return new Response<Item>("Forbidden");
+            }
+
+            var userRes = await _userService.UpdatePointsAsync(userId, getItem.Price);
+            if (userRes.Succeeded)
+            {
+                getItem.Status = ItemStatus.Inactive;
+                var itemUpdated = await _itemRepository.UpdateAsync(getItem);
+
+                return new Response<Item>(itemUpdated, "Purchase item success");
+            }
+
+
+            return new Response<Item>(userRes.Message);
         }
     }
 }

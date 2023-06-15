@@ -18,6 +18,8 @@ namespace Application.Interfaces
         Task<Response<Item>> UpdateAsync(UpdateItemDto item);
         Task<Response<string>> DeleteAsync(Guid id);
         Task<Response<ItemDto>> GetAsync(Expression<Func<Item, bool>> filter);
-        Task<Response<String>> ChangeItemStatusAsync(ChangeItemStatusDto changeItemStatusDto);
+        Task<Response<string>> ChangeItemStatusAsync(ChangeItemStatusDto changeItemStatusDto);
+
+        Task<Response<Item>> PurchaseItemAsync(Guid itemId, Guid userId);
     }
 }

@@ -110,5 +110,30 @@ namespace Application
             var hashBytes = algorithm.ComputeHash(passwordBytes);
             return Convert.ToBase64String(hashBytes);
         }
+
+        public async Task<Response<string>> UpdatePointsAsync(Guid userId, double points)
+        {
+            var userRes = await GetByIdAsync(userId);
+            if (!userRes.Succeeded)
+            {
+                return new Response<string>(userRes.Message);
+            }
+
+            if(points + userRes.Data.Points < 0)
+            {
+                return new Response<string>("User point not enough!");
+            }
+
+            var userNeedUpdate = _mapper.Map<User>(userRes.Data);
+            userNeedUpdate.Points = userNeedUpdate.Points + points;
+            await _userRepository.UpdateAsync(userNeedUpdate);
+            return new Response<string>("Updated success", success: true);
+        }
+
+        async Task<bool> IsOwner(Guid userId, Item item)
+        {
+            var user = await GetByIdAsync(userId);
+            return item.UserId == user.Data.Id;
+        }
     }
 }

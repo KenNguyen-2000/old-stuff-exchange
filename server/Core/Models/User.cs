@@ -38,7 +38,7 @@ namespace Core.Models
         public DateTime Dob { get; set; }
         [Required]
         public string Address { get; set; }
-        public int Points { get; set; }
+        public double Points { get; set; }
         public UserRole Role { get; set; }
         public ICollection<Item> Items { get; set; } = new List<Item>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();

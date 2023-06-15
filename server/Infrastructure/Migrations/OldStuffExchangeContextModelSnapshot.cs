@@ -157,8 +157,8 @@ namespace Infrastructure.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
+                    b.Property<double>("Points")
+                        .HasColumnType("double");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");

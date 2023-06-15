@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.UserDtos;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,7 @@ namespace WebAPI.Controllers
             return Ok(userRes);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{userId:Guid}")]
         public async Task<IActionResult> DeleteUserById(Guid userId)
         {
@@ -40,6 +42,7 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPut("update-user")]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
         {

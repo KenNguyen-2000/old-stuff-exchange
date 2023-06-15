@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(OldStuffExchangeContext))]
-    [Migration("20230614003111_InitialCreate")]
+    [Migration("20230615042107_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -160,8 +160,8 @@ namespace Infrastructure.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
+                    b.Property<double>("Points")
+                        .HasColumnType("double");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
