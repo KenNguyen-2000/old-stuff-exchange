@@ -21,6 +21,6 @@ namespace Application.Interfaces
         Task<Response<UserInfoDto>> GetAsync(Expression<Func<User, bool>> filter);
         Task<Response<string>> UpdatePointsAsync(Guid userId, double points);
 
-        Task<bool> IsOwner(Guid userId, Guid itemId);
+        Task<bool> IsOwner(Guid userId, Item item);
     }
 }

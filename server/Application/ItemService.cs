@@ -23,7 +23,7 @@ namespace Application
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public ItemService(IItemRepository itemRepository, IUserService userService ,IMapper mapper)
+        public ItemService(IItemRepository itemRepository, IUserService userService, IMapper mapper)
         {
             _itemRepository = itemRepository;
             _userService = userService;
@@ -41,8 +41,8 @@ namespace Application
                 Status = item.Status,
                 UserId = item.UserId,
             };
-           var itemCreated = await _itemRepository.AddAsync(newItem);
-            if(itemCreated == null)
+            var itemCreated = await _itemRepository.AddAsync(newItem);
+            if (itemCreated == null)
             {
                 return new Response<Item>("Create item failure!");
             }
@@ -54,7 +54,7 @@ namespace Application
         {
             var getItem = await _itemRepository.GetByIdAsync(changeItemStatusDto.Id);
 
-            if(getItem != null)
+            if (getItem != null)
             {
                 var itemNeedToChange = _mapper.Map<ChangeItemStatusDto, Item>(changeItemStatusDto, getItem);
                 var itemStatusChanged = await _itemRepository.UpdateAsync(itemNeedToChange);
@@ -110,7 +110,7 @@ namespace Application
         {
             var getItem = await _itemRepository.GetByIdAsync(item.Id);
 
-            if(getItem != null)
+            if (getItem != null)
             {
                 var itemNeedUpdate = _mapper.Map<UpdateItemDto, Item>(item, getItem);
 
@@ -125,12 +125,12 @@ namespace Application
         public async Task<Response<Item>> PurchaseItemAsync(Guid itemId, Guid userId)
         {
             var getItem = await _itemRepository.GetByIdAsync(itemId);
-            if(getItem == null)
+            if (getItem == null)
             {
                 return new Response<Item>("Item with id not found");
             }
 
-            if (await _userService.IsOwner(userId, itemId))
+            if (await _userService.IsOwner(userId, getItem))
             {
                 return new Response<Item>("Forbidden");
             }

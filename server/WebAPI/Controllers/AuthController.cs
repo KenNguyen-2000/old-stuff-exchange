@@ -20,13 +20,13 @@ namespace WebAPI.Controllers
         public IActionResult Login(LoginRequest loginRequest)
         {
             var userRes = _authService.Login(loginRequest);
-            if(!userRes.Succeeded)
+            if (!userRes.Succeeded)
             {
                 return BadRequest(userRes);
             }
 
             var token = _authService.CreateAccessToken(userRes.Data);
-            if(token.Succeeded)
+            if (token.Succeeded)
             {
                 return Ok(token);
             }
@@ -35,10 +35,11 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register(RegisterRequest registerRequest)
+        public async Task<IActionResult> Register(RegisterRequest registerRequest)
         {
-            var userRegister = _authService.Register(registerRequest);
-            if(!userRegister.Succeeded)
+            Console.WriteLine("server register");
+            var userRegister = await _authService.Register(registerRequest);
+            if (!userRegister.Succeeded)
             {
                 return BadRequest(userRegister);
             }

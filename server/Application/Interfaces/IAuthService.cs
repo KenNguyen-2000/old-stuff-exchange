@@ -13,7 +13,7 @@ namespace Application.Interfaces
     public interface IAuthService
     {
         Response<UserInfoDto> Login(LoginRequest loginRequest);
-        Response<User> Register(RegisterRequest registerRequest);
+        Task<Response<User>> Register(RegisterRequest registerRequest);
         Response<string> CreateAccessToken(UserInfoDto userInfoDto);
         Response<UserInfoDto> LoginGoogle(string googleToken);
 

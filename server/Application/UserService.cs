@@ -33,7 +33,7 @@ namespace Application
         public async Task<Response<string>> DeleteAsync(Guid id)
         {
             var isDelete = await _userRepository.DeleteAsync(id);
-            if(isDelete)
+            if (isDelete)
             {
                 return new Response<string>("Delete successfully", success: true);
             }
@@ -42,8 +42,8 @@ namespace Application
 
         public async Task<Response<UserInfoDto>> GetAsync(Expression<Func<User, bool>> filter)
         {
-           var user = await _userRepository.GetAsync(filter);
-            if(user != null)
+            var user = await _userRepository.GetAsync(filter);
+            if (user != null)
             {
                 var userMapped = _mapper.Map<UserInfoDto>(user);
                 return new Response<UserInfoDto>(userMapped, "Get user success!");
@@ -55,7 +55,8 @@ namespace Application
         public async Task<Response<UserInfoDto>> GetByIdAsync(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
-            if (user != null){
+            if (user != null)
+            {
                 var userMapped = _mapper.Map<UserInfoDto>(user);
                 return new Response<UserInfoDto>(userMapped, "Get user by Id success");
             }
@@ -65,8 +66,8 @@ namespace Application
 
         public Response<User> GetByUsername(string username)
         {
-            var user =  _userRepository.Get(u => u.Username == username);
-            if(user != null)
+            var user = _userRepository.Get(u => u.Username == username);
+            if (user != null)
             {
                 return new Response<User>(user, "Get user by username success!");
             }
@@ -84,10 +85,10 @@ namespace Application
         {
             var getUser = await _userRepository.GetByIdAsync(userUpdateDto.Id);
 
-            if(getUser != null)
+            if (getUser != null)
             {
                 var user = _mapper.Map<UserUpdateDto, User>(userUpdateDto, getUser);
-                
+
 
                 var userUpdate = await _userRepository.UpdateAsync(user);
                 var userMapped = _mapper.Map<UserUpdateDto>(userUpdate);
@@ -119,7 +120,7 @@ namespace Application
                 return new Response<string>(userRes.Message);
             }
 
-            if(points + userRes.Data.Points < 0)
+            if (points + userRes.Data.Points < 0)
             {
                 return new Response<string>("User point not enough!");
             }
@@ -130,7 +131,8 @@ namespace Application
             return new Response<string>("Updated success", success: true);
         }
 
-        async Task<bool> IsOwner(Guid userId, Item item)
+
+        async Task<bool> IUserService.IsOwner(Guid userId, Item item)
         {
             var user = await GetByIdAsync(userId);
             return item.UserId == user.Data.Id;

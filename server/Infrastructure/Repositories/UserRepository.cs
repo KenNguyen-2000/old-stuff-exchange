@@ -29,7 +29,7 @@ namespace Infrastructure.Repositories
             var deletedUser = await _context.Users.FindAsync(id);
             _context.Users.Remove(deletedUser);
             var data = await _context.SaveChangesAsync();
-            if(data > 0)
+            if (data > 0)
             {
                 return false;
             }
@@ -58,7 +58,7 @@ namespace Infrastructure.Repositories
 
         public async Task<User> UpdateAsync(User user)
         {
-            
+
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 

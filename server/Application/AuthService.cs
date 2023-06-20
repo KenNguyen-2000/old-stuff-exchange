@@ -34,12 +34,12 @@ namespace Application
         public Response<UserInfoDto> Login(LoginRequest loginRequest)
         {
             var res = _userService.GetByUsername(loginRequest.Username);
-            if(res.Data == null)
+            if (res.Data == null)
             {
                 return new Response<UserInfoDto>("Bad credentials", success: false);
             }
 
-            if(!VerifyPasswordHash(loginRequest.Password, res.Data.PasswordHash, res.Data.PasswordSalt))
+            if (!VerifyPasswordHash(loginRequest.Password, res.Data.PasswordHash, res.Data.PasswordSalt))
             {
                 return new Response<UserInfoDto>("Bad credentials", success: false);
             }
@@ -47,10 +47,10 @@ namespace Application
             return new Response<UserInfoDto>(_mapper.Map<UserInfoDto>(res.Data), "Login successfully!");
         }
 
-        public Response<User> Register(RegisterRequest registerRequest)
+        public async Task<Response<User>> Register(RegisterRequest registerRequest)
         {
-            var user = _userService.GetByUsername(registerRequest.Username);
-            if(user.Data != null)
+            var user = await _userService.GetAsync(u => u.Username == registerRequest.Username);
+            if (user.Data != null)
             {
                 return new Response<User>($"Username {registerRequest.Username} already existed!");
             }
@@ -88,7 +88,7 @@ namespace Application
             return true;
         }
 
-        private static void HashPassword(string password, out byte[] passwordHash ,out byte[] passwordSalt)
+        private static void HashPassword(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using var algorithm = SHA512.Create();
             passwordSalt = new HMACSHA512().Key;
@@ -100,15 +100,20 @@ namespace Application
         {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-            var claims = new[]
+            var claims = new List<Claim>();
+
+            if (!string.IsNullOrEmpty(userInfoDto.Email))
             {
-                new Claim(JwtRegisteredClaimNames.Email, userInfoDto.Email),
+                claims.Add(new Claim(JwtRegisteredClaimNames.Email, userInfoDto.Email));
+            }
+            claims.AddRange(new[]{
                 new Claim(JwtRegisteredClaimNames.Sub, userInfoDto.Username),
                 new Claim(ClaimTypes.NameIdentifier, userInfoDto.Id.ToString()),
                 new Claim("Id", userInfoDto.Id.ToString()),
                 new Claim(ClaimTypes.Name, userInfoDto.FullName.ToString()),
                 new Claim(ClaimTypes.Role, userInfoDto.Role)
-            };
+            })
+            ;
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
