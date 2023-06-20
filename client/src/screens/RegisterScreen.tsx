@@ -4,7 +4,7 @@ import {ButtonOutlined, MyTextInput} from '../components';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import DatePicker from 'react-native-date-picker';
 import {IRegisterDto} from '../interfaces/dtos';
-import Config from 'react-native-config';
+import {registerRequest} from '../services/auth.service';
 
 interface IRegisterScreen
   extends NativeStackScreenProps<any, 'login', 'mystack'> {}
@@ -27,8 +27,15 @@ const RegisterScreen = ({navigation}: IRegisterScreen) => {
     address: '',
   });
 
-  const handleSignUp = () => {
-    console.log(Config.SERVER_URL);
+  const handleSignUp = async () => {
+    // console.log(Config.SERVER_URL);
+    console.log('Sign up');
+    try {
+      const res = await registerRequest(credentials);
+      console.log(res);
+    } catch (error: any) {
+      console.log(error.response.data);
+    }
   };
 
   const onChangeCredentials = (key: string, value: any) => {

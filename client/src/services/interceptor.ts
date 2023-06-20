@@ -20,7 +20,7 @@ interceptor.interceptors.request.use(
 interceptor.interceptors.response.use(
   res => res,
   async (error: AxiosError) => {
-    console.log(error);
+    // console.log(error);
     // if (error.response?.status === 401) {
     //   await AsyncStorage.removeItem('token');
     // }
