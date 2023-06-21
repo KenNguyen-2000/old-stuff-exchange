@@ -1,9 +1,9 @@
-import Config from 'react-native-config';
-import axios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 const interceptor = axios.create({
-  baseURL: Config.SERVER_URL,
+  baseURL: Constants.expoConfig?.extra?.apiUrl,
 });
 
 interceptor.interceptors.request.use(
@@ -14,18 +14,18 @@ interceptor.interceptors.request.use(
     }
 
     return req;
-  },
+  }
 );
 
 interceptor.interceptors.response.use(
-  res => res,
+  (res) => res,
   async (error: AxiosError) => {
-    // console.log(error);
+    console.log(error);
     // if (error.response?.status === 401) {
     //   await AsyncStorage.removeItem('token');
     // }
     return Promise.reject(error.response);
-  },
+  }
 );
 
 export default interceptor;
