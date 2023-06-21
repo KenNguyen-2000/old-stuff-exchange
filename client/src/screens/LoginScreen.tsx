@@ -1,28 +1,35 @@
-import {ImageBackground, Pressable, StyleSheet, Text, View} from 'react-native';
-import React, {useLayoutEffect, useState} from 'react';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {ButtonOutlined, MyTextInput} from '../components';
+import { StyleSheet, View, ImageBackground, Pressable } from 'react-native';
+import React, { useState, useLayoutEffect } from 'react';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Button, TextInput, IconButton, Text } from 'react-native-paper';
+import Constants from 'expo-constants';
+import { loginRequest } from '../services/auth.service';
 
 interface ILoginScreen
-  extends NativeStackScreenProps<any, 'login', 'mystack'> {}
+  extends NativeStackScreenProps<any, 'Login', 'mystack'> {}
 
-const LoginScreen = ({navigation}: ILoginScreen) => {
-  const today = new Date();
+const LoginScreen = ({ navigation }: ILoginScreen) => {
+  const dateTime = new Date();
   const bgPath =
-    today.getHours() > 6 && today.getHours() < 19
+    dateTime.getHours() > 6 && dateTime.getHours() < 19
       ? require('../../assets/images/login_bg_day.png')
       : require('../../assets/images/login_bg_night.png');
   const greetingText =
-    today.getHours() > 6 && today.getHours() < 19 ? 'Morning' : 'Evening';
+    dateTime.getHours() > 6 && dateTime.getHours() < 19 ? 'Morning' : 'Evening';
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignIn = () => {
-    console.log('Sign in');
+  const handleSignIn = async () => {
+    try {
+      const res = await loginRequest({ username, password });
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleNavigateRegister = () => navigation.navigate('register');
+  const handleNavigateRegister = () => navigation.navigate('Register');
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -40,29 +47,46 @@ const LoginScreen = ({navigation}: ILoginScreen) => {
         </View>
       </View>
       <View style={styles.footer}>
-        <MyTextInput
+        <TextInput
+          mode='flat'
           value={username}
           onChangeText={setUsername}
-          placeholder="Username"
-          wrapperStyle={styles.text__wrapper}
-          textStyle={styles.text__input}
+          placeholder='Username'
+          style={styles.text__input}
+          textColor='#fff'
+          underlineColor='#e1e1e1'
+          activeUnderlineColor='#fff'
+          placeholderTextColor='#e1e1e1'
         />
-        <MyTextInput
+        <TextInput
+          mode='flat'
           value={password}
           onChangeText={setPassword}
-          placeholder="Password"
+          placeholder='Password'
           secureTextEntry={true}
-          wrapperStyle={styles.text__wrapper}
-          textStyle={styles.text__input}
+          style={styles.text__input}
+          textColor='#fff'
+          underlineColor='#e1e1e1'
+          activeUnderlineColor='#fff'
+          placeholderTextColor='#e1e1e1'
         />
-        <View style={styles.button__wrapper}>
-          <ButtonOutlined title="Sign in" onPress={handleSignIn} />
-          <ButtonOutlined title="Sign up" onPress={handleSignIn} />
-        </View>
+        <Button mode='outlined' onPress={handleSignIn} style={styles.button}>
+          <Text style={{ color: '#fff', fontSize: 18 }}>Sign in</Text>
+        </Button>
+      </View>
+      <View style={styles.end__wrapper}>
+        <Text style={{ color: '#fff' }}>Don't have an accout?</Text>
         <Pressable onPress={handleNavigateRegister}>
-          <Text style={styles.forget__pwd__text}>Forget Password</Text>
+          <Text style={styles.forget__pwd__text}> Sign up</Text>
         </Pressable>
       </View>
+      <IconButton
+        icon={'keyboard-backspace'}
+        iconColor='#fff'
+        style={{ position: 'absolute', top: 20, left: 20 }}
+        size={24}
+        onPress={() => navigation.goBack()}
+      />
     </View>
   );
 };
@@ -76,9 +100,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     position: 'relative',
-    paddingHorizontal: 40,
     paddingTop: 120,
-    paddingBottom: 60,
   },
   background__image: {
     position: 'absolute',
@@ -102,25 +124,36 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     gap: 20,
-    paddingHorizontal: 30,
+    paddingHorizontal: 40,
   },
-  button__wrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 30,
-    justifyContent: 'center',
-    marginTop: 40,
+  button: {
+    borderRadius: 6,
+    borderColor: '#e1e1e1',
+    width: '100%',
   },
   text__wrapper: {
     paddingBottom: 10,
   },
   text__input: {
-    fontSize: 24,
+    fontSize: 20,
+    fontFamily: 'Ubuntu',
+    width: '100%',
+    backgroundColor: 'transparent',
   },
   forget__pwd__text: {
-    marginTop: 8,
     textDecorationLine: 'underline',
     textDecorationStyle: 'solid',
     color: '#e1e1e1',
+  },
+  end__wrapper: {
+    alignSelf: 'flex-end',
+    width: '100%',
+    height: 80,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,.2)',
   },
 });
