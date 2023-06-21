@@ -1,4 +1,4 @@
-import MyTextInput from './MyTextInput';
-import ButtonOutlined from './ButtonOutlined';
+import BottomNav from './BottomNav';
+import ItemCard from './ItemCard';
 
-export {MyTextInput, ButtonOutlined};
+export { BottomNav, ItemCard };
