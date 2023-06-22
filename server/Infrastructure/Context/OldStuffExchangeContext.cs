@@ -12,12 +12,13 @@ namespace Infrastructure.Context
     public class OldStuffExchangeContext : DbContext
     {
         public OldStuffExchangeContext(DbContextOptions<OldStuffExchangeContext> options)
-        :base(options) { }
+        : base(options) { }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Item> Items { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Bill> Bills { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,6 +37,14 @@ namespace Infrastructure.Context
                 .HasMany(u => u.Bills)
                 .WithOne(b => b.User)
                 .HasForeignKey(b => b.UserId);
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Orders)
+                .WithOne(o => o.Buyer)
+                .HasForeignKey(u => u.BuyerId);
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Orders)
+                .WithOne(o => o.Seller)
+                .HasForeignKey(u => u.SellerId);
 
             modelBuilder.Entity<Item>()
                 .HasMany(i => i.Reviews)
@@ -53,7 +62,18 @@ namespace Infrastructure.Context
                 .WithOne(b => b.Bill)
                 .HasForeignKey<Bill>(b => b.ItemId);
 
-
+            modelBuilder.Entity<Order>()
+                .HasOne(e => e.Item)
+                .WithOne(i => i.Order)
+                .HasForeignKey<Order>(e => e.ItemId);
+            modelBuilder.Entity<Order>()
+                .HasOne(e => e.Seller)
+                .WithOne(u => u.Order)
+                .HasForeignKey<Order>(e => e.SellerId);
+            modelBuilder.Entity<Order>()
+                .HasOne(e => e.Buyer)
+                .WithOne(u => u.Order)
+                .HasForeignKey<Order>(e => e.BuyerId);
         }
     }
 }
