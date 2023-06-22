@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.DependencyResolvers
 {
-    public static class ServicesRegistration 
+    public static class ServicesRegistration
     {
         public static void AddAplication(this IServiceCollection services, IConfiguration configuration)
         {
@@ -37,6 +37,7 @@ namespace Application.DependencyResolvers
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IOrderService, OrderService>();
         }
     }
 }
