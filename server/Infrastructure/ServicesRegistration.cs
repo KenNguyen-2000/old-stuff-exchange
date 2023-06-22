@@ -11,11 +11,16 @@ namespace Infrastructure
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<OldStuffExchangeContext>(opt => opt.UseMySQL(configuration.GetConnectionString("OldStuffExchangeContext")));
+            services.AddDbContext<OldStuffExchangeContext>(opt =>
+            {
+                opt.UseMySQL(configuration.GetConnectionString("OldStuffExchangeContext"));
+                opt.EnableSensitiveDataLogging();
+            });
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IItemRepository, ItemRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
         }
 
     }
