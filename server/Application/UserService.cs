@@ -101,18 +101,15 @@ namespace Application
 
         public async Task<Response<string>> UpdatePointsAsync(Guid userId, double points)
         {
-            var userRes = await GetByIdAsync(userId);
-            if (!userRes.Succeeded)
-            {
-                return new Response<string>(userRes.Message);
-            }
+            User getUser = await _userRepository.GetByIdAsync(userId);
+            if (getUser == null)
+                return new Response<string>("User not found");
 
-            if (points + userRes.Data.Points < 0)
-            {
+            if (points + getUser.Points < 0)
                 return new Response<string>("User point not enough!");
-            }
 
-            var userNeedUpdate = _mapper.Map<User>(userRes.Data);
+
+            User userNeedUpdate = getUser;
             userNeedUpdate.Points += points;
             await _userRepository.UpdateAsync(userNeedUpdate);
             return new Response<string>("Update point success", success: true);
