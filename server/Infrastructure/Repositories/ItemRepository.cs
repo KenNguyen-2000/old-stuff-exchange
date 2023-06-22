@@ -23,7 +23,7 @@ namespace Infrastructure.Repositories
 
         public async Task<Item> AddAsync(Item newItem)
         {
-            await _context.AddAsync(newItem);
+            await _context.Items.AddAsync(newItem);
             await _context.SaveChangesAsync();
 
             return newItem;
@@ -58,7 +58,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<Item>> GetListAsync(Expression<Func<Item, bool>> predicate = null)
         {
-            return predicate == null ? await _context.Items.ToListAsync() : await _context.Items.Where(predicate).ToListAsync();
+            return predicate == null ? await _context.Items.Include(i => i.User).ToListAsync() : await _context.Items.Where(predicate).Include(i => i.User).ToListAsync();
         }
 
         public async Task<Item> UpdateAsync(Item item)
