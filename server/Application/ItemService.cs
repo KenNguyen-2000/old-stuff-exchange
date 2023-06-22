@@ -1,6 +1,7 @@
 ﻿using Application.Contracts;
 using Application.DTOs;
 using Application.DTOs.ItemDtos;
+using Application.DTOs.OrderDtos;
 using Application.DTOs.ReviewDtos;
 using Application.Interfaces;
 using AutoMapper;
@@ -21,33 +22,46 @@ namespace Application
     {
         private readonly IItemRepository _itemRepository;
         private readonly IUserService _userService;
+        private readonly IOrderService _orderService;
         private readonly IMapper _mapper;
 
-        public ItemService(IItemRepository itemRepository, IUserService userService, IMapper mapper)
+        public ItemService(IItemRepository itemRepository, IUserService userService, IOrderService orderService, IMapper mapper)
         {
             _itemRepository = itemRepository;
             _userService = userService;
+            _orderService = orderService;
             _mapper = mapper;
         }
 
         public async Task<Response<Item>> AddAsync(CreateItemDto item)
         {
-            var newItem = new Item()
+            try
             {
-                Name = item.Name,
-                Description = item.Description,
-                Price = item.Price,
-                Location = item.Location,
-                Status = item.Status,
-                UserId = item.UserId,
-            };
-            var itemCreated = await _itemRepository.AddAsync(newItem);
-            if (itemCreated == null)
-            {
-                return new Response<Item>("Create item failure!");
-            }
+                // var newItem = new Item()
+                // {
+                //     Name = item.Name,
+                //     Description = item.Description,
+                //     Price = item.Price,
+                //     Location = item.Location,
+                //     Status = item.Status,
+                //     UserId = item.UserId,
+                // };
+                var newItem = _mapper.Map<Item>(item);
+                var itemCreated = await _itemRepository.AddAsync(newItem);
+                if (itemCreated == null)
+                {
+                    return new Response<Item>("Create item failure!");
+                }
 
-            return new Response<Item>(itemCreated, "Create item success");
+                await _userService.UpdatePointsAsync(item.UserId, 2);
+
+                return new Response<Item>(itemCreated, "Create item success");
+            }
+            catch (System.Exception error)
+            {
+                Console.WriteLine(error);
+                return new Response<Item>("Something went wrong");
+            }
         }
 
         public async Task<Response<string>> ChangeItemStatusAsync(ChangeItemStatusDto changeItemStatusDto)
@@ -135,17 +149,36 @@ namespace Application
                 return new Response<Item>("Forbidden");
             }
 
-            var userRes = await _userService.UpdatePointsAsync(userId, getItem.Price);
-            if (userRes.Succeeded)
+            var sellerRes = await _userService.UpdatePointsAsync(getItem.UserId, getItem.Price / 2 * -1);
+
+            if (!sellerRes.Succeeded)
+                return new Response<Item>(sellerRes.Message);
+
+
+            var buyerRes = await _userService.GetByIdAsync(userId);
+
+            if (!buyerRes.Succeeded)
+                return new Response<Item>(buyerRes.Message);
+
+            if (buyerRes.Data.Points < getItem.Price)
+                return new Response<Item>("Points is not enough to make an action!");
+
+            await _userService.UpdatePointsAsync(buyerRes.Data.Id, getItem.Price / 2 * -1);
+            CreateOrderDtos newOrder = new()
             {
-                getItem.Status = ItemStatus.Inactive;
-                var itemUpdated = await _itemRepository.UpdateAsync(getItem);
+                ItemId = getItem.Id,
+                SellerId = getItem.UserId,
+                BuyerId = userId,
+            };
+            var orderRes = await _orderService.AddAsync(newOrder);
 
-                return new Response<Item>(itemUpdated, "Purchase item success");
-            }
+            if (!orderRes.Succeeded)
+                return new Response<Item>(orderRes.Message);
 
+            getItem.Status = ItemStatus.Inactive;
+            var itemUpdated = await _itemRepository.UpdateAsync(getItem);
 
-            return new Response<Item>(userRes.Message);
+            return new Response<Item>(itemUpdated, "Purchase item success");
         }
     }
 }
