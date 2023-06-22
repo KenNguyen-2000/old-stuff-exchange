@@ -98,19 +98,6 @@ namespace Application
             return new Response<UserUpdateDto>("User not found for update");
         }
 
-        private static string HashPassword(string password)
-        {
-            // Hash the password using the salt
-            // You would implement the appropriate hashing logic here
-            // Example: using BCrypt
-            // return BCrypt.Net.BCrypt.HashPassword(password, salt);
-
-            // For demonstration purposes, we're using a simple hash algorithm here
-            using var algorithm = SHA512.Create();
-            var passwordBytes = Encoding.UTF8.GetBytes(password);
-            var hashBytes = algorithm.ComputeHash(passwordBytes);
-            return Convert.ToBase64String(hashBytes);
-        }
 
         public async Task<Response<string>> UpdatePointsAsync(Guid userId, double points)
         {
@@ -126,9 +113,9 @@ namespace Application
             }
 
             var userNeedUpdate = _mapper.Map<User>(userRes.Data);
-            userNeedUpdate.Points = userNeedUpdate.Points + points;
+            userNeedUpdate.Points += points;
             await _userRepository.UpdateAsync(userNeedUpdate);
-            return new Response<string>("Updated success", success: true);
+            return new Response<string>("Update point success", success: true);
         }
 
 
