@@ -23,6 +23,8 @@ namespace Core.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         [Required]
+        [MinLength(6)]
+        [MaxLength(50)]
         public string Name { get; set; }
         [Required]
         public string Description { get; set; }
@@ -39,6 +41,7 @@ namespace Core.Models
         public DateTime Updated { get; set; } = DateTime.Now;
         public Guid UserId { get; set; }
         public User User { get; set; }
+        public Order Order { get; set; }
         public Bill Bill { get; set; }
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
