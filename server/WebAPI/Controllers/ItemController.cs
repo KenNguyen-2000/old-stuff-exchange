@@ -1,4 +1,5 @@
-﻿using Application.DTOs.ItemDtos;
+﻿using Application.DTOs;
+using Application.DTOs.ItemDtos;
 using Application.Interfaces;
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +41,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetItemById(Guid itemId)
         {
             var result = await _itemService.GetByIdAsync(itemId);
-            if(!result.Succeeded)
+            if (!result.Succeeded)
             {
                 return NotFound(result);
             }
@@ -49,11 +50,10 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> CreateItem(CreateItemDto item)
         {
-            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
-            if(identity != null)
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
                 var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
                 item.UserId = Guid.Parse(userId);
@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
 
                 return Created(nameof(CreateItem), result);
             }
-            return Unauthorized("Bearer token missing");
+            return Unauthorized(new Response<string>("Bearer token missing"));
         }
 
         [Authorize]
@@ -73,19 +73,19 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> DeleteItemById(Guid itemId)
         {
             var itemRes = await _itemService.GetByIdAsync(itemId);
-            if(itemRes.Data == null)
+            if (itemRes.Data == null)
             {
                 return NotFound(itemRes);
             }
             ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
-            if(identity != null)
+            if (identity != null)
             {
                 var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (itemRes.Data.User.Id.Equals(userId))
                 {
                     return Forbid(nameof(DeleteItemById), userId.ToString());
                 }
-                
+
                 var result = await _itemService.DeleteAsync(itemId);
                 if (!result.Succeeded)
                 {
@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> UpdateItem(UpdateItemDto item)
         {
             ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
-            if(identity != null)
+            if (identity != null)
             {
                 var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 item.UserId = userId;
@@ -130,7 +130,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> ChangeItemStatus(ChangeItemStatusDto changeItemStatusDto)
         {
             ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
-            if(identity != null)
+            if (identity != null)
             {
                 var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 var itemRes = await _itemService.GetByIdAsync(changeItemStatusDto.Id);
@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
             {
                 Guid userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 var result = await _itemService.PurchaseItemAsync(itemId, userId);
-                if(!result.Succeeded)
+                if (!result.Succeeded)
                 {
                     return BadRequest(result);
                 }
