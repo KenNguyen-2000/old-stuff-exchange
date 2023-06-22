@@ -2,8 +2,11 @@ import { StyleSheet, View, ImageBackground, Pressable } from 'react-native';
 import React, { useState, useLayoutEffect } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, TextInput, IconButton, Text } from 'react-native-paper';
-import Constants from 'expo-constants';
 import { loginRequest } from '../services/auth.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwtDecode from 'jwt-decode';
+import { useAppDispatch } from '../redux/reduxHook';
+import { fetchUserInfo } from '../redux/thunks/user.thunk';
 
 interface ILoginScreen
   extends NativeStackScreenProps<any, 'Login', 'mystack'> {}
@@ -17,13 +20,21 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
   const greetingText =
     dateTime.getHours() > 6 && dateTime.getHours() < 19 ? 'Morning' : 'Evening';
 
+  const dispatch = useAppDispatch();
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSignIn = async () => {
     try {
       const res = await loginRequest({ username, password });
-      console.log(res);
+      if (res.succeeded) {
+        console.log(res.data);
+        const decoded: any = jwtDecode(res.data);
+        dispatch(fetchUserInfo(decoded.Id));
+        await AsyncStorage.setItem('token', res.data);
+        navigation.navigate('Home');
+      }
     } catch (error) {
       console.log(error);
     }
