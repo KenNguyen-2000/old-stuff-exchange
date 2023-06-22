@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.DTOs.ItemDtos;
 using Application.DTOs.OrderDtos;
 using Application.DTOs.ReviewDtos;
+using Application.DTOs.UserDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Core.Models;
@@ -33,34 +34,34 @@ namespace Application
             _mapper = mapper;
         }
 
-        public async Task<Response<Item>> AddAsync(CreateItemDto item)
+        public async Task<Response<ItemDto>> AddAsync(CreateItemDto item)
         {
             try
             {
-                // var newItem = new Item()
-                // {
-                //     Name = item.Name,
-                //     Description = item.Description,
-                //     Price = item.Price,
-                //     Location = item.Location,
-                //     Status = item.Status,
-                //     UserId = item.UserId,
-                // };
-                var newItem = _mapper.Map<Item>(item);
+                var newItem = new Item()
+                {
+                    Name = item.Name,
+                    Description = item.Description,
+                    Price = item.Price,
+                    Location = item.Location,
+                    Status = item.Status,
+                    UserId = item.UserId,
+                };
                 var itemCreated = await _itemRepository.AddAsync(newItem);
                 if (itemCreated == null)
                 {
-                    return new Response<Item>("Create item failure!");
+                    return new Response<ItemDto>("Create item failure!");
                 }
 
-                await _userService.UpdatePointsAsync(item.UserId, 2);
+                var mappedItem = _mapper.Map<ItemDto>(itemCreated);
+                await _userService.UpdatePointsAsync(mappedItem.User.Id, 2);
 
-                return new Response<Item>(itemCreated, "Create item success");
+                return new Response<ItemDto>(mappedItem, "Create item success");
             }
             catch (System.Exception error)
             {
                 Console.WriteLine(error);
-                return new Response<Item>("Something went wrong");
+                return new Response<ItemDto>("Something went wrong");
             }
         }
 
@@ -167,8 +168,7 @@ namespace Application
             CreateOrderDtos newOrder = new()
             {
                 ItemId = getItem.Id,
-                SellerId = getItem.UserId,
-                BuyerId = userId,
+                UserId = userId,
             };
             var orderRes = await _orderService.AddAsync(newOrder);
 
