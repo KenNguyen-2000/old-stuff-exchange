@@ -54,6 +54,7 @@ var mapperConfig = new MapperConfiguration(mc =>
   mc.AddProfile(new UserProfile());
   mc.AddProfile(new ItemProfile());
   mc.AddProfile(new ReviewProfile());
+  mc.AddProfile(new OrderProfile());
 });
 
 var mapper = mapperConfig.CreateMapper();
