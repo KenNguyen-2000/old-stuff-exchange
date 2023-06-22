@@ -3,13 +3,14 @@ import React from 'react';
 import { useTheme, Avatar, Button } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-interface IProfileHeader {
-  navigation: any;
+interface IProfileHeader
+  extends NativeStackScreenProps<any, 'Profile', 'mystack'> {
+  userInfo: any;
 }
 
-const ProfileHeader = ({ navigation }: IProfileHeader) => {
+const ProfileHeader = ({ navigation, userInfo }: IProfileHeader) => {
   const theme = useTheme();
-
+  console.log(userInfo);
   return (
     <View
       style={[
@@ -18,26 +19,32 @@ const ProfileHeader = ({ navigation }: IProfileHeader) => {
       ]}
     >
       <Avatar.Icon size={42} icon='account' />
-      <View style={styles.button__wrapper}>
-        <Button
-          mode='outlined'
-          style={[styles.button, { borderWidth: 0 }]}
-          labelStyle={styles.button__text}
-          onPress={() => navigation.navigate('Login')}
-          buttonColor={theme.colors.primary}
-          textColor='#fff'
-        >
-          Sign In
-        </Button>
-        <Button
-          mode='outlined'
-          style={[styles.button, { borderColor: theme.colors.primary }]}
-          labelStyle={styles.button__text}
-          onPress={() => navigation.navigate('Register')}
-        >
-          Sign Up
-        </Button>
-      </View>
+      {userInfo === null ? (
+        <View style={styles.button__wrapper}>
+          <Button
+            mode='outlined'
+            style={[styles.button, { borderWidth: 0 }]}
+            labelStyle={styles.button__text}
+            onPress={() => navigation.navigate('Login')}
+            buttonColor={theme.colors.primary}
+            textColor='#fff'
+          >
+            Sign In
+          </Button>
+          <Button
+            mode='outlined'
+            style={[styles.button, { borderColor: theme.colors.primary }]}
+            labelStyle={styles.button__text}
+            onPress={() => navigation.navigate('Register')}
+          >
+            Sign Up
+          </Button>
+        </View>
+      ) : (
+        <View>
+          <Text style={{ fontSize: 20 }}>{userInfo.fullName}</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -51,7 +58,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 20,
+    // justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
   button__wrapper: {
