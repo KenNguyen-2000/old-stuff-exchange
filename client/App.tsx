@@ -20,6 +20,8 @@ import { useFonts } from 'expo-font';
 import { useCallback } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ItemDetailScreen, LoginScreen, RegisterScreen } from './src/screens';
+import { Provider as ReduxProvider } from 'react-redux';
+import { store } from './src/redux/store';
 
 const Stack = createNativeStackNavigator();
 
@@ -90,29 +92,31 @@ export default function App() {
   }
 
   return (
-    <PaperProvider theme={{ ...theme, ...fonts }}>
-      <SafeAreaView style={styles.container} onLayout={onLayoutRootView}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name='bottom'
-              component={BottomNav}
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen name='Register' component={RegisterScreen} />
-            <Stack.Screen name='Login' component={LoginScreen} />
-            <Stack.Screen name='ItemDetail' component={ItemDetailScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-        <StatusBar
-          animated={true}
-          barStyle={'dark-content'}
-          backgroundColor={backgroundStyle.backgroundColor}
-        />
-      </SafeAreaView>
-    </PaperProvider>
+    <ReduxProvider store={store}>
+      <PaperProvider theme={{ ...theme, ...fonts }}>
+        <SafeAreaView style={styles.container} onLayout={onLayoutRootView}>
+          <NavigationContainer>
+            <Stack.Navigator>
+              <Stack.Screen
+                name='bottom'
+                component={BottomNav}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen name='Register' component={RegisterScreen} />
+              <Stack.Screen name='Login' component={LoginScreen} />
+              <Stack.Screen name='ItemDetail' component={ItemDetailScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+          <StatusBar
+            animated={true}
+            barStyle={'dark-content'}
+            backgroundColor={backgroundStyle.backgroundColor}
+          />
+        </SafeAreaView>
+      </PaperProvider>
+    </ReduxProvider>
   );
 }
 
