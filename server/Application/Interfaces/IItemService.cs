@@ -12,7 +12,7 @@ namespace Application.Interfaces
 {
     public interface IItemService
     {
-        Task<Response<Item>> AddAsync(CreateItemDto item);
+        Task<Response<ItemDto>> AddAsync(CreateItemDto item);
         Task<Response<ItemDto>> GetListAsync();
         Task<Response<ItemDto>> GetByIdAsync(Guid id);
         Task<Response<Item>> UpdateAsync(UpdateItemDto item);
