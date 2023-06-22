@@ -17,7 +17,7 @@ const BottomNav = () => {
       barStyle={styles.bar__wrapper}
     >
       <Tab.Screen
-        name='home'
+        name='Home'
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
