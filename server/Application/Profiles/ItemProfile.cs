@@ -16,6 +16,8 @@ namespace Application.Profiles
             CreateMap<ItemDto, Item>();
             CreateMap<Item, ItemDto>();
 
+            CreateMap<Item, CreateItemDto>();
+
             CreateMap<ChangeItemStatusDto, Item>();
             CreateMap<Item, ChangeItemStatusDto>();
 
