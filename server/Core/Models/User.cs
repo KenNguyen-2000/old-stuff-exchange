@@ -43,5 +43,7 @@ namespace Core.Models
         public ICollection<Item> Items { get; set; } = new List<Item>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Bill> Bills { get; set; } = new List<Bill>();
+        public Order Order { get; set; }
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
