@@ -14,27 +14,25 @@ const options = [
 
 const ProfileSection = () => {
   return (
-    <>
-      <List.Section style={styles.section__wrapper}>
-        <List.Subheader style={{ paddingBottom: 0, marginLeft: -16 }}>
-          <Text variant='displayMedium' style={styles.section__title}>
-            My account
-          </Text>
-        </List.Subheader>
-        {options.map((option, index) => (
-          <List.Item
-            key={option}
-            title={<Text>{option}</Text>}
-            titleStyle={styles.option__item__title}
-            right={() => <List.Icon icon='chevron-right' />}
-            style={[
-              styles.option__item,
-              { zIndex: options.length - index, position: 'relative' },
-            ]}
-          />
-        ))}
-      </List.Section>
-    </>
+    <List.Section style={styles.section__wrapper}>
+      <List.Subheader style={{ paddingBottom: 0, marginLeft: -16 }}>
+        <Text variant='displayMedium' style={styles.section__title}>
+          My account
+        </Text>
+      </List.Subheader>
+      {options.map((option, index) => (
+        <List.Item
+          key={option}
+          title={<Text>{option}</Text>}
+          titleStyle={styles.option__item__title}
+          right={() => <List.Icon icon='chevron-right' />}
+          style={[
+            styles.option__item,
+            { zIndex: options.length - index, position: 'relative' },
+          ]}
+        />
+      ))}
+    </List.Section>
   );
 };
 
