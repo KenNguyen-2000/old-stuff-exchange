@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
+import MySafeArea from '../components/MySafeArea';
 
 const ChatScreen = () => {
   return (
-    <View>
+    <MySafeArea>
       <Text>ChatScreen</Text>
-    </View>
+    </MySafeArea>
   );
 };
 
