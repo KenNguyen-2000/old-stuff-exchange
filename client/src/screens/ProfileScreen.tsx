@@ -1,7 +1,7 @@
 import { StyleSheet, View, ScrollView } from 'react-native';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Text, List, MD3Colors, Button } from 'react-native-paper';
+import { Text, List, MD3Colors, Button, useTheme } from 'react-native-paper';
 import {
   ProfileHeader,
   ProfileSection,
@@ -10,12 +10,14 @@ import useUserInfo from '../hooks/useUserInfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { setUser } from '../redux/slices/userSlice';
+import { StatusBar } from 'react-native';
 
 interface IProfileScreen
   extends NativeStackScreenProps<any, 'Profile', 'mystack'> {}
 
 const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
   const userInfo = useAppSelector((state) => state.user.user);
+  const theme = useTheme();
 
   const dispatch = useAppDispatch();
 
@@ -30,7 +32,6 @@ const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
       headerShown: false,
     });
   }, [navigation]);
-  console.log('rerender');
 
   return (
     <View style={styles.wrapper}>
@@ -45,13 +46,15 @@ const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
             userInfo={userInfo}
           />
           <ProfileSection />
-          <Button
-            mode='contained'
-            style={{ marginHorizontal: 8, borderRadius: 4 }}
-            onPress={handleLogout.bind(null)}
-          >
-            Log out
-          </Button>
+          {userInfo !== null && (
+            <Button
+              mode='contained'
+              style={{ marginHorizontal: 8, borderRadius: 4 }}
+              onPress={handleLogout.bind(null)}
+            >
+              Log out
+            </Button>
+          )}
         </View>
       </ScrollView>
     </View>
