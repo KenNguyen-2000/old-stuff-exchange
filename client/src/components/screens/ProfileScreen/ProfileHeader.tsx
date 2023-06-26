@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { useTheme, Avatar, Button } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface IProfileHeader
   extends NativeStackScreenProps<any, 'Profile', 'mystack'> {
@@ -10,12 +11,16 @@ interface IProfileHeader
 
 const ProfileHeader = ({ navigation, userInfo }: IProfileHeader) => {
   const theme = useTheme();
-  console.log(userInfo);
+  const insets = useSafeAreaInsets();
+
   return (
     <View
       style={[
         styles.wrapper,
-        { backgroundColor: theme.colors.primaryContainer },
+        {
+          backgroundColor: theme.colors.primaryContainer,
+          paddingTop: insets.top + 20,
+        },
       ]}
     >
       <Avatar.Icon size={42} icon='account' />
@@ -61,6 +66,7 @@ const styles = StyleSheet.create({
     gap: 20,
     // justifyContent: 'space-between',
     paddingHorizontal: 10,
+    paddingBottom: 20,
   },
   button__wrapper: {
     display: 'flex',
