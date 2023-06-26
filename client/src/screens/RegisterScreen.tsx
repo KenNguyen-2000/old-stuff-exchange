@@ -96,16 +96,18 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
   return (
     <View style={styles.wrapper}>
       <ImageBackground source={bgPath} style={styles.background__image} />
-      <View>
-        <View style={styles.title__wrapper}>
-          <Text style={styles.title}>Good</Text>
-          <Text style={styles.title}> {greetingText}</Text>
-        </View>
-      </View>
       <ScrollView
         style={styles.scroll_wrapper}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps='handled'
       >
+        <View>
+          <View style={styles.title__wrapper}>
+            <Text style={styles.title}>Good</Text>
+            <Text style={styles.title}> {greetingText}</Text>
+          </View>
+        </View>
         <View style={styles.content}>
           <TextInput
             value={credentials.fullName}
