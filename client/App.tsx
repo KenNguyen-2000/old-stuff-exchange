@@ -19,9 +19,16 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { useCallback } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ItemDetailScreen, LoginScreen, RegisterScreen } from './src/screens';
+import {
+  ItemDetailScreen,
+  LoginScreen,
+  RegisterScreen,
+  WelcomeScreen,
+} from './src/screens';
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from './src/redux/store';
+import { View } from 'react-native';
+import CreateItemScreen from './src/screens/CreateItemScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -94,9 +101,10 @@ export default function App() {
   return (
     <ReduxProvider store={store}>
       <PaperProvider theme={{ ...theme, ...fonts }}>
-        <SafeAreaView style={styles.container} onLayout={onLayoutRootView}>
+        <View style={styles.container} onLayout={onLayoutRootView}>
           <NavigationContainer>
-            <Stack.Navigator>
+            <Stack.Navigator initialRouteName='bottom'>
+              <Stack.Screen name='Welcome' component={WelcomeScreen} />
               <Stack.Screen
                 name='bottom'
                 component={BottomNav}
@@ -107,14 +115,22 @@ export default function App() {
               <Stack.Screen name='Register' component={RegisterScreen} />
               <Stack.Screen name='Login' component={LoginScreen} />
               <Stack.Screen name='ItemDetail' component={ItemDetailScreen} />
+              <Stack.Screen
+                name='CreateItem'
+                component={CreateItemScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
           <StatusBar
             animated={true}
             barStyle={'dark-content'}
-            backgroundColor={backgroundStyle.backgroundColor}
+            backgroundColor={'transparent'}
+            translucent={true}
           />
-        </SafeAreaView>
+        </View>
       </PaperProvider>
     </ReduxProvider>
   );
