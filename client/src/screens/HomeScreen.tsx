@@ -1,6 +1,10 @@
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import React, { useState } from 'react';
-import { CategoryList, HomeHeader } from '../components/screens/HomeScreen';
+import {
+  StuffSections,
+  HomeHeader,
+  CategoryList,
+} from '../components/screens/HomeScreen';
 import { TextInput } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppDispatch } from '../redux/reduxHook';
@@ -34,7 +38,8 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
             onChangeText={onSearchChange}
           />
         </View>
-        <CategoryList navigation={navigation} route={route} />
+        <CategoryList />
+        <StuffSections navigation={navigation} route={route} />
         <View style={{ flexGrow: 1, height: 100 }}></View>
         <Text>HomeScreen</Text>
       </ScrollView>
@@ -51,7 +56,6 @@ const styles = StyleSheet.create({
   },
   search__box: {
     marginTop: -20,
-    marginBottom: 40,
     backgroundColor: 'white',
     marginHorizontal: 12,
     elevation: 5,
@@ -63,5 +67,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 10,
     borderRadius: 4,
+    zIndex: 10,
   },
 });

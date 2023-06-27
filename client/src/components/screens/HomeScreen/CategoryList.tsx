@@ -1,79 +1,53 @@
-import { StyleSheet, ScrollView, FlatList, SectionList } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, FlatList } from 'react-native';
 import React from 'react';
-import { View } from 'react-native';
 import data from './old_stuffs.json';
-import ItemCard from './ItemCard';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useAppSelector } from '../../../redux/reduxHook';
-import { Text } from 'react-native-paper';
+import CategoryCard from './CategoryCard';
 
 const categories = new Map();
-
 data.forEach((item) => {
   categories.set(item.category, item.category);
 });
 
-interface ICategoryList
-  extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
-
-const CategoryList = ({ navigation, route }: ICategoryList) => {
-  const oldStuffs = useAppSelector((state) => state.items.oldStuffs);
+const CategoryList = () => {
   return (
     <View style={styles.wrapper}>
-      {/* <FlatList
-        data={[...categories.values()]}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <View key={item} style={styles.category__section}>
-            <Text style={{ marginBottom: 12 }}>{item}</Text>
-            <ScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-            >
-              {oldStuffs
-                .filter((stuff) => stuff.category === item)
-                .map((stuff) => (
-                  <ItemCard
-                    key={stuff.id}
-                    item={stuff}
-                    navigation={navigation}
-                    route={route}
-                  />
-                ))}
-            </ScrollView>
-          </View>
-        )}
-      /> */}
-      {[...categories.values()]?.map((category) => {
-        const filteredList = oldStuffs.filter(
-          (item) => item.category === category
-        );
-        if (filteredList.length <= 0) return null;
-
-        return (
-          <View key={category} style={styles.category__section}>
-            <Text
-              variant='displayMedium'
-              style={{ marginBottom: 0, fontSize: 22, color: '#737373' }}
-            >
-              {category}
-            </Text>
-            <ScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-            >
-              {filteredList.map((item: any) => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  navigation={navigation}
-                  route={route}
-                />
-              ))}
-            </ScrollView>
-          </View>
-        );
-      })}
+      <View style={styles.container}>
+        <ScrollView
+          horizontal={true}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          style={styles.scroll__container}
+        >
+          <FlatList
+            scrollEnabled={false}
+            contentContainerStyle={{
+              alignSelf: 'flex-start',
+              justifyContent: 'space-evenly',
+            }}
+            numColumns={Math.ceil([...categories.values()].length / 2)}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            data={[...categories.values()]}
+            renderItem={({ item, index }) => {
+              return <CategoryCard key={item} category={item} />;
+            }}
+            ItemSeparatorComponent={() => <View style={{ height: 8 }}></View>}
+          />
+          {/* {[...categories.values()]
+            .slice(0, [...categories.values()].length / 2)
+            .map((category, index) => (
+              <CategoryCard key={category} category={category} />
+            ))}
+          {[...categories.values()]
+            .slice(
+              [...categories.values()].length / 2,
+              [...categories.values()].length - 1
+            )
+            .map((category, index) => (
+              <CategoryCard key={category} category={category} />
+            ))} */}
+        </ScrollView>
+      </View>
     </View>
   );
 };
@@ -82,9 +56,17 @@ export default CategoryList;
 
 const styles = StyleSheet.create({
   wrapper: {
-    paddingLeft: 12,
+    width: '100%',
+    minHeight: 100,
+    backgroundColor: '#eaeaea',
+    marginTop: -28,
+    paddingBottom: 10,
   },
-  category__section: {
-    marginBottom: 24,
+  container: {
+    marginTop: 48,
+    paddingHorizontal: 12,
+  },
+  scroll__container: {
+    width: '100%',
   },
 });
