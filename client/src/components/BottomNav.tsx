@@ -15,6 +15,9 @@ const BottomNav = () => {
       initialRouteName='login'
       activeColor={theme.colors.primary}
       barStyle={styles.bar__wrapper}
+      shifting={true}
+
+      // compact={false}
     >
       <Tab.Screen
         name='Home'
@@ -86,7 +89,10 @@ const styles = StyleSheet.create({
   bar__wrapper: {
     display: 'flex',
     justifyContent: 'center',
-    maxHeight: 60,
+    paddingVertical: 5,
+    height: 70,
     backgroundColor: '#fff',
+    overflow: 'hidden',
   },
+  tab__bar: {},
 });
