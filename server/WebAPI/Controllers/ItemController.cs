@@ -77,8 +77,7 @@ namespace WebAPI.Controllers
             {
                 return NotFound(itemRes);
             }
-            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
-            if (identity != null)
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
                 var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (itemRes.Data.User.Id.Equals(userId))
@@ -101,8 +100,7 @@ namespace WebAPI.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateItem(UpdateItemDto item)
         {
-            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
-            if (identity != null)
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
                 var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 item.UserId = userId;
@@ -152,23 +150,5 @@ namespace WebAPI.Controllers
             return Unauthorized();
         }
 
-        [Authorize]
-        [HttpPost("purchase/{itemId:Guid}")]
-        public async Task<IActionResult> PurchaseItem(Guid itemId)
-        {
-            if (HttpContext.User.Identity is ClaimsIdentity identity)
-            {
-                Guid userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                var result = await _itemService.PurchaseItemAsync(itemId, userId);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-
-                return Ok(result);
-            }
-
-            return Unauthorized();
-        }
     }
 }

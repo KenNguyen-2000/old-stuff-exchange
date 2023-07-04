@@ -2,7 +2,9 @@ using Application.DTOs;
 using Application.DTOs.OrderDtos;
 using Application.Interfaces;
 using Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WebAPI.Controllers
 {
@@ -17,17 +19,26 @@ namespace WebAPI.Controllers
             _orderService = orderService;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateAnOrder(CreateOrderDtos createOrderDtos)
         {
-            var orderRes = await _orderService.AddAsync(createOrderDtos);
+            if(HttpContext.User.Identity is ClaimsIdentity identity)
+            {
+                Guid userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                createOrderDtos.UserId = userId;
 
-            if (!orderRes.Succeeded)
-                return BadRequest(orderRes);
+                var orderRes = await _orderService.AddAsync(createOrderDtos);
 
-            return Ok(orderRes);
+                return Ok(orderRes);
+            }
+            else
+            {
+                return Unauthorized("Token invalid");
+            }
         }
 
+        [Authorize]
         [HttpPatch("status/{orderId:Guid}")]
         public async Task<IActionResult> ChangeOrderStatus(Guid orderId, [FromBody] string status)
         {
