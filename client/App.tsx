@@ -29,6 +29,8 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { store } from './src/redux/store';
 import { View } from 'react-native';
 import CreateItemScreen from './src/screens/CreateItemScreen';
+import ItemListScreen from './src/screens/ItemListScreen';
+import OrderDetailScreen from './src/screens/OrderDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -115,6 +117,8 @@ export default function App() {
               <Stack.Screen name='Register' component={RegisterScreen} />
               <Stack.Screen name='Login' component={LoginScreen} />
               <Stack.Screen name='ItemDetail' component={ItemDetailScreen} />
+              <Stack.Screen name='ItemList' component={ItemListScreen} />
+              <Stack.Screen name='OrderDetail' component={OrderDetailScreen} />
               <Stack.Screen
                 name='CreateItem'
                 component={CreateItemScreen}
