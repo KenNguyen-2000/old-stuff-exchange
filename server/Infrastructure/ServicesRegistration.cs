@@ -17,6 +17,7 @@ namespace Infrastructure
                 opt.EnableSensitiveDataLogging();
             });
 
+
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IItemRepository, ItemRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
