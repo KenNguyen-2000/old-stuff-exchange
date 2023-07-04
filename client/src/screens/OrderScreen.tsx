@@ -6,8 +6,12 @@ import MySafeArea from '../components/MySafeArea';
 import { OrderList } from '../components/screens/OrderScreen';
 import { Button, Portal, Text } from 'react-native-paper';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const OrderScreen = () => {
+interface IOrderScreen
+  extends NativeStackScreenProps<any, 'Order', 'my-stack'> {}
+
+const OrderScreen: React.FC<IOrderScreen> = ({ navigation, route }) => {
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -27,7 +31,11 @@ const OrderScreen = () => {
       <Text style={styles.title__h1}>Activity</Text>
       <Text style={styles.title__h2}>Recent</Text>
 
-      <OrderList showBottomSheet={showBottomSheet} />
+      <OrderList
+        showBottomSheet={showBottomSheet}
+        navigation={navigation}
+        route={route}
+      />
       <Portal>
         <BottomSheet
           ref={bottomSheetRef}
