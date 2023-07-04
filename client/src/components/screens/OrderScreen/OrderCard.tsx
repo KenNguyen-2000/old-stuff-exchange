@@ -1,14 +1,23 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import React from 'react';
 import { Button, Text } from 'react-native-paper';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const OrderCard = ({ showBottomSheet }: any) => {
+interface IOrderCard extends NativeStackScreenProps<any, 'Order', 'my-stack'> {
+  showBottomSheet: any;
+}
+
+const OrderCard: React.FC<IOrderCard> = ({ showBottomSheet, navigation }) => {
   const handleRateOrder = () => {
     showBottomSheet();
   };
 
+  const handleGoDetail = () => {
+    navigation.navigate('OrderDetail');
+  };
+
   return (
-    <View style={styles.wrapper}>
+    <Pressable onPress={handleGoDetail} style={styles.wrapper}>
       <View style={styles.right__image}></View>
       <View style={styles.content__wrapper}>
         <View style={styles.title__wrapper}>
@@ -25,7 +34,7 @@ const OrderCard = ({ showBottomSheet }: any) => {
           <Text style={styles.price__bonus}>+2 points</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 };
 
