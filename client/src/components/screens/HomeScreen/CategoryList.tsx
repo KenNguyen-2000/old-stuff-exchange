@@ -1,14 +1,31 @@
-import { StyleSheet, Text, View, ScrollView, FlatList } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  FlatList,
+  Pressable,
+} from 'react-native';
 import React from 'react';
 import data from './old_stuffs.json';
 import CategoryCard from './CategoryCard';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const categories = new Map();
 data.forEach((item) => {
   categories.set(item.category, item.category);
 });
 
-const CategoryList = () => {
+interface ICategoryList
+  extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
+
+const CategoryList = ({ navigation }: ICategoryList) => {
+  const handleNavigateItemList = (item: any) => {
+    navigation.navigate('ItemList', {
+      item: item,
+    });
+  };
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
@@ -29,7 +46,11 @@ const CategoryList = () => {
             showsHorizontalScrollIndicator={false}
             data={[...categories.values()]}
             renderItem={({ item, index }) => {
-              return <CategoryCard key={item} category={item} />;
+              return (
+                <Pressable onPress={handleNavigateItemList.bind(null, item)}>
+                  <CategoryCard key={item} category={item} />
+                </Pressable>
+              );
             }}
             ItemSeparatorComponent={() => <View style={{ height: 8 }}></View>}
           />
