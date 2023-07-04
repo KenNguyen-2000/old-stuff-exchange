@@ -38,7 +38,7 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
             onChangeText={onSearchChange}
           />
         </View>
-        <CategoryList />
+        <CategoryList navigation={navigation} route={route} />
         <StuffSections navigation={navigation} route={route} />
         <View style={{ flexGrow: 1, height: 100 }}></View>
         <Text>HomeScreen</Text>
