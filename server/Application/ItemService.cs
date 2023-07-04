@@ -2,20 +2,10 @@
 using Application.DTOs;
 using Application.DTOs.ItemDtos;
 using Application.DTOs.OrderDtos;
-using Application.DTOs.ReviewDtos;
-using Application.DTOs.UserDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Core.Models;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application
 {
@@ -23,14 +13,12 @@ namespace Application
     {
         private readonly IItemRepository _itemRepository;
         private readonly IUserService _userService;
-        private readonly IOrderService _orderService;
         private readonly IMapper _mapper;
 
-        public ItemService(IItemRepository itemRepository, IUserService userService, IOrderService orderService, IMapper mapper)
+        public ItemService(IItemRepository itemRepository, IUserService userService, IMapper mapper)
         {
             _itemRepository = itemRepository;
             _userService = userService;
-            _orderService = orderService;
             _mapper = mapper;
         }
 
@@ -43,8 +31,8 @@ namespace Application
                     Name = item.Name,
                     Description = item.Description,
                     Price = item.Price,
-                    Location = item.Location,
                     Status = item.Status,
+                    Location = item.Location,
                     UserId = item.UserId,
                 };
                 var itemCreated = await _itemRepository.AddAsync(newItem);
@@ -82,8 +70,11 @@ namespace Application
 
         public async Task<Response<string>> DeleteAsync(Guid id)
         {
-            var isDelete = await _itemRepository.DeleteAsync(id);
-            if (isDelete)
+            Item item = await _itemRepository.GetByIdAsync(id);
+            item.Status = ItemStatus.Deleted;
+
+            var isDelete = await _itemRepository.UpdateAsync(item);
+            if (isDelete != null)
             {
                 return new Response<string>($"Delete itemId {id} successfully", success: true);
             }
@@ -137,48 +128,5 @@ namespace Application
             return new Response<Item>("Item not found!");
         }
 
-        public async Task<Response<Item>> PurchaseItemAsync(Guid itemId, Guid userId)
-        {
-            var getItem = await _itemRepository.GetByIdAsync(itemId);
-            if (getItem == null)
-            {
-                return new Response<Item>("Item with id not found");
-            }
-
-            if (await _userService.IsOwner(userId, getItem))
-            {
-                return new Response<Item>("Forbidden");
-            }
-
-            var sellerRes = await _userService.UpdatePointsAsync(getItem.UserId, getItem.Price / 2 * -1);
-
-            if (!sellerRes.Succeeded)
-                return new Response<Item>(sellerRes.Message);
-
-
-            var buyerRes = await _userService.GetByIdAsync(userId);
-
-            if (!buyerRes.Succeeded)
-                return new Response<Item>(buyerRes.Message);
-
-            if (buyerRes.Data.Points < getItem.Price)
-                return new Response<Item>("Points is not enough to make an action!");
-
-            await _userService.UpdatePointsAsync(buyerRes.Data.Id, getItem.Price / 2 * -1);
-            CreateOrderDtos newOrder = new()
-            {
-                ItemId = getItem.Id,
-                UserId = userId,
-            };
-            var orderRes = await _orderService.AddAsync(newOrder);
-
-            if (!orderRes.Succeeded)
-                return new Response<Item>(orderRes.Message);
-
-            getItem.Status = ItemStatus.Inactive;
-            var itemUpdated = await _itemRepository.UpdateAsync(getItem);
-
-            return new Response<Item>(itemUpdated, "Purchase item success");
-        }
     }
 }

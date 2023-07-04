@@ -16,7 +16,7 @@ namespace Application.DependencyResolvers
 {
     public static class ServicesRegistration
     {
-        public static void AddAplication(this IServiceCollection services, IConfiguration configuration)
+        public static void AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
@@ -35,9 +35,9 @@ namespace Application.DependencyResolvers
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IReviewService, ReviewService>();
-            services.AddScoped<IOrderService, OrderService>();
         }
     }
 }

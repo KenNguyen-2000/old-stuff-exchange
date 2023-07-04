@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Application.DTOs.ItemDtos
@@ -20,10 +21,15 @@ namespace Application.DTOs.ItemDtos
         [Required]
         public string Location { get; set; }
         [Required]
-        public ItemStatus Status { get; set; }
+        [JsonIgnore]
+        public ItemStatus Status { get; set; } = ItemStatus.Default;
         public string[] Images { get; set; } = Array.Empty<string>();
+        [JsonIgnore]
         public DateTime Created { get; set; } = DateTime.Now;
+        [JsonIgnore]
         public DateTime Updated { get; set; } = DateTime.Now;
+        [Required]
+        [JsonIgnore]
         public Guid UserId { get; set; }
     }
 }
