@@ -23,5 +23,6 @@ namespace Core.Models
         public Guid UserId { get; set; }
         public User User { get; set; }
         public OrderStatus Status { get; set; } = OrderStatus.In_Progress;
+
     }
 }

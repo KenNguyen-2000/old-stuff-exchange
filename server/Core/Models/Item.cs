@@ -12,7 +12,8 @@ namespace Core.Models
     {
         Default,
         Active,
-        Inactive
+        Inactive,
+        Deleted
     }
 
     [Table("items")]
