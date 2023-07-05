@@ -47,10 +47,106 @@ namespace Infrastructure.Migrations
                     b.ToTable("bills");
                 });
 
+            modelBuilder.Entity("Core.Models.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ImageUri")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("da828676-b50b-45f5-8c43-cd22ee09755f"),
+                            ImageUri = "../Assets/home&living.png",
+                            Name = "Home & Living"
+                        },
+                        new
+                        {
+                            Id = new Guid("f70cc52e-5b18-473a-a1a4-1fa4f91d9280"),
+                            ImageUri = "../Assets/cloths&accessories.png",
+                            Name = "Clothing & Accessories"
+                        },
+                        new
+                        {
+                            Id = new Guid("ad69afbf-e2a7-4f13-8c16-47d8aec3216d"),
+                            ImageUri = "../Assets/mobiles&gadgets.png",
+                            Name = "Mobile & Gadgets"
+                        },
+                        new
+                        {
+                            Id = new Guid("342a5af4-7a6c-4936-8361-760ced1ae41a"),
+                            ImageUri = "../Assets/electronics.png",
+                            Name = "Consumer Electronics"
+                        },
+                        new
+                        {
+                            Id = new Guid("a0393d7e-8f41-4cec-9a22-d806c83b7a17"),
+                            ImageUri = "../Assets/cars.png",
+                            Name = "Cars & Vehicles"
+                        },
+                        new
+                        {
+                            Id = new Guid("930a8a8d-10ef-4b43-abeb-ca652e34aac1"),
+                            ImageUri = "../Assets/books.png",
+                            Name = "Books, Comics & Magazines"
+                        },
+                        new
+                        {
+                            Id = new Guid("9fe609f1-a751-437b-accf-ac291ff6ac8a"),
+                            ImageUri = "../Assets/arts.png",
+                            Name = "Art"
+                        },
+                        new
+                        {
+                            Id = new Guid("0460c498-a417-4966-b0a9-1f3250fc0da3"),
+                            ImageUri = "../Assets/instruments.png",
+                            Name = "Musical Instruments"
+                        },
+                        new
+                        {
+                            Id = new Guid("da80979c-e594-4ef3-b655-e387b8f58899"),
+                            ImageUri = "../Assets/toys.png",
+                            Name = "Toys & Games"
+                        },
+                        new
+                        {
+                            Id = new Guid("0d46f542-dfb5-465c-978f-20cbceb107f6"),
+                            ImageUri = "../Assets/watches.png",
+                            Name = "Jewellery & Watches"
+                        },
+                        new
+                        {
+                            Id = new Guid("7be338c1-f4fb-488a-915e-b591941b0685"),
+                            ImageUri = "../Assets/antiques.png",
+                            Name = "Antiques"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e4efcc6-bb0e-412b-92cf-dbe113436cd3"),
+                            ImageUri = "../Assets/others.png",
+                            Name = "Others"
+                        });
+                });
+
             modelBuilder.Entity("Core.Models.Item", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("Created")
@@ -76,6 +172,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Updated")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)");
 
                     b.Property<Guid>("UserId")
@@ -83,9 +180,31 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("items");
+                });
+
+            modelBuilder.Entity("Core.Models.ItemImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ImageUri")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("item_images");
                 });
 
             modelBuilder.Entity("Core.Models.Order", b =>
@@ -94,11 +213,18 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid>("ItemId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("Updated")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime(6)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
@@ -133,6 +259,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Updated")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime(6)");
 
                     b.Property<Guid>("UserId")
@@ -219,13 +346,32 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Models.Item", b =>
                 {
+                    b.HasOne("Core.Models.Category", "Category")
+                        .WithMany("Items")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Core.Models.User", "User")
                         .WithMany("Items")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Category");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Models.ItemImage", b =>
+                {
+                    b.HasOne("Core.Models.Item", "Item")
+                        .WithMany("Images")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("Core.Models.Order", b =>
@@ -266,9 +412,16 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Core.Models.Category", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("Core.Models.Item", b =>
                 {
                     b.Navigation("Bill");
+
+                    b.Navigation("Images");
 
                     b.Navigation("Order");
 

@@ -22,6 +22,8 @@ namespace Infrastructure.Context
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Bill> Bills { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<ItemImage> ItemImages { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,6 +60,14 @@ namespace Infrastructure.Context
                 .HasOne(i => i.User)
                 .WithMany(u => u.Items)
                 .HasForeignKey(i => i.UserId);
+            modelBuilder.Entity<Item>()
+                .HasMany(item => item.Images)
+                .WithOne(image => image.Item)
+                .HasForeignKey(image => image.ItemId);
+            modelBuilder.Entity<Item>()
+                .HasOne(item => item.Category)
+                .WithMany(c => c.Items)
+                .HasForeignKey(item => item.CategoryId);
 
 
             modelBuilder.Entity<Bill>()
@@ -69,6 +79,22 @@ namespace Infrastructure.Context
                 .HasOne(o => o.Item)
                 .WithOne(i => i.Order)
                 .HasForeignKey<Order>(o => o.ItemId);
+
+            modelBuilder.Entity<Category>()
+                .HasData(
+                    new Category { Id = Guid.NewGuid(), Name = "Home & Living", ImageUri = "../Assets/home&living.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Clothing & Accessories", ImageUri = "../Assets/cloths&accessories.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Mobile & Gadgets", ImageUri = "../Assets/mobiles&gadgets.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Consumer Electronics", ImageUri = "../Assets/electronics.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Cars & Vehicles", ImageUri = "../Assets/cars.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Books, Comics & Magazines", ImageUri = "../Assets/books.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Art", ImageUri = "../Assets/arts.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Musical Instruments", ImageUri = "../Assets/instruments.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Toys & Games", ImageUri = "../Assets/toys.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Jewellery & Watches", ImageUri = "../Assets/watches.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Antiques", ImageUri = "../Assets/antiques.png" },
+                    new Category { Id = Guid.NewGuid(), Name = "Others", ImageUri = "../Assets/others.png" }
+                );
         }
     }
 }
