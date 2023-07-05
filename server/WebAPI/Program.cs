@@ -4,8 +4,10 @@ using AutoMapper;
 using Infrastructure;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using System.Configuration;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -83,8 +85,17 @@ using (var scope = app.Services.CreateScope())
   // DbInitializer.Initialize(context);
 }
 
+
+
 app.UseCors();
 app.UseHttpsRedirection();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+  FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "../Infrastructure/Assets")),
+  RequestPath = "/assets"
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
