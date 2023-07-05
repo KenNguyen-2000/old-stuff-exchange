@@ -94,7 +94,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
   FileProvider = new PhysicalFileProvider(
            Path.Combine(builder.Environment.ContentRootPath, "../Infrastructure/Assets")),
-  RequestPath = "/assets"
+  RequestPath = "/api/v1/assets"
 });
 
 app.UseAuthentication();
