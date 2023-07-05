@@ -10,6 +10,7 @@ import {
 } from 'react-native-paper';
 import { FlatList } from 'react-native-gesture-handler';
 import { useAppSelector } from '../redux/reduxHook';
+import { Pressable } from 'react-native';
 
 interface IItemDetailScreen
   extends NativeStackScreenProps<any, 'ItemDetail', 'mystack'> {}
@@ -29,31 +30,34 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
 
   return (
     <ScrollView style={styles.wrapper}>
-      <ImageBackground
-        source={{
-          uri: item.imageUrl,
-        }}
-        style={styles.header__wrapper}
-      >
-        <IconButton
-          icon={'keyboard-backspace'}
-          mode='outlined'
-          style={styles.back__icon}
-          containerColor={MD3Colors.error60}
-          iconColor={MD3Colors.error100}
-          size={24}
-          onPress={() => navigation.goBack()}
-        />
-        <IconButton
-          icon={'shopping'}
-          mode='contained'
-          iconColor='#fff'
-          containerColor={MD3Colors.primary40}
-          size={28}
-          style={styles.shopping__icon}
-          onPress={handleMakeExchange}
-        />
-      </ImageBackground>
+      <Pressable style={styles.header__wrapper}>
+        <ImageBackground
+          source={{
+            uri: item.images[0].imageUri || item.imageUrl,
+          }}
+          resizeMode='cover'
+          style={styles.header__wrapper}
+        >
+          <IconButton
+            icon={'keyboard-backspace'}
+            mode='outlined'
+            style={styles.back__icon}
+            containerColor={MD3Colors.error60}
+            iconColor={MD3Colors.error100}
+            size={24}
+            onPress={() => navigation.pop()}
+          />
+          <IconButton
+            icon={'shopping'}
+            mode='contained'
+            iconColor='#fff'
+            containerColor={MD3Colors.primary40}
+            size={28}
+            style={styles.shopping__icon}
+            onPress={handleMakeExchange}
+          />
+        </ImageBackground>
+      </Pressable>
       <View style={styles.body__wrapper}>
         <Text style={styles.item__title} variant='headlineMedium'>
           {item.name}
@@ -74,11 +78,10 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
         <View>
           <Text variant='headlineSmall'>Others</Text>
           <FlatList
-            data={oldStuffs}
+            data={oldStuffs.filter((stuff) => stuff.id !== item.id)}
             horizontal={true}
             renderItem={({ item }) => (
-              <ImageBackground
-                source={{ uri: item.imageUrl }}
+              <Pressable
                 style={{
                   aspectRatio: 3 / 4,
                   width: 160,
@@ -86,8 +89,20 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
                   borderColor: '#eaeaea',
                   borderRadius: 16,
                 }}
-                resizeMode='cover'
-              ></ImageBackground>
+                onPress={() => navigation.push('ItemDetail', { item: item })}
+              >
+                <ImageBackground
+                  source={{ uri: item.images[0].imageUri || item.imageUrl }}
+                  style={{
+                    aspectRatio: 3 / 4,
+                    width: 160,
+                    borderWidth: 1.5,
+                    borderColor: '#eaeaea',
+                    borderRadius: 16,
+                  }}
+                  resizeMode='cover'
+                ></ImageBackground>
+              </Pressable>
             )}
             ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
           />

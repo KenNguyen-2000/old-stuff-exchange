@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState, useEffect } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { IconButton, Searchbar, TextInput, useTheme } from 'react-native-paper';
 import MySafeArea from '../components/MySafeArea';
 import { SearchHeader } from '../components';
 import { FlatList } from 'react-native-gesture-handler';
-import { useAppSelector } from '../redux/reduxHook';
+import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { ItemListCard } from '../components/screens/ItemListScreen';
+import { fetchItemList } from '../redux/thunks/itemList.thunk';
 
 interface IHomeScreen
   extends NativeStackScreenProps<any, 'ItemList', 'mystack'> {}
@@ -21,12 +22,21 @@ const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
   });
 
   const oldStuffs = useAppSelector((state) => state.items.oldStuffs);
+  const dispatch = useAppDispatch();
 
   const onSearchChange = (query: string) => {
     setSearchQuery(query);
   };
 
   console.log('ItemScreen', searchQuery);
+
+  useEffect(() => {
+    const fetchItems = () => {
+      dispatch(fetchItemList());
+    };
+
+    fetchItems();
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({

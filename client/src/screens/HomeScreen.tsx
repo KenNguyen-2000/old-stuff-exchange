@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StuffSections,
   HomeHeader,
@@ -9,17 +9,31 @@ import { TextInput } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppDispatch } from '../redux/reduxHook';
 import { filterOldStuffs } from '../redux/slices/itemListSlice';
+import { getListItemCategory } from '../services/item.service';
 
 interface IHomeScreen extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
 
 const HomeScreen = ({ navigation, route }: IHomeScreen) => {
   const dispatch = useAppDispatch();
 
-  const [searchString, setSearchString] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const onSearchChange = (text: string) => {
     dispatch(filterOldStuffs(text));
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getListItemCategory();
+        console.log(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <View style={styles.wrapper}>

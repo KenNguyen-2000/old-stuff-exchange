@@ -5,6 +5,7 @@ import {
   View,
   Image,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import React, { useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -12,12 +13,23 @@ import MySafeArea from '../components/MySafeArea';
 import { Text, Button, IconButton } from 'react-native-paper';
 import MyTextInput from '../components/MyTextInput';
 import * as ImagePicker from 'expo-image-picker';
+import { createNewItem } from '../services/item.service';
+import { ICreateItem } from '../interfaces/dtos';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface ICreateItemScreen
   extends NativeStackScreenProps<any, 'CreateItem', 'mystack'> {}
 
 const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState<string[]>([]);
+  const [newItem, setNewItem] = useState<ICreateItem>({
+    name: '',
+    description: '',
+    price: 0,
+    location: '',
+    images: [],
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -32,12 +44,36 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
     console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const uriList = result.assets.map((img) => img.uri);
+      setImages(uriList);
+      handleChangeForm(
+        'images',
+        result.assets.map((img) => img.uri)
+      );
     }
   };
 
+  const handleChangeForm = (key: any, value: any) => {
+    setNewItem((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const handleCreate = async () => {
-    console.log('Create');
+    console.log(newItem);
+    setIsLoading(true);
+    try {
+      setTimeout(async () => {
+        const data = await createNewItem(newItem);
+        if (data.succeeded) {
+          navigation.goBack();
+        }
+        setIsLoading(false);
+      }, 2000);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -54,10 +90,10 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
             </Text>
           </View>
 
-          <View style={styles.upload__image__wrapper}>
-            {image !== '' && (
+          <Pressable style={styles.upload__image__wrapper} onPress={pickImage}>
+            {images.length > 0 ? (
               <Image
-                source={{ uri: image }}
+                source={{ uri: images[0] }}
                 style={{
                   // width: '100%',
                   height: '100%',
@@ -65,18 +101,44 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
                   resizeMode: 'contain',
                 }}
               />
+            ) : (
+              <MaterialCommunityIcons
+                name='image-plus'
+                color={'gray'}
+                size={120}
+              />
             )}
-          </View>
-          <Button onPress={pickImage}>Pick an image from camera roll</Button>
-          <MyTextInput title='Name' />
+          </Pressable>
+          <MyTextInput
+            title='Name'
+            onChangeText={(text) => handleChangeForm('name', text)}
+          />
           <MyTextInput
             title='Description'
             multiline
             style={{ height: 100, backgroundColor: 'rgba(231,224,236,1)' }}
+            onChangeText={(text) => handleChangeForm('description', text)}
           />
-          <MyTextInput title='Price' />
+          <MyTextInput
+            title='Price'
+            inputMode='numeric'
+            onChangeText={(text) => handleChangeForm('price', text)}
+          />
+          <MyTextInput
+            title='Location'
+            style={{ backgroundColor: 'rgba(231,224,236,1)' }}
+            onChangeText={(text) => handleChangeForm('location', text)}
+          />
         </View>
-        <Button onPress={handleCreate}>Create Item</Button>
+        <Button
+          mode='contained'
+          style={{ marginHorizontal: 12, marginTop: 12, paddingVertical: 4 }}
+          onPress={handleCreate}
+          loading={isLoading}
+        >
+          {isLoading ? '' : 'Create Item'}
+        </Button>
+        <View style={{ height: 20 }} />
       </ScrollView>
     </MySafeArea>
   );
@@ -95,7 +157,7 @@ const styles = StyleSheet.create({
   upload__image__wrapper: {
     width: '100%',
     height: 220,
-    backgroundColor: '#333',
+    backgroundColor: '#eaeaea',
     borderRadius: 12,
     marginBottom: 12,
     display: 'flex',
