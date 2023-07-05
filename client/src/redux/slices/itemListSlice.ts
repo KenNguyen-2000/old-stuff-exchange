@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchUserInfo } from '../thunks/user.thunk';
 import data from '../../components/screens/HomeScreen/old_stuffs.json';
+import { fetchItemList } from '../thunks/itemList.thunk';
 
 export interface ItemListSlice {
   isLoading: boolean;
@@ -27,7 +28,20 @@ const itemListSlice = createSlice({
       );
     },
   },
-  extraReducers(builder) {},
+  extraReducers(builder) {
+    builder
+      .addCase(fetchItemList.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchItemList.fulfilled, (state, action) => {
+        state.isLoading = false;
+        console.log(action.payload);
+        state.oldStuffs = action.payload.datas;
+      })
+      .addCase(fetchItemList.rejected, (state) => {
+        state.isLoading = false;
+      });
+  },
 });
 
 export const { setOldStuffs, filterOldStuffs } = itemListSlice.actions;
