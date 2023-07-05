@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Application.DTOs.ItemDtos
 {
@@ -19,9 +20,12 @@ namespace Application.DTOs.ItemDtos
         public double Price { get; set; }
         public string Location { get; set; }
         public ItemStatus Status { get; set; }
+        public Guid CategoryId { get; set; }
         public string[] Images { get; set; }
+        [JsonIgnore]
         public DateTime Updated { get; set; } = DateTime.Now;
         [Required]
+        [JsonIgnore]
         public Guid UserId { get; set; }
     }
 }

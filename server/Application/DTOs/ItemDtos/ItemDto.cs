@@ -12,10 +12,11 @@ namespace Application.DTOs.ItemDtos
         public double Price { get; set; }
         public string Location { get; set; }
         public ItemStatus Status { get; set; }
-        public string[] Images { get; set; }
+        public ICollection<ItemImage> Images { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public UserInfoDto User { get; set; }
+        public Category Category { get; set; }
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
