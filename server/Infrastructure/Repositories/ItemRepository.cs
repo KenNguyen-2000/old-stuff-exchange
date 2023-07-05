@@ -26,6 +26,8 @@ namespace Infrastructure.Repositories
             await _context.Items.AddAsync(newItem);
             await _context.SaveChangesAsync();
 
+            await _context.Entry(newItem).Reference(i => i.User).LoadAsync();
+
             return newItem;
         }
 
@@ -58,7 +60,8 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<Item>> GetListAsync(Expression<Func<Item, bool>> predicate = null)
         {
-            return predicate == null ? await _context.Items.Include(i => i.User).ToListAsync() : await _context.Items.Where(predicate).Include(i => i.User).ToListAsync();
+            return predicate == null ? await _context.Items.Include(i => i.User).Include(i => i.Images).ToListAsync()
+            : await _context.Items.Where(predicate).Include(i => i.User).Include(i => i.Images).ToListAsync();
         }
 
         public async Task<Item> UpdateAsync(Item item)
