@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.ItemDtos;
+using Application.DTOs.CateoryDtos;
 using AutoMapper;
 using Core.Models;
 using System;
@@ -22,6 +23,8 @@ namespace Application.Profiles
             CreateMap<Item, ChangeItemStatusDto>();
 
             CreateMap<Item, Item>();
+            CreateMap<CategoryDto, Category>();
+            CreateMap<Category, CategoryDto>();
         }
     }
 }
