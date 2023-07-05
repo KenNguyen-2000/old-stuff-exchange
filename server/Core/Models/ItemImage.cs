@@ -1,19 +1,20 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Core.Models;
 
 namespace Core.Models
 {
-    [Table("categories")]
-    public class Category
+    [Table("item_images")]
+    public class ItemImage
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         [Required]
-        public string Name { get; set; }
-        [Required]
         public string ImageUri { get; set; }
-        public ICollection<Item> Items { get; set; } = new List<Item>();
+        [Required]
+        public Guid ItemId { get; set; }
+        public Item Item { get; set; }
     }
 }

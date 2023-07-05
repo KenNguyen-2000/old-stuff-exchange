@@ -19,6 +19,7 @@ namespace Core.Models
         public string Content { get; set; }
         public int Rating { get; set; }
         public DateTime Created { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; } = DateTime.Now;
         [Required]
         public Guid ItemId { get; set; }

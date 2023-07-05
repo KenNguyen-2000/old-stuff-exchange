@@ -36,14 +36,18 @@ namespace Core.Models
         public string Location { get; set; }
         [Required]
         public ItemStatus Status { get; set; }
-        [NotMapped]
-        public string[] Images { get; set; }
+        public ICollection<ItemImage> Images { get; set; } = new List<ItemImage>();
         public DateTime Created { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Updated { get; set; } = DateTime.Now;
+        [Required]
         public Guid UserId { get; set; }
         public User User { get; set; }
         public Order Order { get; set; }
         public Bill Bill { get; set; }
+        [Required]
+        public Guid CategoryId { get; set; }
+        public Category Category { get; set; }
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     }

@@ -23,6 +23,8 @@ namespace Core.Models
         public Guid UserId { get; set; }
         public User User { get; set; }
         public OrderStatus Status { get; set; } = OrderStatus.In_Progress;
-
+        public DateTime Created { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime Updated { get; set; }
     }
 }
