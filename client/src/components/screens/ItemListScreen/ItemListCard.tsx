@@ -15,6 +15,7 @@ const ItemListCard: React.FC<IItemListCard> = ({ item, index, navigation }) => {
       item: item,
     });
   };
+  console.log(item);
 
   return (
     <Pressable
@@ -24,7 +25,7 @@ const ItemListCard: React.FC<IItemListCard> = ({ item, index, navigation }) => {
       <View style={styles.image__wrapper}>
         <Image
           source={{
-            uri: item.imageUrl,
+            uri: item.images[0].imageUri || item.imageUrl,
           }}
           style={styles.image}
         />

@@ -19,8 +19,8 @@ const MyTextInput = (props: IMyTextInput) => {
           },
           props.style,
         ]}
-        outlineColor='transparent'
         {...props}
+        outlineColor='transparent'
       />
     </View>
   );

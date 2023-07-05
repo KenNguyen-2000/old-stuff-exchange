@@ -3,11 +3,19 @@ import React from 'react';
 import { IconButton, Text, TextInput } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface IHomeHeader extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
 
 const HomeHeader = ({ navigation }: IHomeHeader) => {
   const insets = useSafeAreaInsets();
+
+  const handleCreateItem = async () => {
+    const token = await AsyncStorage.getItem('token');
+    if (token !== null) navigation.navigate('CreateItem');
+    else navigation.navigate('Login');
+  };
+
   return (
     <View
       style={[
@@ -21,7 +29,7 @@ const HomeHeader = ({ navigation }: IHomeHeader) => {
       <IconButton
         icon={'plus'}
         style={{ position: 'absolute', right: 20, top: 30 }}
-        onPress={() => navigation.navigate('CreateItem')}
+        onPress={handleCreateItem}
       />
     </View>
   );
