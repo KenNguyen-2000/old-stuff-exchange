@@ -38,6 +38,7 @@ namespace Application.DependencyResolvers
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<ICategoryService, CategoryService>();
         }
     }
 }
