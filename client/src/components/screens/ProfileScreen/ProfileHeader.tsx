@@ -12,7 +12,7 @@ interface IProfileHeader
 const ProfileHeader = ({ navigation, userInfo }: IProfileHeader) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-
+  console.log(userInfo);
   return (
     <View
       style={[

@@ -83,11 +83,11 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
             renderItem={({ item }) => (
               <Pressable
                 style={{
-                  aspectRatio: 3 / 4,
                   width: 160,
-                  borderWidth: 1.5,
-                  borderColor: '#eaeaea',
+                  borderWidth: 2,
+                  borderColor: '#cccccc',
                   borderRadius: 16,
+                  overflow: 'hidden',
                 }}
                 onPress={() => navigation.push('ItemDetail', { item: item })}
               >
@@ -95,9 +95,7 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
                   source={{ uri: item.images[0].imageUri || item.imageUrl }}
                   style={{
                     aspectRatio: 3 / 4,
-                    width: 160,
-                    borderWidth: 1.5,
-                    borderColor: '#eaeaea',
+                    width: '100%',
                     borderRadius: 16,
                   }}
                   resizeMode='cover'

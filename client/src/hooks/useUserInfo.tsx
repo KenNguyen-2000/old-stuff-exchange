@@ -3,17 +3,32 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwtDecode from 'jwt-decode';
 import { getUserInfo } from '../services/user.service';
 
-const useUserInfo = async () => {
-  const token = await AsyncStorage.getItem('token');
+const useUserInfo = () => {
+  const [userInfo, setUserInfo] = useState(null);
 
-  if (!token) {
-    return null;
-  }
-  console.log(token);
-  const decoded: any = jwtDecode(token);
-  const user = await getUserInfo(decoded.Id);
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await AsyncStorage.getItem('token');
 
-  return user ? user : null;
+      if (!token) {
+        setUserInfo(null);
+        return;
+      }
+
+      const decoded: any = jwtDecode(token);
+
+      try {
+        const res = await getUserInfo(decoded.Id);
+        setUserInfo(res.data);
+      } catch (error) {
+        setUserInfo(null);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return userInfo;
 };
 
 export default useUserInfo;

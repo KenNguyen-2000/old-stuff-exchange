@@ -13,7 +13,7 @@ interface IHomeScreen
   extends NativeStackScreenProps<any, 'ItemList', 'mystack'> {}
 
 const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
-  const { item }: any = route.params;
+  const { category }: any = route.params;
   const theme = useTheme();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,15 +77,17 @@ const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
         </View>
       </View>
       <View style={styles.bodyWrapper}>
-        <FlatList
-          data={oldStuffs}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          renderItem={({ item, index }) => (
-            <ItemListCard item={item} index={index} navigation={navigation} />
-          )}
-          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-        />
+        {oldStuffs && (
+          <FlatList
+            data={oldStuffs}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            renderItem={({ item, index }) => (
+              <ItemListCard item={item} index={index} navigation={navigation} />
+            )}
+            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+          />
+        )}
       </View>
     </MySafeArea>
   );

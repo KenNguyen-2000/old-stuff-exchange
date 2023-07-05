@@ -10,6 +10,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAppDispatch } from '../redux/reduxHook';
 import { filterOldStuffs } from '../redux/slices/itemListSlice';
 import { getListItemCategory } from '../services/item.service';
+import { fetchItemList } from '../redux/thunks/itemList.thunk';
 
 interface IHomeScreen extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
 
@@ -17,6 +18,7 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
   const dispatch = useAppDispatch();
 
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const onSearchChange = (text: string) => {
     dispatch(filterOldStuffs(text));
@@ -26,13 +28,14 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
     const fetchCategories = async () => {
       try {
         const data = await getListItemCategory();
-        console.log(data);
+        setCategories(data.datas);
       } catch (err) {
         console.log(err);
       }
     };
 
     fetchCategories();
+    dispatch(fetchItemList());
   }, []);
 
   return (
@@ -52,10 +55,19 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
             onChangeText={onSearchChange}
           />
         </View>
-        <CategoryList navigation={navigation} route={route} />
-        <StuffSections navigation={navigation} route={route} />
+        {categories.length > 0 && (
+          <CategoryList
+            navigation={navigation}
+            route={route}
+            categories={categories}
+          />
+        )}
+        <StuffSections
+          navigation={navigation}
+          route={route}
+          categories={categories}
+        />
         <View style={{ flexGrow: 1, height: 100 }}></View>
-        <Text>HomeScreen</Text>
       </ScrollView>
     </View>
   );

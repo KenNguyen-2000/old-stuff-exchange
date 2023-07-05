@@ -14,49 +14,27 @@ data.forEach((item) => {
 });
 
 interface IStuffSections
-  extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
+  extends NativeStackScreenProps<any, 'Home', 'mystack'> {
+  categories: any[];
+}
 
-const StuffSections = ({ navigation, route }: IStuffSections) => {
+const StuffSections = ({ navigation, route, categories }: IStuffSections) => {
   const oldStuffs = useAppSelector((state) => state.items.oldStuffs);
   return (
     <View style={styles.wrapper}>
-      {/* <FlatList
-        data={[...categories.values()]}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <View key={item} style={styles.category__section}>
-            <Text style={{ marginBottom: 12 }}>{item}</Text>
-            <ScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-            >
-              {oldStuffs
-                .filter((stuff) => stuff.category === item)
-                .map((stuff) => (
-                  <ItemCard
-                    key={stuff.id}
-                    item={stuff}
-                    navigation={navigation}
-                    route={route}
-                  />
-                ))}
-            </ScrollView>
-          </View>
-        )}
-      /> */}
-      {[...categories.values()]?.map((category) => {
+      {categories?.map((category) => {
         const filteredList = oldStuffs.filter(
-          (item) => item.category === category
+          (item) => item.category.id === category.id
         );
         if (filteredList.length <= 0) return null;
 
         return (
-          <View key={category} style={styles.category__section}>
+          <View key={category.id} style={styles.category__section}>
             <Text
               variant='displayMedium'
               style={{ marginBottom: 0, fontSize: 22, color: '#737373' }}
             >
-              {category}
+              {category.name}
             </Text>
             <ScrollView
               horizontal={true}

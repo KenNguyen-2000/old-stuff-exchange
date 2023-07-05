@@ -16,7 +16,7 @@ interface IProfileScreen
   extends NativeStackScreenProps<any, 'Profile', 'mystack'> {}
 
 const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
-  const userInfo = useAppSelector((state) => state.user.user);
+  const userInfo = useUserInfo();
   const theme = useTheme();
 
   const dispatch = useAppDispatch();

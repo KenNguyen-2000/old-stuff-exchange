@@ -16,13 +16,14 @@ data.forEach((item) => {
   categories.set(item.category, item.category);
 });
 
-interface ICategoryList
-  extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
+interface ICategoryList extends NativeStackScreenProps<any, 'Home', 'mystack'> {
+  categories: any[];
+}
 
-const CategoryList = ({ navigation }: ICategoryList) => {
+const CategoryList = ({ navigation, categories }: ICategoryList) => {
   const handleNavigateItemList = (item: any) => {
     navigation.navigate('ItemList', {
-      item: item,
+      category: item,
     });
   };
 
@@ -44,7 +45,7 @@ const CategoryList = ({ navigation }: ICategoryList) => {
             numColumns={Math.ceil([...categories.values()].length / 2)}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            data={[...categories.values()]}
+            data={categories}
             renderItem={({ item, index }) => {
               return (
                 <Pressable onPress={handleNavigateItemList.bind(null, item)}>

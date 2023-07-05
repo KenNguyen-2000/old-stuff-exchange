@@ -3,6 +3,7 @@ export interface ICreateItem {
   description: string;
   price: number;
   location: string;
+  categoryId: string;
   images?: string[];
 }
 

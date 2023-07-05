@@ -1,6 +1,6 @@
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import React from 'react';
-import { TextInputProps, TextInput } from 'react-native-paper';
+import { TextInputProps, TextInput, Text } from 'react-native-paper';
 
 interface IMyTextInput extends TextInputProps {
   title: string;
@@ -21,6 +21,7 @@ const MyTextInput = (props: IMyTextInput) => {
         ]}
         {...props}
         outlineColor='transparent'
+        placeholderTextColor={'#8b8b8b'}
       />
     </View>
   );

@@ -7,15 +7,16 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MySafeArea from '../components/MySafeArea';
 import { Text, Button, IconButton } from 'react-native-paper';
 import MyTextInput from '../components/MyTextInput';
 import * as ImagePicker from 'expo-image-picker';
-import { createNewItem } from '../services/item.service';
+import { createNewItem, getListItemCategory } from '../services/item.service';
 import { ICreateItem } from '../interfaces/dtos';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MySelector from '../components/MySelector';
 
 interface ICreateItemScreen
   extends NativeStackScreenProps<any, 'CreateItem', 'mystack'> {}
@@ -27,9 +28,11 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
     description: '',
     price: 0,
     location: '',
+    categoryId: '',
     images: [],
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -76,6 +79,23 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
     }
   };
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getListItemCategory();
+        setCategories(data.datas);
+        handleChangeForm(
+          'categoryId',
+          data.datas.find((item: any) => item.name === 'Others').id
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <MySafeArea>
       <ScrollView>
@@ -112,22 +132,41 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
           <MyTextInput
             title='Name'
             onChangeText={(text) => handleChangeForm('name', text)}
+            placeholder='Guitar, bicycle,...'
           />
           <MyTextInput
             title='Description'
             multiline
             style={{ height: 100, backgroundColor: 'rgba(231,224,236,1)' }}
             onChangeText={(text) => handleChangeForm('description', text)}
+            placeholder='It have been used for 5 years.
+            It have a small scratch.
+            '
           />
+          {categories.length > 0 ? (
+            <MySelector
+              title='Type'
+              onValueChange={(itemValue: any, index: number) =>
+                handleChangeForm('categoryId', itemValue)
+              }
+              value={categories.find((item) => item.name === 'Others').name}
+              editable={false}
+              datas={categories || []}
+            />
+          ) : (
+            <MyTextInput title='Type' placeholder='Item Type' />
+          )}
           <MyTextInput
             title='Price'
             inputMode='numeric'
             onChangeText={(text) => handleChangeForm('price', text)}
+            placeholder='10'
           />
           <MyTextInput
             title='Location'
             style={{ backgroundColor: 'rgba(231,224,236,1)' }}
             onChangeText={(text) => handleChangeForm('location', text)}
+            placeholder='Da Nang city'
           />
         </View>
         <Button

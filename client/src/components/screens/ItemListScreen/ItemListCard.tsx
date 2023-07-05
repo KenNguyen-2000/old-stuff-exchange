@@ -15,7 +15,6 @@ const ItemListCard: React.FC<IItemListCard> = ({ item, index, navigation }) => {
       item: item,
     });
   };
-  console.log(item);
 
   return (
     <Pressable

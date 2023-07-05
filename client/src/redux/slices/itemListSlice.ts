@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchUserInfo } from '../thunks/user.thunk';
-import data from '../../components/screens/HomeScreen/old_stuffs.json';
 import { fetchItemList } from '../thunks/itemList.thunk';
 
 export interface ItemListSlice {
@@ -10,7 +9,7 @@ export interface ItemListSlice {
 
 const initialState: ItemListSlice = {
   isLoading: false,
-  oldStuffs: data,
+  oldStuffs: [],
 };
 
 const itemListSlice = createSlice({
@@ -23,7 +22,7 @@ const itemListSlice = createSlice({
     filterOldStuffs: (state, action) => {
       //   if (action.payload === '') state.oldStuffs = data;
       //   else
-      state.oldStuffs = data.filter((stuff) =>
+      state.oldStuffs = state.oldStuffs.filter((stuff) =>
         stuff.name.includes(action.payload)
       );
     },

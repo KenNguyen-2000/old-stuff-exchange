@@ -1,6 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
 import React from 'react';
 import { Text } from 'react-native-paper';
+import Constants from 'expo-constants';
 
 interface ICategoryCard {
   category: any;
@@ -9,8 +10,21 @@ interface ICategoryCard {
 const CategoryCard = ({ category }: ICategoryCard) => {
   return (
     <View style={styles.wrapper}>
-      <View style={styles.image__wrapper}></View>
-      <Text style={{ textAlign: 'center', fontSize: 12 }}>{category}</Text>
+      <View style={styles.image__wrapper}>
+        <Image
+          source={{
+            uri: `${Constants.expoConfig?.extra?.apiUrl}/assets/${
+              category.imageUri.split('/')[2]
+            }`,
+          }}
+          style={{
+            width: '100%',
+            aspectRatio: 1 / 1,
+            resizeMode: 'cover',
+          }}
+        />
+      </View>
+      <Text style={{ textAlign: 'center', fontSize: 12 }}>{category.name}</Text>
     </View>
   );
 };
@@ -34,6 +48,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderRadius: 8,
     aspectRatio: 1 / 1,
-    padding: 2,
+    padding: 3,
+    backgroundColor: '#fff',
   },
 });

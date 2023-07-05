@@ -21,7 +21,7 @@ const ItemCard = ({ item, navigation }: IItemCard) => {
         <Image
           style={styles.card__img}
           source={{
-            uri: `${item.imageUrl}`,
+            uri: `${item.images[0].imageUri}`,
           }}
         />
         <Text style={styles.item__name} numberOfLines={1}>
