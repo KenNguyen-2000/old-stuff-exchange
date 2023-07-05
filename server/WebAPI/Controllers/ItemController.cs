@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySqlX.XDevAPI.Common;
+using System.Net;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -17,14 +19,15 @@ namespace WebAPI.Controllers
     {
         private readonly IItemService _itemService;
         private readonly IUserService _userService;
+        private readonly ICategoryService _categoryService;
 
-        public ItemController(IItemService itemService, IUserService userService)
+        public ItemController(IItemService itemService, IUserService userService, ICategoryService categoryService)
         {
             _itemService = itemService;
             _userService = userService;
+            _categoryService = categoryService;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllItems()
         {
@@ -41,7 +44,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetItemById(Guid itemId)
         {
             var result = await _itemService.GetByIdAsync(itemId);
-            if (!result.Succeeded)
+            if (!result.Succeeded && result.Status == HttpStatusCode.NotFound)
             {
                 return NotFound(result);
             }
@@ -53,6 +56,7 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateItem(CreateItemDto item)
         {
+            Console.WriteLine("CreateItem " + JsonSerializer.Serialize(item));
             if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
                 var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
@@ -127,8 +131,7 @@ namespace WebAPI.Controllers
         [HttpPatch]
         public async Task<IActionResult> ChangeItemStatus(ChangeItemStatusDto changeItemStatusDto)
         {
-            ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
-            if (identity != null)
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
                 var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 var itemRes = await _itemService.GetByIdAsync(changeItemStatusDto.Id);
@@ -148,6 +151,16 @@ namespace WebAPI.Controllers
             }
 
             return Unauthorized();
+        }
+
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetItemCategories()
+        {
+            var categoryRes = await _categoryService.GetListAsync();
+            if (!categoryRes.Succeeded)
+                return BadRequest("Get list category failed!");
+            else
+                return Ok(categoryRes);
         }
 
     }
