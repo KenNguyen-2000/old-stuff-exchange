@@ -37,6 +37,7 @@ namespace Application
                     Status = item.Status,
                     Location = item.Location,
                     UserId = item.UserId,
+                    CategoryId = item.CategoryId,
                 };
 
                 foreach (var imageUri in item.Images)
