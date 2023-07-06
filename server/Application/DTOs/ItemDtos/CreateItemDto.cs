@@ -22,7 +22,7 @@ namespace Application.DTOs.ItemDtos
         [Required]
         public string Location { get; set; }
         [Required]
-        public Guid CategoryId { get; set; }
+        public int CategoryId { get; set; }
         [Required]
         [JsonIgnore]
         public ItemStatus Status { get; set; } = ItemStatus.Default;
@@ -33,6 +33,6 @@ namespace Application.DTOs.ItemDtos
         public DateTime Updated { get; set; } = DateTime.Now;
         [Required]
         [JsonIgnore]
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
     }
 }

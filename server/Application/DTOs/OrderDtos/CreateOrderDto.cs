@@ -7,9 +7,9 @@ namespace Application.DTOs.OrderDtos
     public class CreateOrderDtos
     {
         [Required]
-        public Guid ItemId { get; set; }
+        public int ItemId { get; set; }
         [JsonIgnore]
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
         [JsonIgnore]
         public OrderStatus Status { get; set; } = OrderStatus.In_Progress;
     }

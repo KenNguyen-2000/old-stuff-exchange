@@ -9,23 +9,19 @@ using System.Threading.Tasks;
 namespace Core.Models
 {
     [Table("reviews")]
-    public class Review
+    public class Review : AuditableEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
         [Required]
         [MinLength(1)]
         public string Content { get; set; }
         public int Rating { get; set; }
-        public DateTime Created { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime Updated { get; set; } = DateTime.Now;
         [Required]
-        public Guid ItemId { get; set; }
-        public Item Item { get; set; }
+        public int ItemId { get; set; }
         [Required]
-        public Guid UserId { get; set; }
-        public User User { get; set; }
+        public int UserId { get; set; }
+
+        // Relationship
+        public virtual User User { get; set; }
+        public virtual Item Item { get; set; }
     }
 }

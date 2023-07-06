@@ -38,7 +38,7 @@ namespace Application
             return new Response<Review>(newReview, $"Review itemId {createReviewDto.ItemId} success");
         }
 
-        public async Task<Response<string>> DeleteAsync(Guid id)
+        public async Task<Response<string>> DeleteAsync(int id)
         {
             var isDelete = await _reviewRepository.DeleteAsync(id);
             if (isDelete)
@@ -60,7 +60,7 @@ namespace Application
             return new Response<ReviewDto>("Get review failure");
         }
 
-        public async Task<Response<ReviewDto>> GetByIdAsync(Guid id)
+        public async Task<Response<ReviewDto>> GetByIdAsync(int id)
         {
             var review = await _reviewRepository.GetByIdAsync(id);
             if(review == null)

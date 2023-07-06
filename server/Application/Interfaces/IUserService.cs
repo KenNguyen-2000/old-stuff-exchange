@@ -14,13 +14,13 @@ namespace Application.Interfaces
     {
         void Add(User user);
         Task<Response<UserInfoDto>> GetListAsync();
-        Task<Response<UserInfoDto>> GetByIdAsync(Guid id);
+        Task<Response<UserInfoDto>> GetByIdAsync(int id);
         Response<User> GetByUsername(string username);
         Task<Response<UserUpdateDto>> UpdateAsync(UserUpdateDto user);
-        Task<Response<string>> DeleteAsync(Guid id);
+        Task<Response<string>> DeleteAsync(int id);
         Task<Response<UserInfoDto>> GetAsync(Expression<Func<User, bool>> filter);
-        Task<Response<string>> UpdatePointsAsync(Guid userId, double points);
+        Task<Response<string>> UpdatePointsAsync(int userId, double points);
 
-        Task<bool> IsOwner(Guid userId, Item item);
+        Task<bool> IsOwner(int userId, Item item);
     }
 }

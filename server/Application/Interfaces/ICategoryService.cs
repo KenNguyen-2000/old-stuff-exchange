@@ -9,7 +9,7 @@ namespace Application.Interfaces
 
         // Task<Response<ItemDto>> AddAsync(CreateItemDto item);
         Task<Response<CategoryDto>> GetListAsync();
-        Task<Response<CategoryDto>> GetByIdAsync(Guid id);
+        Task<Response<CategoryDto>> GetByIdAsync(int id);
 
     }
 }

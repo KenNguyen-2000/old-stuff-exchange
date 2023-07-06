@@ -40,8 +40,8 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{itemId:Guid}")]
-        public async Task<IActionResult> GetItemById(Guid itemId)
+        [HttpGet("{itemId:int}")]
+        public async Task<IActionResult> GetItemById(int itemId)
         {
             var result = await _itemService.GetByIdAsync(itemId);
             if (!result.Succeeded && result.Status == HttpStatusCode.NotFound)
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
             if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
                 var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-                item.UserId = Guid.Parse(userId);
+                item.UserId = int.Parse(userId);
                 var result = await _itemService.AddAsync(item);
                 if (!result.Succeeded)
                 {
@@ -73,26 +73,22 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpDelete("{itemId:Guid}")]
-        public async Task<IActionResult> DeleteItemById(Guid itemId)
+        [HttpDelete("{itemId:int}")]
+        public async Task<IActionResult> DeleteItemById(int itemId)
         {
-            var itemRes = await _itemService.GetByIdAsync(itemId);
-            if (itemRes.Data == null)
-            {
-                return NotFound(itemRes);
-            }
             if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                if (itemRes.Data.User.Id.Equals(userId))
-                {
-                    return Forbid(nameof(DeleteItemById), userId.ToString());
-                }
-
-                var result = await _itemService.DeleteAsync(itemId);
-                if (!result.Succeeded)
+                var userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var result = await _itemService.DeleteAsync(itemId, userId);
+                if (result.Status == HttpStatusCode.NotFound)
                 {
                     return NotFound(result);
+                } else if (result.Status == HttpStatusCode.Forbidden)
+                {
+                    return Forbid(result.Message);
+                }else if (!result.Succeeded)
+                {
+                    return BadRequest(result);
                 }
 
                 return Ok(result);
@@ -106,11 +102,11 @@ namespace WebAPI.Controllers
         {
             if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 item.UserId = userId;
 
                 var itemRes = await _itemService.GetByIdAsync(item.Id);
-                if (itemRes.Data.User.Id.Equals(userId))
+                if (!itemRes.Data.User.Id.Equals(userId))
                 {
                     return Forbid(nameof(UpdateItem), userId.ToString());
                 }
@@ -133,7 +129,7 @@ namespace WebAPI.Controllers
         {
             if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                var userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 var itemRes = await _itemService.GetByIdAsync(changeItemStatusDto.Id);
 
                 if (itemRes.Data.Id.Equals(userId))

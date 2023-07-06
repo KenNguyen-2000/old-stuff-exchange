@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         {
             if(HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                Guid userId = Guid.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                int userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 createOrderDtos.UserId = userId;
 
                 var orderRes = await _orderService.AddAsync(createOrderDtos);
@@ -39,8 +39,8 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpPatch("status/{orderId:Guid}")]
-        public async Task<IActionResult> ChangeOrderStatus(Guid orderId, [FromBody] string status)
+        [HttpPatch("status/{orderId:int}")]
+        public async Task<IActionResult> ChangeOrderStatus(int orderId, [FromBody] string status)
         {
             if (!Enum.TryParse(status, true, out OrderStatus statusResult))
             {

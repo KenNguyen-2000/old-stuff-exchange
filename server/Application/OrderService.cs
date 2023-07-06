@@ -40,7 +40,7 @@ namespace Application
             }
 
 
-            item.Status = ItemStatus.Inactive;
+            item.Status = ItemStatus.Inactive.ToString();
             var mappedItem = _mapper.Map<UpdateItemDto>(item);
             var itemUpdatedRes = await _itemService.UpdateAsync(mappedItem);
 
@@ -52,7 +52,7 @@ namespace Application
             return new Response<Order>(order, "Create order successfully!");
         }
 
-        public Task<Response<string>> DeleteAsync(Guid id)
+        public Task<Response<string>> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
@@ -62,7 +62,7 @@ namespace Application
             throw new NotImplementedException();
         }
 
-        public Task<Response<OrderDtos>> GetByIdAsync(Guid id)
+        public Task<Response<OrderDtos>> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
@@ -166,7 +166,7 @@ namespace Application
                     return false;
 
                 await _userService.UpdatePointsAsync(getBuyer.Data.Id, getItem.Data.Price / 2 * -1);
-                item.Status = ItemStatus.Inactive;
+                item.Status = ItemStatus.Inactive.ToString();
                 var mappedItem = _mapper.Map<UpdateItemDto>(item);
                 var itemUpdatedRes = await _itemService.UpdateAsync(mappedItem);
 

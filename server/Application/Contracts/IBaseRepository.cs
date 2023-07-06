@@ -11,8 +11,8 @@ namespace Application.Contracts
     {
         Task<IEnumerable<T>> GetListAsync(Expression<Func<T, bool>> predicate = null);
         Task<T> GetAsync(Expression<Func<T, bool>> predicate);
-        Task<T> GetByIdAsync(Guid id);
-        Task<bool> DeleteAsync(Guid id);
+        Task<T> GetByIdAsync(int id);
+        Task<bool> DeleteAsync(int id);
         Task<T> UpdateAsync(T entity);
         Task<T> AddAsync(T entity);
         T Get(Expression<Func<T, bool>> filter);

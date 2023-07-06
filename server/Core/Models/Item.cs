@@ -10,19 +10,19 @@ namespace Core.Models
 {
     public enum ItemStatus
     {
+        [Display(Name = "Default")]
         Default,
+        [Display(Name = "Active")]
         Active,
+        [Display(Name ="Inactive")]
         Inactive,
+        [Display(Name = "Deleted")]
         Deleted
     }
 
     [Table("items")]
-    public class Item
+    public class Item : AuditableEntity
     {
-
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
         [Required]
         [MinLength(6)]
         [MaxLength(50)]
@@ -37,18 +37,20 @@ namespace Core.Models
         [Required]
         public ItemStatus Status { get; set; }
         public ICollection<ItemImage> Images { get; set; } = new List<ItemImage>();
-        public DateTime Created { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime Updated { get; set; } = DateTime.Now;
         [Required]
-        public Guid UserId { get; set; }
-        public User User { get; set; }
-        public Order Order { get; set; }
-        public Bill Bill { get; set; }
+        public int UserId { get; set; }
         [Required]
-        public Guid CategoryId { get; set; }
-        public Category Category { get; set; }
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public int CategoryId { get; set; }
 
+        //Relationship
+        [ForeignKey(nameof(UserId))]
+        public virtual User User { get; set; } = null;
+        public virtual Order Order { get; set; } = null;
+        public virtual Bill Bill { get; set; } = null;
+       
+        [ForeignKey(nameof(CategoryId))]
+        public virtual Category Category { get; set; }
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
+

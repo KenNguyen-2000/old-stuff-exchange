@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(OldStuffExchangeContext))]
-    [Migration("20230705152219_InitialCreate")]
+    [Migration("20230706195716_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,21 +24,27 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Models.Bill", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("Updated")
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -52,9 +58,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Models.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("ImageUri")
                         .IsRequired()
@@ -71,88 +77,91 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("da828676-b50b-45f5-8c43-cd22ee09755f"),
-                            ImageUri = "../Assets/home&living.png",
-                            Name = "Home & Living"
-                        },
-                        new
-                        {
-                            Id = new Guid("f70cc52e-5b18-473a-a1a4-1fa4f91d9280"),
+                            Id = 1,
                             ImageUri = "../Assets/cloths&accessories.png",
                             Name = "Clothing & Accessories"
                         },
                         new
                         {
-                            Id = new Guid("ad69afbf-e2a7-4f13-8c16-47d8aec3216d"),
+                            Id = 2,
                             ImageUri = "../Assets/mobiles&gadgets.png",
                             Name = "Mobile & Gadgets"
                         },
                         new
                         {
-                            Id = new Guid("342a5af4-7a6c-4936-8361-760ced1ae41a"),
+                            Id = 3,
                             ImageUri = "../Assets/electronics.png",
                             Name = "Consumer Electronics"
                         },
                         new
                         {
-                            Id = new Guid("a0393d7e-8f41-4cec-9a22-d806c83b7a17"),
+                            Id = 4,
                             ImageUri = "../Assets/cars.png",
                             Name = "Cars & Vehicles"
                         },
                         new
                         {
-                            Id = new Guid("930a8a8d-10ef-4b43-abeb-ca652e34aac1"),
+                            Id = 5,
                             ImageUri = "../Assets/books.png",
                             Name = "Books, Comics & Magazines"
                         },
                         new
                         {
-                            Id = new Guid("9fe609f1-a751-437b-accf-ac291ff6ac8a"),
+                            Id = 6,
                             ImageUri = "../Assets/arts.png",
                             Name = "Art"
                         },
                         new
                         {
-                            Id = new Guid("0460c498-a417-4966-b0a9-1f3250fc0da3"),
+                            Id = 7,
                             ImageUri = "../Assets/instruments.png",
                             Name = "Musical Instruments"
                         },
                         new
                         {
-                            Id = new Guid("da80979c-e594-4ef3-b655-e387b8f58899"),
+                            Id = 8,
                             ImageUri = "../Assets/toys.png",
                             Name = "Toys & Games"
                         },
                         new
                         {
-                            Id = new Guid("0d46f542-dfb5-465c-978f-20cbceb107f6"),
+                            Id = 9,
                             ImageUri = "../Assets/watches.png",
                             Name = "Jewellery & Watches"
                         },
                         new
                         {
-                            Id = new Guid("7be338c1-f4fb-488a-915e-b591941b0685"),
+                            Id = 10,
                             ImageUri = "../Assets/antiques.png",
                             Name = "Antiques"
                         },
                         new
                         {
-                            Id = new Guid("0e4efcc6-bb0e-412b-92cf-dbe113436cd3"),
+                            Id = 11,
                             ImageUri = "../Assets/others.png",
                             Name = "Others"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            ImageUri = "../Assets/home&living.png",
+                            Name = "Home & Living"
                         });
                 });
 
             modelBuilder.Entity("Core.Models.Item", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
@@ -174,12 +183,14 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Updated")
-                        .ValueGeneratedOnAddOrUpdate()
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -192,16 +203,16 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Models.ItemImage", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("ImageUri")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -212,25 +223,30 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Models.Order", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Updated")
-                        .ValueGeneratedOnAddOrUpdate()
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -244,29 +260,34 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Models.Review", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Updated")
-                        .ValueGeneratedOnAddOrUpdate()
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -279,9 +300,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Models.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Address")
                         .IsRequired()

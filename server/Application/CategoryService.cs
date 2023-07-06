@@ -17,7 +17,7 @@ namespace Application
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<Response<CategoryDto>> GetByIdAsync(Guid id)
+        public async Task<Response<CategoryDto>> GetByIdAsync(int id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
             if (category == null)

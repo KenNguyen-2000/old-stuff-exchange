@@ -17,8 +17,8 @@ namespace WebAPI.Controllers
             _userService = userService;
         }
 
-        [HttpGet("{userId:Guid}")]
-        public async Task<IActionResult> GetUserById(Guid userId)
+        [HttpGet("{userId:int}")]
+        public async Task<IActionResult> GetUserById(int userId)
         {
             var userRes = await _userService.GetByIdAsync(userId);
             if(!userRes.Succeeded)
@@ -30,8 +30,8 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("delete/{userId:Guid}")]
-        public async Task<IActionResult> DeleteUserById(Guid userId)
+        [HttpDelete("delete/{userId:int}")]
+        public async Task<IActionResult> DeleteUserById(int userId)
         {
             var result = await _userService.DeleteAsync(userId);
             if (!result.Succeeded)

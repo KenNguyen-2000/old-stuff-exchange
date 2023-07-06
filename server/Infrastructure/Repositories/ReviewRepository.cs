@@ -28,7 +28,7 @@ namespace Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var deletedReview = await _context.Reviews.FindAsync(id);
             _context.Reviews.Remove(deletedReview);
@@ -50,7 +50,7 @@ namespace Infrastructure.Repositories
             return await _context.Reviews.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<Review> GetByIdAsync(Guid id)
+        public async Task<Review> GetByIdAsync(int id)
         {
             return await _context.Reviews.FindAsync(id);
         }

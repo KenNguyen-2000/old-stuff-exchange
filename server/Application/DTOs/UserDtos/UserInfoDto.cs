@@ -11,11 +11,11 @@ namespace Application.DTOs.UserDtos
 {
     public class UserInfoDto
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string FullName { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
-        public bool IsEmailConfirmed { get; set; }
+        public bool IsEmailConfirmed { get; set; } = false;
         public string PhoneNumber { get; set; }
         public bool Gender { get; set; }
 

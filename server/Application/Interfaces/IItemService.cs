@@ -14,9 +14,9 @@ namespace Application.Interfaces
     {
         Task<Response<ItemDto>> AddAsync(CreateItemDto item);
         Task<Response<ItemDto>> GetListAsync();
-        Task<Response<ItemDto>> GetByIdAsync(Guid id);
+        Task<Response<ItemDto>> GetByIdAsync(int id);
         Task<Response<Item>> UpdateAsync(UpdateItemDto item);
-        Task<Response<string>> DeleteAsync(Guid id);
+        Task<Response<string>> DeleteAsync(int id, int userId);
         Task<Response<ItemDto>> GetAsync(Expression<Func<Item, bool>> filter);
         Task<Response<string>> ChangeItemStatusAsync(ChangeItemStatusDto changeItemStatusDto);
 

@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         }
         // GET: api/<ReviewController>
         [HttpGet]
-        public async Task<IActionResult> GetItemReviews([FromQuery(Name = "itemId")] Guid itemId)
+        public async Task<IActionResult> GetItemReviews([FromQuery(Name = "itemId")] int itemId)
         {
             var result = await _reviewService.GetListAsync(r => r.ItemId == itemId);
             if (!result.Succeeded)
@@ -31,8 +31,8 @@ namespace WebAPI.Controllers
         }
 
         // GET api/<ReviewController>/5
-        [HttpGet("{reviewId:Guid}")]
-        public async Task<IActionResult> GetReviewById(Guid reviewId)
+        [HttpGet("{reviewId:int}")]
+        public async Task<IActionResult> GetReviewById(int reviewId)
         {
             var result = await _reviewService.GetByIdAsync(reviewId);
             if (!result.Succeeded)
@@ -59,8 +59,8 @@ namespace WebAPI.Controllers
 
         // PUT api/<ReviewController>/5
         [Authorize]
-        [HttpPut("{reviewId:Guid}")]
-        public async Task<IActionResult> UpdateItemReview(Guid reviewId, [FromBody] UpdateReviewDto updateReviewDto)
+        [HttpPut("{reviewId:int}")]
+        public async Task<IActionResult> UpdateItemReview(int reviewId, [FromBody] UpdateReviewDto updateReviewDto)
         {
             var result = await _reviewService.UpdateAsync(updateReviewDto);
             if (!result.Succeeded)
@@ -73,8 +73,8 @@ namespace WebAPI.Controllers
 
         // DELETE api/<ReviewController>/5
         [Authorize]
-        [HttpDelete("{reviewId:Guid}")]
-        public async Task<IActionResult> Delete(Guid reviewId)
+        [HttpDelete("{reviewId:int}")]
+        public async Task<IActionResult> Delete(int reviewId)
         {
             var result = await _reviewService.DeleteAsync(reviewId);
             if (!result.Succeeded)

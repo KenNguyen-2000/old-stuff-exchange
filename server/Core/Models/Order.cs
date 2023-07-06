@@ -11,20 +11,19 @@ namespace Core.Models
         Cancelled,
         Finished
     }
-    public class Order
+    public class Order : AuditableEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
         [Required]
-        public Guid ItemId { get; set; }
-        public Item Item { get; set; }
+        public int ItemId { get; set; }
         [Required]
-        public Guid UserId { get; set; }
-        public User User { get; set; }
-        public OrderStatus Status { get; set; } = OrderStatus.In_Progress;
-        public DateTime Created { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime Updated { get; set; }
+        public int UserId { get; set; }
+
+        // Relationship
+        [ForeignKey(nameof(ItemId))]
+        public virtual Item Item { get; set; }
+        [ForeignKey(nameof(UserId))]
+        public virtual User User { get; set; }
+        public virtual OrderStatus Status { get; set; } = OrderStatus.In_Progress;
+        
     }
 }

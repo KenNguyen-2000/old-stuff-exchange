@@ -21,7 +21,8 @@ namespace Infrastructure.Migrations
                 name: "categories",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     ImageUri = table.Column<string>(type: "longtext", nullable: false)
                 },
@@ -35,7 +36,8 @@ namespace Infrastructure.Migrations
                 name: "users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     FullName = table.Column<string>(type: "longtext", nullable: false),
                     Username = table.Column<string>(type: "longtext", nullable: false),
                     PasswordHash = table.Column<byte[]>(type: "longblob", nullable: false),
@@ -59,17 +61,19 @@ namespace Infrastructure.Migrations
                 name: "items",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "longtext", nullable: false),
                     Price = table.Column<double>(type: "double", nullable: false),
                     Location = table.Column<string>(type: "longtext", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Updated = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.ComputedColumn),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "char(36)", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<int>(type: "int", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,11 +97,14 @@ namespace Infrastructure.Migrations
                 name: "bills",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ItemId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Updated = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ItemId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<int>(type: "int", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -121,9 +128,10 @@ namespace Infrastructure.Migrations
                 name: "item_images",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ImageUri = table.Column<string>(type: "longtext", nullable: false),
-                    ItemId = table.Column<Guid>(type: "char(36)", nullable: false)
+                    ItemId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -141,13 +149,15 @@ namespace Infrastructure.Migrations
                 name: "Orders",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ItemId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ItemId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Updated = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.ComputedColumn)
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<int>(type: "int", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,14 +181,16 @@ namespace Infrastructure.Migrations
                 name: "reviews",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Content = table.Column<string>(type: "longtext", nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Updated = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.ComputedColumn),
-                    ItemId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false)
+                    ItemId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<int>(type: "int", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -203,18 +215,18 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "ImageUri", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("0460c498-a417-4966-b0a9-1f3250fc0da3"), "../Assets/instruments.png", "Musical Instruments" },
-                    { new Guid("0d46f542-dfb5-465c-978f-20cbceb107f6"), "../Assets/watches.png", "Jewellery & Watches" },
-                    { new Guid("0e4efcc6-bb0e-412b-92cf-dbe113436cd3"), "../Assets/others.png", "Others" },
-                    { new Guid("342a5af4-7a6c-4936-8361-760ced1ae41a"), "../Assets/electronics.png", "Consumer Electronics" },
-                    { new Guid("7be338c1-f4fb-488a-915e-b591941b0685"), "../Assets/antiques.png", "Antiques" },
-                    { new Guid("930a8a8d-10ef-4b43-abeb-ca652e34aac1"), "../Assets/books.png", "Books, Comics & Magazines" },
-                    { new Guid("9fe609f1-a751-437b-accf-ac291ff6ac8a"), "../Assets/arts.png", "Art" },
-                    { new Guid("a0393d7e-8f41-4cec-9a22-d806c83b7a17"), "../Assets/cars.png", "Cars & Vehicles" },
-                    { new Guid("ad69afbf-e2a7-4f13-8c16-47d8aec3216d"), "../Assets/mobiles&gadgets.png", "Mobile & Gadgets" },
-                    { new Guid("da80979c-e594-4ef3-b655-e387b8f58899"), "../Assets/toys.png", "Toys & Games" },
-                    { new Guid("da828676-b50b-45f5-8c43-cd22ee09755f"), "../Assets/home&living.png", "Home & Living" },
-                    { new Guid("f70cc52e-5b18-473a-a1a4-1fa4f91d9280"), "../Assets/cloths&accessories.png", "Clothing & Accessories" }
+                    { 1, "../Assets/cloths&accessories.png", "Clothing & Accessories" },
+                    { 2, "../Assets/mobiles&gadgets.png", "Mobile & Gadgets" },
+                    { 3, "../Assets/electronics.png", "Consumer Electronics" },
+                    { 4, "../Assets/cars.png", "Cars & Vehicles" },
+                    { 5, "../Assets/books.png", "Books, Comics & Magazines" },
+                    { 6, "../Assets/arts.png", "Art" },
+                    { 7, "../Assets/instruments.png", "Musical Instruments" },
+                    { 8, "../Assets/toys.png", "Toys & Games" },
+                    { 9, "../Assets/watches.png", "Jewellery & Watches" },
+                    { 10, "../Assets/antiques.png", "Antiques" },
+                    { 11, "../Assets/others.png", "Others" },
+                    { 12, "../Assets/home&living.png", "Home & Living" }
                 });
 
             migrationBuilder.CreateIndex(

@@ -24,7 +24,7 @@ namespace Infrastructure.Repositories
             return newOrder;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var deletedOrder = await _context.Orders.FindAsync(id);
             _context.Orders.Remove(deletedOrder);
@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
             return await _context.Orders.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<Order> GetByIdAsync(Guid id)
+        public async Task<Order> GetByIdAsync(int id)
         {
             return await _context.Orders.FindAsync(id);
         }

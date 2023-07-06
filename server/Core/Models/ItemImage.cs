@@ -6,15 +6,14 @@ using Core.Models;
 namespace Core.Models
 {
     [Table("item_images")]
-    public class ItemImage
+    public class ItemImage : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
         [Required]
         public string ImageUri { get; set; }
         [Required]
-        public Guid ItemId { get; set; }
-        public Item Item { get; set; }
+        public int ItemId { get; set; }
+
+        // Relationship
+        public virtual Item Item { get; set; }
     }
 }

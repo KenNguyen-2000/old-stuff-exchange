@@ -1,4 +1,6 @@
 ﻿using Application.Contracts;
+using Application.DTOs.ItemDtos;
+using AutoMapper;
 using Core.Models;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +16,12 @@ namespace Infrastructure.Repositories
     public class ItemRepository : IItemRepository
     {
         private readonly OldStuffExchangeContext _context;
+        private readonly IMapper _mapper;
 
-        public ItemRepository(OldStuffExchangeContext context)
+        public ItemRepository(OldStuffExchangeContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
 
@@ -31,16 +35,14 @@ namespace Infrastructure.Repositories
             return newItem;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var deletedItem = await _context.Items.FindAsync(id);
-            _context.Items.Remove(deletedItem);
-            var data = await _context.SaveChangesAsync();
-            if (data > 0)
-            {
-                return false;
-            }
-            return true;
+            _context.Items
+                .Where(item => item.Id == id)
+                .ExecuteUpdate(item => item.SetProperty(i => i.Status, ItemStatus.Deleted));
+            await _context.SaveChangesAsync();
+            
+            return false;
         }
 
         public Item Get(Expression<Func<Item, bool>> filter)
@@ -50,12 +52,15 @@ namespace Infrastructure.Repositories
 
         public async Task<Item> GetAsync(Expression<Func<Item, bool>> predicate)
         {
-            return await _context.Items.FirstOrDefaultAsync(predicate);
+            return await _context.Items
+                .Include(item => item.User)
+                .Include(item => item.Category)
+                .FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<Item> GetByIdAsync(Guid id)
+        public async Task<Item> GetByIdAsync(int id)
         {
-            return await _context.Items.FindAsync(id);
+            return await _context.Items.FirstOrDefaultAsync(item => item.Id == id);
         }
 
         public async Task<IEnumerable<Item>> GetListAsync(Expression<Func<Item, bool>> predicate = null)

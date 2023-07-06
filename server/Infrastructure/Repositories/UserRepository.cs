@@ -24,7 +24,7 @@ namespace Infrastructure.Repositories
             return user;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var deletedUser = await _context.Users.FindAsync(id);
             _context.Users.Remove(deletedUser);
@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
             return await _context.Users.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<User> GetByIdAsync(Guid id)
+        public async Task<User> GetByIdAsync(int id)
         {
             return await _context.Users.FindAsync(id);
         }

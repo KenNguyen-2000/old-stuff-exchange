@@ -30,7 +30,7 @@ namespace Application
             _userRepository.AddAsync(user);
         }
 
-        public async Task<Response<string>> DeleteAsync(Guid id)
+        public async Task<Response<string>> DeleteAsync(int id)
         {
             var isDelete = await _userRepository.DeleteAsync(id);
             if (isDelete)
@@ -52,7 +52,7 @@ namespace Application
             return new Response<UserInfoDto>("Get user failure");
         }
 
-        public async Task<Response<UserInfoDto>> GetByIdAsync(Guid id)
+        public async Task<Response<UserInfoDto>> GetByIdAsync(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             if (user != null)
@@ -99,7 +99,7 @@ namespace Application
         }
 
 
-        public async Task<Response<string>> UpdatePointsAsync(Guid userId, double points)
+        public async Task<Response<string>> UpdatePointsAsync(int userId, double points)
         {
             User getUser = await _userRepository.GetByIdAsync(userId);
             if (getUser == null)
@@ -116,7 +116,7 @@ namespace Application
         }
 
 
-        async Task<bool> IUserService.IsOwner(Guid userId, Item item)
+        async Task<bool> IUserService.IsOwner(int userId, Item item)
         {
             var user = await GetByIdAsync(userId);
             return item.UserId == user.Data.Id;

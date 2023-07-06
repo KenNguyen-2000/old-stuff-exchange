@@ -1,18 +1,15 @@
-﻿using Core.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.ItemDtos
+namespace Core.Models
 {
-    public class ChangeItemStatusDto
+    public class BaseEntity
     {
         [Required]
         public int Id { get; set; }
-        [Required]
-        public ItemStatus Status { get; set; }
     }
 }

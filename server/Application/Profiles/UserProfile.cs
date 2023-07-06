@@ -13,6 +13,12 @@ namespace Application.Profiles
 
             CreateMap<UserUpdateDto, User>();
             CreateMap<User, UserUpdateDto>();
+
+            CreateMap<User, UserItemDto>();
+            CreateMap<UserItemDto, User>();
+
+            CreateMap<UserInfoDto, UserItemDto>();
+            CreateMap<UserItemDto, UserInfoDto>();
         }
     }
 }
