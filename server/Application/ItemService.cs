@@ -38,6 +38,8 @@ namespace Application
                     Location = item.Location,
                     UserId = item.UserId,
                     CategoryId = item.CategoryId,
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
                 };
 
                 foreach (var imageUri in item.Images)
@@ -91,23 +93,28 @@ namespace Application
             }
         }
 
-        public async Task<Response<string>> DeleteAsync(Guid id)
+        public async Task<Response<string>> DeleteAsync(int id, int userId)
         {
             try
             {
                 Item item = await _itemRepository.GetByIdAsync(id);
-                item.Status = ItemStatus.Deleted;
-
-                var isDelete = await _itemRepository.UpdateAsync(item);
-                if (isDelete != null)
+                if (item == null)
                 {
-                    return new Response<string>($"Delete itemId {id} successfully", success: true);
+                    return new Response<string>($"ItemId {id} not found", status: HttpStatusCode.NotFound);
                 }
-                return new Response<string>($"ItemId {id} not found", status: HttpStatusCode.NotFound);
-            }
-            catch (System.Exception)
-            {
+                var isOwner = await _userService.IsOwner(userId, item);
+                if (!isOwner)
+                {
+                    return new Response<string>("You cannot perform this action", status: HttpStatusCode.Forbidden);
+                }
 
+                await _itemRepository.DeleteAsync(id);
+
+                return new Response<string>($"Delete itemId {id} successfully", success: true, status: HttpStatusCode.OK);
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e.Message);
                 return new Response<string>($"Delete itemId {id} failure", status: HttpStatusCode.BadRequest);
             }
         }
@@ -132,11 +139,11 @@ namespace Application
             }
         }
 
-        public async Task<Response<ItemDto>> GetByIdAsync(Guid id)
+        public async Task<Response<ItemDto>> GetByIdAsync(int id)
         {
             try
             {
-                var item = await _itemRepository.GetByIdAsync(id);
+                var item = await _itemRepository.GetAsync(item => item.Id == id);
                 if (item == null)
                 {
                     return new Response<ItemDto>($"ItemId {id} not found!", status: HttpStatusCode.NotFound);
@@ -156,7 +163,7 @@ namespace Application
             try
             {
                 var itemList = await _itemRepository.GetListAsync();
-                var itemListMapped = _mapper.Map<IEnumerable<ItemDto>>(itemList);
+                var itemListMapped = _mapper.Map<IEnumerable<Item>, IEnumerable<ItemDto>>(itemList);
 
                 return new Response<ItemDto>(itemListMapped, "Get item list success", itemListMapped.Count());
             }
@@ -169,18 +176,32 @@ namespace Application
 
         public async Task<Response<Item>> UpdateAsync(UpdateItemDto item)
         {
+
             var getItem = await _itemRepository.GetByIdAsync(item.Id);
 
             if (getItem != null)
             {
-                var itemNeedUpdate = _mapper.Map<UpdateItemDto, Item>(item, getItem);
+                var itemNeedUpdate = _mapper.Map(item, getItem);
+                itemNeedUpdate.UpdatedDate = DateTime.Now;
+                var images = new List<ItemImage>();
+                foreach (var imageUri in item.Images)
+                {
+                    var itemImage = new ItemImage()
+                    {
+                        ImageUri = imageUri,
+                        ItemId = item.Id,
+                    };
+
+                    images.Add(itemImage);
+                }
+
+                itemNeedUpdate.Images = images;
 
                 var itemUpdated = await _itemRepository.UpdateAsync(itemNeedUpdate);
-
                 return new Response<Item>(itemUpdated, "Update item success");
             }
 
-            return new Response<Item>("Item not found!");
+            return new Response<Item>("Item not found!", status: HttpStatusCode.NotFound);
         }
 
     }
