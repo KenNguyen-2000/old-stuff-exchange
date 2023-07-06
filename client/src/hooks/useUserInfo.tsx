@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwtDecode from 'jwt-decode';
 import { getUserInfo } from '../services/user.service';
+import { IUserInfo } from '../interfaces/dtos';
 
 const useUserInfo = () => {
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState<IUserInfo | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {

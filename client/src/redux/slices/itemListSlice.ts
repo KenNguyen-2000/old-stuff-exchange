@@ -1,6 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { fetchUserInfo } from '../thunks/user.thunk';
-import { fetchItemList } from '../thunks/itemList.thunk';
+import { deleteAnItem, fetchItemList } from '../thunks/itemList.thunk';
 
 export interface ItemListSlice {
   isLoading: boolean;
@@ -26,6 +26,11 @@ const itemListSlice = createSlice({
         stuff.name.includes(action.payload)
       );
     },
+    deleteOldStuff: (state, action: PayloadAction<string>) => {
+      state.oldStuffs = state.oldStuffs.filter(
+        (item) => item.id !== action.payload
+      );
+    },
   },
   extraReducers(builder) {
     builder
@@ -34,15 +39,23 @@ const itemListSlice = createSlice({
       })
       .addCase(fetchItemList.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log(action.payload);
         state.oldStuffs = action.payload.datas;
       })
       .addCase(fetchItemList.rejected, (state) => {
         state.isLoading = false;
       });
+
+    builder
+      .addCase(deleteAnItem.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteAnItem.fulfilled, (state, action) => {
+        state.isLoading = false;
+      });
   },
 });
 
-export const { setOldStuffs, filterOldStuffs } = itemListSlice.actions;
+export const { setOldStuffs, filterOldStuffs, deleteOldStuff } =
+  itemListSlice.actions;
 
 export default itemListSlice.reducer;

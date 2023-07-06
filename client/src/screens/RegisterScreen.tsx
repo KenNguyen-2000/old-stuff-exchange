@@ -41,8 +41,6 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
   });
 
   const handleSignUp = async () => {
-    // console.log(Config.SERVER_URL);
-    console.log('Sign up');
     try {
       const res = await registerRequest(credentials);
       console.log(res);

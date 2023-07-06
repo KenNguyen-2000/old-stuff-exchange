@@ -11,6 +11,8 @@ import { useAppDispatch } from '../redux/reduxHook';
 import { filterOldStuffs } from '../redux/slices/itemListSlice';
 import { getListItemCategory } from '../services/item.service';
 import { fetchItemList } from '../redux/thunks/itemList.thunk';
+import { fetchUserInfo } from '../redux/thunks/user.thunk';
+import { ICategory } from '../interfaces/dtos';
 
 interface IHomeScreen extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
 
@@ -18,7 +20,7 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
   const dispatch = useAppDispatch();
 
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
 
   const onSearchChange = (text: string) => {
     dispatch(filterOldStuffs(text));
@@ -55,13 +57,11 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
             onChangeText={onSearchChange}
           />
         </View>
-        {categories.length > 0 && (
-          <CategoryList
-            navigation={navigation}
-            route={route}
-            categories={categories}
-          />
-        )}
+        <CategoryList
+          navigation={navigation}
+          route={route}
+          categories={categories}
+        />
         <StuffSections
           navigation={navigation}
           route={route}

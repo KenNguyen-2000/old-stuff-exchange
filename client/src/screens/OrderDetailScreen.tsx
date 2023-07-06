@@ -9,7 +9,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 interface IOrderDetailScreen
   extends NativeStackScreenProps<any, 'OrderDetail', 'mystack'> {}
 
-const OrderDetailScreen: React.FC<IOrderDetailScreen> = ({ navigation }) => {
+const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,

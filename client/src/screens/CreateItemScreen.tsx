@@ -44,8 +44,6 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
       allowsMultipleSelection: true,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
       const uriList = result.assets.map((img) => img.uri);
       setImages(uriList);
@@ -64,7 +62,6 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
   };
 
   const handleCreate = async () => {
-    console.log(newItem);
     setIsLoading(true);
     try {
       setTimeout(async () => {

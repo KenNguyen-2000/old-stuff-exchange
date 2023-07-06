@@ -36,7 +36,6 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
     try {
       const res = await loginRequest({ username, password });
       if (res.succeeded) {
-        console.log(res.data);
         const decoded: any = jwtDecode(res.data);
         dispatch(fetchUserInfo(decoded.Id));
         await AsyncStorage.setItem('token', res.data);

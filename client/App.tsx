@@ -31,8 +31,21 @@ import { View } from 'react-native';
 import CreateItemScreen from './src/screens/CreateItemScreen';
 import ItemListScreen from './src/screens/ItemListScreen';
 import OrderDetailScreen from './src/screens/OrderDetailScreen';
+import { ICategory, IItemDto } from './src/interfaces/dtos';
 
-const Stack = createNativeStackNavigator();
+type RootStackParamList = {
+  Home: undefined;
+  ItemDetail: { item: IItemDto };
+  bottom: undefined;
+  Welcome: undefined;
+  Register: undefined;
+  Login: undefined;
+  ItemList: { category: ICategory };
+  OrderDetail: undefined;
+  CreateItem: any;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -75,6 +88,10 @@ export default function App() {
     boldItalic: {
       ...baseVariants.bodyMedium,
       fontFamily: 'Ubuntu-BoldItalic',
+    },
+    medium: {
+      ...baseVariants.bodyMedium,
+      fontFamily: 'Ubuntu-Medium',
     },
   } as const;
 

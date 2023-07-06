@@ -8,9 +8,14 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { ItemListCard } from '../components/screens/ItemListScreen';
 import { fetchItemList } from '../redux/thunks/itemList.thunk';
+import { ICategory } from '../interfaces/dtos';
+
+type RouteParams = {
+  ItemList: { category: ICategory };
+};
 
 interface IHomeScreen
-  extends NativeStackScreenProps<any, 'ItemList', 'mystack'> {}
+  extends NativeStackScreenProps<RouteParams, 'ItemList', 'mystack'> {}
 
 const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
   const { category }: any = route.params;
@@ -27,8 +32,6 @@ const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
   const onSearchChange = (query: string) => {
     setSearchQuery(query);
   };
-
-  console.log('ItemScreen', searchQuery);
 
   useEffect(() => {
     const fetchItems = () => {

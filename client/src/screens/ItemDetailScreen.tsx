@@ -1,5 +1,5 @@
 import { StyleSheet, View, ImageBackground, ScrollView } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   Button,
@@ -9,18 +9,51 @@ import {
   useTheme,
 } from 'react-native-paper';
 import { FlatList } from 'react-native-gesture-handler';
-import { useAppSelector } from '../redux/reduxHook';
+import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { Pressable } from 'react-native';
+import useUserInfo from '../hooks/useUserInfo';
+import { deleteItem } from '../services/item.service';
+import { deleteOldStuff } from '../redux/slices/itemListSlice';
+import { makeAnOrder } from '../services/order.service';
+import { IItemDto, IUserInfo } from '../interfaces/dtos';
+
+type RootStackParamList = {
+  ItemDetail: {
+    item: IItemDto;
+  };
+};
 
 interface IItemDetailScreen
-  extends NativeStackScreenProps<any, 'ItemDetail', 'mystack'> {}
+  extends NativeStackScreenProps<RootStackParamList, 'ItemDetail', 'mystack'> {}
 
 const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
-  const { item }: any = route.params;
+  const { item } = route.params;
   const theme = useTheme();
-  const oldStuffs = useAppSelector((state) => state.items.oldStuffs);
 
-  const handleMakeExchange = () => {};
+  const dispatch = useAppDispatch();
+  const oldStuffs = useAppSelector((state) => state.items.oldStuffs);
+  const userInfo: IUserInfo | null = useUserInfo();
+
+  const handleMakeExchange = async (itemId: string) => {
+    try {
+      const res = await makeAnOrder(itemId);
+      if (res.succeeded) console.log(res);
+    } catch (error) {
+      console.warn(error);
+    }
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    try {
+      const res = await deleteItem(itemId);
+      if (res.succeeded) {
+        dispatch(deleteOldStuff(itemId));
+        navigation.pop();
+      } else console.log(res.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -33,7 +66,7 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
       <Pressable style={styles.header__wrapper}>
         <ImageBackground
           source={{
-            uri: item.images[0].imageUri || item.imageUrl,
+            uri: item.images[0].imageUri,
           }}
           resizeMode='cover'
           style={styles.header__wrapper}
@@ -54,7 +87,7 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
             containerColor={MD3Colors.primary40}
             size={28}
             style={styles.shopping__icon}
-            onPress={handleMakeExchange}
+            onPress={handleMakeExchange.bind(null, item.id)}
           />
         </ImageBackground>
       </Pressable>
@@ -105,14 +138,35 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
             ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
           />
         </View>
-
-        <Button
-          style={{ marginTop: 16, borderRadius: 8 }}
-          mode='contained'
-          onPress={handleMakeExchange}
-        >
-          Exchange
-        </Button>
+        {userInfo &&
+          (userInfo.id !== item.user.id ? (
+            <Button
+              style={{ marginTop: 16, borderRadius: 8 }}
+              mode='contained'
+              onPress={handleMakeExchange.bind(null, item.id)}
+            >
+              Exchange
+            </Button>
+          ) : (
+            <>
+              <Button
+                style={{ marginTop: 16, borderRadius: 8 }}
+                mode='contained'
+                onPress={handleMakeExchange.bind(null, item.id)}
+                buttonColor={theme.colors.tertiary}
+              >
+                Edit
+              </Button>
+              <Button
+                style={{ marginTop: 8, borderRadius: 8 }}
+                mode='contained'
+                onPress={handleDeleteItem.bind(null, item.id)}
+                buttonColor={theme.colors.error}
+              >
+                Delete
+              </Button>
+            </>
+          ))}
       </View>
     </ScrollView>
   );
