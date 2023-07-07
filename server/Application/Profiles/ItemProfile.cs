@@ -44,6 +44,9 @@ namespace Application.Profiles
              }))
              .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
+            CreateMap<ItemDto, UpdateItemDto>();
+
+
             CreateMap<Item, Item>();
             CreateMap<CategoryDto, Category>();
             CreateMap<Category, CategoryDto>();
