@@ -6,26 +6,33 @@ import {
   ProfileHeader,
   ProfileSection,
 } from '../components/screens/ProfileScreen';
-import useUserInfo from '../hooks/useUserInfo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { setUser } from '../redux/slices/userSlice';
-import { StatusBar } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import { fetchUserInfo } from '../redux/thunks/user.thunk';
 
 interface IProfileScreen
   extends NativeStackScreenProps<any, 'Profile', 'mystack'> {}
 
 const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
-  const userInfo = useUserInfo();
+  const userInfo = useAppSelector((state) => state.user.user);
+  const isFocused = useIsFocused();
   const theme = useTheme();
 
   const dispatch = useAppDispatch();
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('token');
+    await SecureStore.deleteItemAsync('token');
     dispatch(setUser(null));
     navigation.navigate('Login');
   };
+
+  useEffect(() => {
+    if (userInfo === null) {
+      dispatch(fetchUserInfo());
+    }
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -40,11 +47,7 @@ const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.container}>
-          <ProfileHeader
-            navigation={navigation}
-            route={route}
-            userInfo={userInfo}
-          />
+          <ProfileHeader navigation={navigation} route={route} />
           <ProfileSection />
           {userInfo !== null && (
             <Button
