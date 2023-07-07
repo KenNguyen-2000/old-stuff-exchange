@@ -43,17 +43,18 @@ namespace Infrastructure.Repositories
 
         public async Task<Order> GetAsync(Expression<Func<Order, bool>> predicate)
         {
-            return await _context.Orders.FirstOrDefaultAsync(predicate);
+            return await _context.Orders.Include(o => o.User).FirstOrDefaultAsync(predicate);
         }
 
         public async Task<Order> GetByIdAsync(int id)
         {
-            return await _context.Orders.FindAsync(id);
+            return await _context.Orders.FirstOrDefaultAsync(item => item.Id == id);
         }
 
         public async Task<IEnumerable<Order>> GetListAsync(Expression<Func<Order, bool>> predicate = null)
         {
-            return predicate == null ? await _context.Orders.ToListAsync() : await _context.Orders.Where(predicate).ToListAsync();
+            return predicate == null ? await _context.Orders.Include(o => o.Item).ToListAsync() 
+                : await _context.Orders.Where(predicate).Include(o => o.Item).ToListAsync();
         }
 
         public async Task<Order> UpdateAsync(Order order)
