@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/v1/user")]
+    [Route("api/v1/users")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -15,6 +15,19 @@ namespace WebAPI.Controllers
         public UserController(IUserService userService)
         {
             _userService = userService;
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var userList = await _userService.GetListAsync();
+            if (!userList.Succeeded)
+            {
+                return BadRequest(userList);
+            }
+
+            return Ok(userList);
         }
 
         [HttpGet("{userId:int}")]
