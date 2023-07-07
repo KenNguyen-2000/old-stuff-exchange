@@ -1,9 +1,11 @@
+using Application;
 using Application.DTOs;
 using Application.DTOs.OrderDtos;
 using Application.Interfaces;
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 
 namespace WebAPI.Controllers
@@ -17,6 +19,32 @@ namespace WebAPI.Controllers
         public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var result = await _orderService.GetListAsync();
+            if (!result.Succeeded)
+            {
+                BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("{orderId:int}")]
+        public async Task<IActionResult> GetOrderById(int orderId)
+        {
+            var result = await _orderService.GetByIdAsync(orderId);
+            if (!result.Succeeded && result.Status == HttpStatusCode.NotFound)
+            {
+                return NotFound(result);
+            }
+
+            return Ok(result);
         }
 
         [Authorize]
@@ -59,7 +87,15 @@ namespace WebAPI.Controllers
             if (orderRes.Succeeded)
                 return Ok(orderRes);
 
-            return NotFound();
+            switch (orderRes.Status)
+            {
+                case HttpStatusCode.NotFound:
+                    return NotFound(orderRes);
+                case HttpStatusCode.Forbidden:
+                    return StatusCode(403, orderRes);
+                default:
+                    return BadRequest(orderRes);
+            }
         }
     }
 }
