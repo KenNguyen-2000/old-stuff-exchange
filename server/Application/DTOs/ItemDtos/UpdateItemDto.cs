@@ -19,11 +19,9 @@ namespace Application.DTOs.ItemDtos
 
         public double Price { get; set; }
         public string Location { get; set; }
-        public ItemStatus Status { get; set; }
+        public string Status { get; set; }
         public int CategoryId { get; set; }
         public string[] Images { get; set; }
-        [JsonIgnore]
-        public DateTime Updated { get; set; } = DateTime.Now;
         [Required]
         [JsonIgnore]
         public int UserId { get; set; }

@@ -27,10 +27,6 @@ namespace Application.DTOs.ItemDtos
         [JsonIgnore]
         public ItemStatus Status { get; set; } = ItemStatus.Default;
         public string[] Images { get; set; } = Array.Empty<string>();
-        [JsonIgnore]
-        public DateTime Created { get; set; } = DateTime.Now;
-        [JsonIgnore]
-        public DateTime Updated { get; set; } = DateTime.Now;
         [Required]
         [JsonIgnore]
         public int UserId { get; set; }
