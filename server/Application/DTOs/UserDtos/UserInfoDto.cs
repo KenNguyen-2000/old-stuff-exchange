@@ -19,7 +19,7 @@ namespace Application.DTOs.UserDtos
         public string PhoneNumber { get; set; }
         public bool Gender { get; set; }
 
-        public string Dob { get; set; }
+        public DateTime Dob { get; set; }
         public string Address { get; set; }
         public double Points { get; set; }
         public string Role { get; set; }
