@@ -26,7 +26,9 @@ const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
     ...styles.search,
   });
 
-  const oldStuffs = useAppSelector((state) => state.items.oldStuffs);
+  const oldStuffs = useAppSelector((state) => state.items.oldStuffs).filter(
+    (stuff) => stuff.category.id === category.id
+  );
   const dispatch = useAppDispatch();
 
   const onSearchChange = (query: string) => {
@@ -83,7 +85,7 @@ const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
         {oldStuffs && (
           <FlatList
             data={oldStuffs}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
             numColumns={2}
             renderItem={({ item, index }) => (
               <ItemListCard item={item} index={index} navigation={navigation} />
