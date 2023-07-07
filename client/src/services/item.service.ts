@@ -13,7 +13,7 @@ export const getListItem = async () => {
 
 export const getListItemCategory = async () => {
   const res = await interceptor.get('/items/categories');
-
+  await new Promise((resolve) => setTimeout(resolve, 1500));
   return res.data;
 };
 
@@ -35,7 +35,7 @@ export const updateItem = async (updateItemDto: IUpdateItem) => {
   return res.data;
 };
 
-export const deleteItem = async (itemId: string) => {
+export const deleteItem = async (itemId: number) => {
   const res = await interceptor.delete(`/items/${itemId}`);
 
   return res.data;
