@@ -11,18 +11,18 @@ export const fetchItemList = createAsyncThunk(FETCH_ITEM_LIST, async () => {
     const data = await getListItem();
     return data;
   } catch (error) {
-    console.warn(error);
+    console.log(error);
   }
 });
 
 export const deleteAnItem = createAsyncThunk(
   DELETE_AN_ITEM,
-  async (itemId: string) => {
+  async (itemId: number) => {
     try {
       const data = await deleteItem(itemId);
       return data;
     } catch (error) {
-      console.warn(error);
+      console.log(error);
     }
   }
 );

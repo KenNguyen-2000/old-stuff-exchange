@@ -1,9 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchUserInfo } from '../thunks/user.thunk';
+import { IUserInfo } from '../../interfaces/dtos';
+import * as SecureStore from 'expo-secure-store';
+import jwtDecode from 'jwt-decode';
 
 export interface UserSlice {
   isLoading: boolean;
-  user: any;
+  user: IUserInfo | null;
 }
 
 const initialState: UserSlice = {

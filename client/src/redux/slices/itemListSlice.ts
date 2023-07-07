@@ -1,10 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { fetchUserInfo } from '../thunks/user.thunk';
 import { deleteAnItem, fetchItemList } from '../thunks/itemList.thunk';
+import { IItemDto } from '../../interfaces/dtos';
 
 export interface ItemListSlice {
   isLoading: boolean;
-  oldStuffs: any[];
+  oldStuffs: IItemDto[];
 }
 
 const initialState: ItemListSlice = {
@@ -23,10 +24,10 @@ const itemListSlice = createSlice({
       //   if (action.payload === '') state.oldStuffs = data;
       //   else
       state.oldStuffs = state.oldStuffs.filter((stuff) =>
-        stuff.name.includes(action.payload)
+        stuff.name.toLowerCase().includes(action.payload.toLowerCase())
       );
     },
-    deleteOldStuff: (state, action: PayloadAction<string>) => {
+    deleteOldStuff: (state, action: PayloadAction<number>) => {
       state.oldStuffs = state.oldStuffs.filter(
         (item) => item.id !== action.payload
       );
