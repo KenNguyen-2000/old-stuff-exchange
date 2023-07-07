@@ -37,12 +37,15 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            _context.Items
-                .Where(item => item.Id == id)
-                .ExecuteUpdate(item => item.SetProperty(i => i.Status, ItemStatus.Deleted));
+            var existingItem = await _context.Items.FindAsync(id);
+            if (existingItem == null)
+                return false;
+
+            existingItem.Status = ItemStatus.Deleted;
+            existingItem.UpdatedDate = DateTime.Now;
             await _context.SaveChangesAsync();
             
-            return false;
+            return true;
         }
 
         public Item Get(Expression<Func<Item, bool>> filter)
