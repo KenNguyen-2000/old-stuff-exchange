@@ -99,6 +99,22 @@ namespace Application
             }
         }
 
+        public async Task<Response<OrderDtos>> GetUserOrderListAsync(int userId)
+        {
+            try
+            {
+                var userItems = await _itemService.GetUserItemListAsync(userId);
+                var orderList = await _orderRepository.GetListAsync(o => o.UserId == userId || (o.Item.UserId == userId));
+                var orderListMapped = _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDtos>>(orderList);
+
+                return new Response<OrderDtos>(orderListMapped, "Get order list success", orderListMapped.Count());
+            }
+            catch (System.Exception ex)
+            {
+                return new Response<OrderDtos>(ex.Message);
+            }
+        }
+
         public Task<Response<Item>> UpdateAsync(OrderDtos item)
         {
             throw new NotImplementedException();
@@ -115,7 +131,7 @@ namespace Application
             {
                 case OrderStatus.Accepted:
                     {
-                        var success = await ConfirmOrder(getOrder);
+                        var success = await ConfirmOrder(changeOrderStatusDto.UserId, getOrder);
                         if (!success.Succeeded)
                             return new Response<OrderDtos>(success.Message, status: success.Status);
                         getOrder.Status = changeOrderStatusDto.Status;
@@ -145,7 +161,7 @@ namespace Application
             var mappedUpdatedOrder = _mapper.Map<OrderDtos>(updatedOrder);
 
 
-            return new Response<OrderDtos>(mappedUpdatedOrder);
+            return new Response<OrderDtos>(mappedUpdatedOrder, "Change order status successfully!");
         }
 
         private async Task<Response<string>> CancelAcceptedOrder(Order order)
@@ -175,7 +191,7 @@ namespace Application
             }
         }
 
-        private async Task<Response<string>> ConfirmOrder(Order order)
+        private async Task<Response<string>> ConfirmOrder(int userId, Order order)
         {
             try
             {
@@ -184,8 +200,8 @@ namespace Application
                 var getSeller = getItem.Data.User;
                 ItemDto item = getItem.Data;
 
-                if (order.UserId != item.User.Id)
-                    return new Response<string>("Only seller can confirm order!", status: HttpStatusCode.Forbidden);
+                if (userId != getSeller.Id)
+                    return new Response<string>("Only seller can confirm order", status: HttpStatusCode.Forbidden);
 
                 var sellerRes = await _userService.UpdatePointsAsync(getSeller.Id, getItem.Data.Price / 2 * -1);
 

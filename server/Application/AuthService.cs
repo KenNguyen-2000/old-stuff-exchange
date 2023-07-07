@@ -54,8 +54,7 @@ namespace Application
             {
                 return new Response<User>($"Username {registerRequest.Username} already existed!");
             }
-            byte[] passwordHash, passwordSalt;
-            HashPassword(registerRequest.Password, out passwordHash, out passwordSalt);
+            HashPassword(registerRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
             var newUser = new User()
             {
                 FullName = registerRequest.FullName,

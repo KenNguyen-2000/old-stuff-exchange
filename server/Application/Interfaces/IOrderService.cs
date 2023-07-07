@@ -9,6 +9,7 @@ namespace Application.Interfaces
     {
         Task<Response<Order>> AddAsync(CreateOrderDtos createOrderDtos);
         Task<Response<OrderDtos>> GetListAsync();
+        Task<Response<OrderDtos>> GetUserOrderListAsync(int userId);
         Task<Response<OrderDtos>> GetByIdAsync(int id);
         Task<Response<Item>> UpdateAsync(OrderDtos orderDtos);
         Task<Response<string>> DeleteAsync(int id);

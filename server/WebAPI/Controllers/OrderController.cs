@@ -25,14 +25,42 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
-            var result = await _orderService.GetListAsync();
-            if (!result.Succeeded)
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                BadRequest(result);
-            }
+                int userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var userRole = User.FindFirstValue(ClaimTypes.Role)!;
 
-            return Ok(result);
+                var result = userRole.Equals(UserRole.Admin) ? await _orderService.GetListAsync() : await _orderService.GetUserOrderListAsync(userId);
+                if (!result.Succeeded)
+                {
+                    BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            else
+            {
+                return Unauthorized("Token invalid");
+            }
         }
+
+        // [Authorize]
+        // [HttpGet]
+        // public async Task<IActionResult> GetAllUserOrders()
+        // {
+        //     if (HttpContext.User.Identity is ClaimsIdentity identity)
+        //     {
+        //         int userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+        //         var result = await _orderService.GetUserOrderListAsync(userId);
+
+        //         return Ok(result);
+        //     }
+        //     else
+        //     {
+        //         return Unauthorized("Token invalid");
+        //     }
+        // }
 
         [Authorize]
         [HttpGet("{orderId:int}")]
@@ -51,7 +79,7 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAnOrder(CreateOrderDtos createOrderDtos)
         {
-            if(HttpContext.User.Identity is ClaimsIdentity identity)
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
                 int userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 createOrderDtos.UserId = userId;
@@ -67,34 +95,39 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpPatch("status/{orderId:int}")]
-        public async Task<IActionResult> ChangeOrderStatus(int orderId, [FromBody] string status)
+        [HttpPatch("{orderId:int}")]
+        public async Task<IActionResult> ChangeOrderStatus(int orderId, [FromBody] ChangeOrderStatusRequest changeOrderStatusRequest)
         {
-            if (!Enum.TryParse(status, true, out OrderStatus statusResult))
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                return BadRequest(new Response<string>("Status not defined"));
+                if (!Enum.TryParse(changeOrderStatusRequest.Status, true, out OrderStatus statusResult))
+                {
+                    return BadRequest(new Response<string>("Status not defined"));
+                }
+
+
+                int userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                ChangeOrderStatusDto newOrderStatus = new()
+                {
+                    Id = orderId,
+                    Status = statusResult,
+                    UserId = userId
+                };
+                var orderRes = await _orderService.UpdateStatusAsync(newOrderStatus);
+
+                if (orderRes.Succeeded)
+                    return Ok(orderRes);
+
+                return orderRes.Status switch
+                {
+                    HttpStatusCode.NotFound => NotFound(orderRes),
+                    HttpStatusCode.Forbidden => StatusCode(403, orderRes),
+                    _ => BadRequest(orderRes),
+                };
             }
-
-
-
-            ChangeOrderStatusDto changeOrderStatusDto = new()
+            else
             {
-                Id = orderId,
-                Status = statusResult
-            };
-            var orderRes = await _orderService.UpdateStatusAsync(changeOrderStatusDto);
-
-            if (orderRes.Succeeded)
-                return Ok(orderRes);
-
-            switch (orderRes.Status)
-            {
-                case HttpStatusCode.NotFound:
-                    return NotFound(orderRes);
-                case HttpStatusCode.Forbidden:
-                    return StatusCode(403, orderRes);
-                default:
-                    return BadRequest(orderRes);
+                return Unauthorized("Token invalid");
             }
         }
     }

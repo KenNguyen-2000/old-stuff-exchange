@@ -53,8 +53,19 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<Order>> GetListAsync(Expression<Func<Order, bool>> predicate = null)
         {
-            return predicate == null ? await _context.Orders.Include(o => o.Item).ToListAsync() 
-                : await _context.Orders.Where(predicate).Include(o => o.Item).ToListAsync();
+            return predicate == null
+            ? await _context.Orders
+            .Include(o => o.Item)
+            .Include(o => o.Item.User)
+            .Include(o => o.Item.Images)
+            .Include(o => o.User)
+            .ToListAsync()
+                : await _context.Orders.Where(predicate)
+                .Include(o => o.Item)
+                .Include(o => o.Item.User)
+                .Include(o => o.Item.Images)
+                .Include(o => o.User)
+                .ToListAsync();
         }
 
         public async Task<Order> UpdateAsync(Order order)

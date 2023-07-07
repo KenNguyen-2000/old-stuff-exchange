@@ -108,7 +108,7 @@ namespace Application
                     return new Response<string>("You cannot perform this action", status: HttpStatusCode.Forbidden);
                 }
 
-               bool deleted = await _itemRepository.DeleteAsync(id);
+                bool deleted = await _itemRepository.DeleteAsync(id);
 
                 if (!deleted)
                     return new Response<string>("Delete item failure", status: HttpStatusCode.BadRequest);
@@ -177,11 +177,27 @@ namespace Application
             }
         }
 
+        public async Task<Response<ItemDto>> GetUserItemListAsync(int userId)
+        {
+            try
+            {
+                var itemList = await _itemRepository.GetListAsync(i => i.UserId == userId);
+                var itemListMapped = _mapper.Map<IEnumerable<Item>, IEnumerable<ItemDto>>(itemList);
+
+                return new Response<ItemDto>(itemListMapped, "Get item list success", itemListMapped.Count());
+            }
+            catch (System.Exception)
+            {
+
+                return new Response<ItemDto>("Get item list failed!");
+            }
+        }
+
         public async Task<Response<ItemDto>> UpdateAsync(UpdateItemDto item)
         {
 
             var getItem = await _itemRepository.GetByIdAsync(item.Id);
-          Enum.TryParse<ItemStatus>(item.Status, true, out ItemStatus status);
+            Enum.TryParse<ItemStatus>(item.Status, true, out ItemStatus status);
 
             if (getItem != null)
             {

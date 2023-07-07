@@ -22,5 +22,6 @@ namespace Application.DTOs.AuthDtos
         public DateTime Dob { get; set; }
         [Required]
         public string Address { get; set; }
+        public bool Gender { get; set; }
     }
 }

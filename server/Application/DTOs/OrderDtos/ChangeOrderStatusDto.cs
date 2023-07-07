@@ -9,5 +9,6 @@ namespace Application.DTOs.OrderDtos
         public int Id { get; set; }
         [Required]
         public OrderStatus Status { get; set; }
+        public int UserId { get; set; }
     }
 }
