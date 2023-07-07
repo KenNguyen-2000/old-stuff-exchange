@@ -1,5 +1,5 @@
 import { StyleSheet, View, ImageBackground, ScrollView } from 'react-native';
-import React, { useCallback, useLayoutEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   Button,
@@ -11,16 +11,17 @@ import {
 import { FlatList } from 'react-native-gesture-handler';
 import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { Pressable } from 'react-native';
-import useUserInfo from '../hooks/useUserInfo';
 import { deleteItem } from '../services/item.service';
 import { deleteOldStuff } from '../redux/slices/itemListSlice';
 import { makeAnOrder } from '../services/order.service';
 import { IItemDto, IUserInfo } from '../interfaces/dtos';
+import { fetchUserInfo } from '../redux/thunks/user.thunk';
 
 type RootStackParamList = {
   ItemDetail: {
     item: IItemDto;
   };
+  Login: any;
 };
 
 interface IItemDetailScreen
@@ -32,18 +33,18 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
 
   const dispatch = useAppDispatch();
   const oldStuffs = useAppSelector((state) => state.items.oldStuffs);
-  const userInfo: IUserInfo | null = useUserInfo();
+  const userInfo: IUserInfo | null = useAppSelector((state) => state.user.user);
 
-  const handleMakeExchange = async (itemId: string) => {
+  const handleMakeExchange = async (itemId: number) => {
     try {
       const res = await makeAnOrder(itemId);
       if (res.succeeded) console.log(res);
     } catch (error) {
-      console.warn(error);
+      console.log(error);
     }
   };
 
-  const handleDeleteItem = async (itemId: string) => {
+  const handleDeleteItem = async (itemId: number) => {
     try {
       const res = await deleteItem(itemId);
       if (res.succeeded) {
@@ -54,6 +55,10 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (userInfo === null) dispatch(fetchUserInfo());
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -66,7 +71,10 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
       <Pressable style={styles.header__wrapper}>
         <ImageBackground
           source={{
-            uri: item.images[0].imageUri,
+            uri:
+              item.images.length > 0
+                ? item.images[0].imageUri
+                : 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png',
           }}
           resizeMode='cover'
           style={styles.header__wrapper}
@@ -125,7 +133,12 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
                 onPress={() => navigation.push('ItemDetail', { item: item })}
               >
                 <ImageBackground
-                  source={{ uri: item.images[0].imageUri || item.imageUrl }}
+                  source={{
+                    uri:
+                      item.images.length > 0
+                        ? item.images[0].imageUri
+                        : 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png',
+                  }}
                   style={{
                     aspectRatio: 3 / 4,
                     width: '100%',
@@ -138,35 +151,41 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
             ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
           />
         </View>
-        {userInfo &&
-          (userInfo.id !== item.user.id ? (
+
+        {(userInfo == null || userInfo.id !== item.user.id) && (
+          <Button
+            style={{ marginTop: 16, borderRadius: 8 }}
+            mode='contained'
+            onPress={
+              userInfo === null
+                ? () => navigation.navigate('Login')
+                : handleMakeExchange.bind(null, item.id)
+            }
+          >
+            Exchange
+          </Button>
+        )}
+
+        {userInfo && userInfo.id === item.user.id && (
+          <>
             <Button
               style={{ marginTop: 16, borderRadius: 8 }}
               mode='contained'
               onPress={handleMakeExchange.bind(null, item.id)}
+              buttonColor={theme.colors.tertiary}
             >
-              Exchange
+              Edit
             </Button>
-          ) : (
-            <>
-              <Button
-                style={{ marginTop: 16, borderRadius: 8 }}
-                mode='contained'
-                onPress={handleMakeExchange.bind(null, item.id)}
-                buttonColor={theme.colors.tertiary}
-              >
-                Edit
-              </Button>
-              <Button
-                style={{ marginTop: 8, borderRadius: 8 }}
-                mode='contained'
-                onPress={handleDeleteItem.bind(null, item.id)}
-                buttonColor={theme.colors.error}
-              >
-                Delete
-              </Button>
-            </>
-          ))}
+            <Button
+              style={{ marginTop: 8, borderRadius: 8 }}
+              mode='contained'
+              onPress={handleDeleteItem.bind(null, item.id)}
+              buttonColor={theme.colors.error}
+            >
+              Delete
+            </Button>
+          </>
+        )}
       </View>
     </ScrollView>
   );
