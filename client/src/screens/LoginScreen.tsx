@@ -10,7 +10,7 @@ import React, { useState, useLayoutEffect } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, TextInput, IconButton, Text } from 'react-native-paper';
 import { loginRequest } from '../services/auth.service';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import jwtDecode from 'jwt-decode';
 import { useAppDispatch } from '../redux/reduxHook';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
@@ -37,8 +37,8 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
       const res = await loginRequest({ username, password });
       if (res.succeeded) {
         const decoded: any = jwtDecode(res.data);
-        dispatch(fetchUserInfo(decoded.Id));
-        await AsyncStorage.setItem('token', res.data);
+        dispatch(fetchUserInfo());
+        await SecureStore.setItemAsync('token', res.data);
         navigation.navigate('Home');
       }
     } catch (error) {
