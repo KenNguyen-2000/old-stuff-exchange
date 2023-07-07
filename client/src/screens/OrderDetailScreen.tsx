@@ -1,23 +1,90 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Button, Text } from 'react-native-paper';
+import { Button, Dialog, MD3Colors, Portal, Text } from 'react-native-paper';
 import MySafeArea from '../components/MySafeArea';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { IOrderDto } from '../interfaces/dtos/order.dto';
+import { OrderStatus } from '../interfaces/enums/order.enum';
+import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
+import { fetchUserInfo } from '../redux/thunks/user.thunk';
+import { changeOrderStatus } from '../services/order.service';
+import { AlertDialog } from '../components';
+import { setOrderStatus } from '../redux/slices/ordersSlice';
 
+type RootStackParamrs = {
+  OrderDetail: {
+    order: IOrderDto;
+  };
+};
 interface IOrderDetailScreen
-  extends NativeStackScreenProps<any, 'OrderDetail', 'mystack'> {}
+  extends NativeStackScreenProps<RootStackParamrs, 'OrderDetail', 'mystack'> {}
 
-const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, [navigation]);
+const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
+  const { order } = route.params;
+
+  const dispatch = useAppDispatch();
+  const userInfo = useAppSelector((state) => state.user.user);
+  const [visible, setVisible] = useState(false);
+
+  const handleChangeOrderStatus = async (newStatus: OrderStatus) => {
+    try {
+      const curStatus = order.status;
+      dispatch(setOrderStatus({ id: order.id, status: newStatus }));
+      const res = await changeOrderStatus({
+        id: order.id,
+        status: newStatus,
+      });
+      if (!res.suceeded)
+        dispatch(setOrderStatus({ id: order.id, status: curStatus }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getOrderAction = () => {
+    if (!userInfo) return null;
+    console.log('user', userInfo);
+
+    if (userInfo.id === order.user.id && order.status === OrderStatus.Accepted)
+      return (
+        <Button
+          mode='contained'
+          style={styles.confirm__btn}
+          onPress={handleChangeOrderStatus.bind(null, OrderStatus.Finished)}
+        >
+          Finish Order
+        </Button>
+      );
+    else if (
+      userInfo.id === order.item.user.id &&
+      order.status === OrderStatus.In_Progress
+    )
+      return (
+        <Button
+          mode='contained'
+          style={styles.confirm__btn}
+          onPress={handleChangeOrderStatus.bind(null, OrderStatus.Accepted)}
+        >
+          Confirm Order
+        </Button>
+      );
+    else return null;
+  };
+
+  useEffect(() => {
+    if (!userInfo) dispatch(fetchUserInfo());
+  }, []);
+
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerShown: false,
+  //   });
+  // }, [navigation]);
 
   return (
-    <MySafeArea>
+    <View style={{ flex: 1 }}>
       <ScrollView style={styles.wrapper}>
         <Text
           variant='headlineLarge'
@@ -25,13 +92,25 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
             marginBottom: 24,
           }}
         >
-          Order #2244 details
+          Order #{2000 + order.id} details
         </Text>
 
         <View style={styles.body__wrapper}>
           <View style={styles.section}>
             <View style={styles.order__header}>
-              <AntDesign name='checkcircle' size={36} />
+              <AntDesign
+                name='checkcircle'
+                size={36}
+                color={
+                  [
+                    OrderStatus.In_Progress,
+                    OrderStatus.Accepted,
+                    OrderStatus.Finished,
+                  ].includes(order.status)
+                    ? '#000'
+                    : 'gray'
+                }
+              />
               <Text variant='titleLarge'>Order Placed</Text>
             </View>
             <View style={styles.order__content}>
@@ -42,11 +121,23 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
                   alignItems: 'center',
                 }}
               >
-                <View style={styles.progress__line}></View>
+                <View
+                  style={[
+                    styles.progress__line,
+                    {
+                      backgroundColor: [OrderStatus.Finished].includes(
+                        order.status
+                      )
+                        ? '#000'
+                        : 'gray',
+                    },
+                  ]}
+                ></View>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.order__description}>
-                  Your item have been reserved. 22 August 2022, 9:38 AM
+                  Your item have been reserved.{' '}
+                  {new Date(order.createdDate).toUTCString()}
                 </Text>
               </View>
             </View>
@@ -54,7 +145,19 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
           {/* ********************Processing*************************** */}
           <View style={styles.section}>
             <View style={styles.order__header}>
-              <MaterialCommunityIcons name='clock' size={36} />
+              <MaterialCommunityIcons
+                name='clock'
+                size={36}
+                color={
+                  [
+                    OrderStatus.In_Progress,
+                    OrderStatus.Accepted,
+                    OrderStatus.Finished,
+                  ].includes(order.status)
+                    ? '#000'
+                    : 'gray'
+                }
+              />
               <Text variant='titleLarge'>Processing</Text>
             </View>
             <View style={styles.order__content}>
@@ -65,12 +168,24 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
                   alignItems: 'center',
                 }}
               >
-                <View style={styles.progress__line}></View>
+                <View
+                  style={[
+                    styles.progress__line,
+                    {
+                      backgroundColor: [OrderStatus.Finished].includes(
+                        order.status
+                      )
+                        ? '#000'
+                        : 'gray',
+                    },
+                  ]}
+                ></View>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.order__description}>
                   Your item is being prepared for delivery. Estimate delivery
-                  time: 2-3 business days. 22 August 2022, 10:15 AM
+                  time: 2-3 business days.{' '}
+                  {new Date(order.createdDate).toUTCString()}
                 </Text>
               </View>
             </View>
@@ -81,7 +196,13 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
               <MaterialCommunityIcons
                 name='truck-delivery'
                 size={36}
-                color={'gray'}
+                color={
+                  [OrderStatus.Finished, OrderStatus.Accepted].includes(
+                    order.status
+                  )
+                    ? '#000'
+                    : 'gray'
+                }
               />
               <Text variant='titleLarge'>Confirm</Text>
             </View>
@@ -93,7 +214,18 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
                   alignItems: 'center',
                 }}
               >
-                <View style={styles.progress__line}></View>
+                <View
+                  style={[
+                    styles.progress__line,
+                    {
+                      backgroundColor: [OrderStatus.Finished].includes(
+                        order.status
+                      )
+                        ? '#000'
+                        : 'gray',
+                    },
+                  ]}
+                ></View>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.order__description}>
@@ -106,7 +238,15 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
           {/* ********************Delivered*************************** */}
           <View style={styles.section}>
             <View style={styles.order__header}>
-              <AntDesign name='checkcircle' size={36} color={'gray'} />
+              <AntDesign
+                name='checkcircle'
+                size={36}
+                color={
+                  [OrderStatus.Finished].includes(order.status)
+                    ? '#000'
+                    : 'gray'
+                }
+              />
               <Text variant='titleLarge'>Delivered</Text>
             </View>
             <View style={styles.order__content}>
@@ -117,7 +257,18 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
                   alignItems: 'center',
                 }}
               >
-                <View style={styles.progress__line}></View>
+                <View
+                  style={[
+                    styles.progress__line,
+                    {
+                      backgroundColor: [OrderStatus.Finished].includes(
+                        order.status
+                      )
+                        ? '#000'
+                        : 'gray',
+                    },
+                  ]}
+                ></View>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.order__description}>
@@ -127,18 +278,46 @@ const OrderDetailScreen = ({ navigation }: IOrderDetailScreen) => {
               </View>
             </View>
           </View>
-
-          <Button
-            mode='contained'
-            style={styles.back__btn}
-            onPress={() => navigation.goBack()}
+          <View
+            style={{ display: 'flex', gap: 8, marginTop: 16, marginBottom: 24 }}
           >
-            Back to Home
-          </Button>
+            {getOrderAction()}
+            <Button
+              mode='contained'
+              style={styles.confirm__btn}
+              buttonColor={MD3Colors.error60}
+              onPress={() => setVisible(true)}
+            >
+              Cancel Order
+            </Button>
+          </View>
         </View>
         <View style={{ height: 24 }}></View>
       </ScrollView>
-    </MySafeArea>
+      <Portal>
+        <Dialog visible={visible} onDismiss={() => setVisible(false)}>
+          <Dialog.Title>Cancel Order</Dialog.Title>
+          <Dialog.Content>
+            <Text variant='bodyMedium'>
+              Are sure about refusing this order?
+            </Text>
+            <Text>This action cannot be reversed</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={handleChangeOrderStatus.bind(
+                null,
+                OrderStatus.Cancelled
+              )}
+              textColor={MD3Colors.error40}
+            >
+              Confirm
+            </Button>
+            <Button onPress={() => setVisible(false)}>Dismiss</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    </View>
   );
 };
 
@@ -178,11 +357,11 @@ const styles = StyleSheet.create({
     width: 1,
     minHeight: 60,
     flex: 1,
-    backgroundColor: 'gray',
   },
   order__description: {
     color: 'gray',
     width: '90%',
   },
-  back__btn: { marginTop: 30, marginBottom: 24, paddingVertical: 4 },
+  confirm__btn: { paddingVertical: 4 },
+  back__btn: { paddingVertical: 4 },
 });
