@@ -38,6 +38,7 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
     password: '',
     dob: new Date(),
     address: '',
+    gender: false,
   });
 
   const handleSignUp = async () => {
@@ -45,7 +46,7 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
       const res = await registerRequest(credentials);
       console.log(res);
     } catch (error: any) {
-      console.warn(error.data);
+      console.log(error.data);
     }
   };
 
