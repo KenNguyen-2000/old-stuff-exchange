@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
                     return NotFound(result);
                 } else if (result.Status == HttpStatusCode.Forbidden)
                 {
-                    return Forbid(result.Message);
+                    return StatusCode(403, result);
                 }else if (!result.Succeeded)
                 {
                     return BadRequest(result);
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
                 var itemRes = await _itemService.GetByIdAsync(item.Id);
                 if (!itemRes.Data.User.Id.Equals(userId))
                 {
-                    return Forbid(nameof(UpdateItem), userId.ToString());
+                    return StatusCode(403, itemRes);
                 }
 
                 var result = await _itemService.UpdateAsync(item);
@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
 
                 if (itemRes.Data.Id.Equals(userId))
                 {
-                    return Forbid(nameof(ChangeItemStatus), userId.ToString());
+                    return StatusCode(403, itemRes);
                 }
 
                 var result = await _itemService.ChangeItemStatusAsync(changeItemStatusDto);
