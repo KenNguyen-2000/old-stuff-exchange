@@ -9,7 +9,8 @@ namespace Application.Profiles
         public OrderProfile()
         {
             CreateMap<OrderDtos, Order>();
-            CreateMap<Order, OrderDtos>();
+            CreateMap<Order, OrderDtos>()
+                .ForMember(dest => dest.Item, opt => opt.MapFrom(src => src.Item));
 
             CreateMap<Order, CreateOrderDtos>();
             CreateMap<CreateOrderDtos, Order>();
