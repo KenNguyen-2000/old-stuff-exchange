@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
+import { navigate } from '../helpers/navigation.service';
 
 const interceptor = axios.create({
   baseURL: Constants.expoConfig?.extra?.apiUrl,
@@ -8,7 +9,7 @@ const interceptor = axios.create({
 
 interceptor.interceptors.request.use(
   async (req: InternalAxiosRequestConfig<any>) => {
-    const token = await AsyncStorage.getItem('token');
+    const token = await SecureStore.getItemAsync('token');
     if (token && req.headers) {
       req.headers.Authorization = `Bearer ${token}`;
     }
@@ -20,9 +21,10 @@ interceptor.interceptors.request.use(
 interceptor.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
-    console.warn(error);
     if (error.response?.status === 401) {
-      await AsyncStorage.removeItem('token');
+      await SecureStore.deleteItemAsync('token');
+
+      navigate('Login');
     }
     return Promise.reject(error.response);
   }
