@@ -1,7 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import React, { useMemo, useRef, useCallback } from 'react';
-import { SafeAreaView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useMemo, useRef, useCallback, useEffect } from 'react';
 import MySafeArea from '../components/MySafeArea';
 import { OrderList } from '../components/screens/OrderScreen';
 import { Button, Portal, Text } from 'react-native-paper';
@@ -26,6 +24,7 @@ const OrderScreen: React.FC<IOrderScreen> = ({ navigation, route }) => {
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
+
   return (
     <MySafeArea style={{ ...styles.wrapper }}>
       <Text style={styles.title__h1}>Activity</Text>
@@ -39,7 +38,7 @@ const OrderScreen: React.FC<IOrderScreen> = ({ navigation, route }) => {
       <Portal>
         <BottomSheet
           ref={bottomSheetRef}
-          index={1}
+          index={-1}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
           enablePanDownToClose={false}
