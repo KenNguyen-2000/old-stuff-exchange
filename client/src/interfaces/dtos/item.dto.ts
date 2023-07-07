@@ -1,27 +1,32 @@
+import { IAuditable } from './auditable.dto';
 import { IUserInfo } from './user.dto';
 
-export interface IItemDto {
-  id: string;
+enum ItemStatus {
+  Default = 'Default',
+  Active = 'Active',
+  Inactive = 'Inactive',
+  Deleted = 'Deleted',
+}
+
+export interface IItemDto extends IAuditable {
   name: string;
   description: string;
   price: number;
   location: string;
-  status: string;
+  status: ItemStatus;
   images: IItemImage[];
-  created?: Date;
-  updated?: Date;
   user: IUserInfo;
   category: ICategory;
 }
 
 export interface IItemImage {
-  id: string;
+  id: number;
   imageUri: string;
-  itemId: string;
+  itemId: number;
 }
 
 export interface ICategory {
-  id: string;
+  id: number;
   name: string;
   imageUri: string;
 }
@@ -36,16 +41,16 @@ export interface ICreateItem {
 }
 
 export interface IUpdateItem {
-  id: string;
+  id: number;
   name?: string;
   description?: string;
   price?: number;
   location?: string;
-  status?: string;
+  status?: ItemStatus;
   images?: string[];
 }
 
 export interface IChangeItemStatus {
-  id: string;
-  status: string;
+  id: number;
+  status: ItemStatus;
 }
