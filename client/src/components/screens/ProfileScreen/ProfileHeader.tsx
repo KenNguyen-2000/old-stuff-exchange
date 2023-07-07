@@ -3,16 +3,15 @@ import React from 'react';
 import { useTheme, Avatar, Button } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSelector } from '../../../redux/reduxHook';
 
 interface IProfileHeader
-  extends NativeStackScreenProps<any, 'Profile', 'mystack'> {
-  userInfo: any;
-}
+  extends NativeStackScreenProps<any, 'Profile', 'mystack'> {}
 
-const ProfileHeader = ({ navigation, userInfo }: IProfileHeader) => {
+const ProfileHeader = ({ navigation }: IProfileHeader) => {
+  const userInfo = useAppSelector((state) => state.user.user);
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  console.log(userInfo);
   return (
     <View
       style={[
@@ -48,6 +47,9 @@ const ProfileHeader = ({ navigation, userInfo }: IProfileHeader) => {
       ) : (
         <View>
           <Text style={{ fontSize: 20 }}>{userInfo.fullName}</Text>
+          <Text style={{ fontSize: 20 }}>
+            {new Date(userInfo.dob).toUTCString()}
+          </Text>
         </View>
       )}
     </View>
