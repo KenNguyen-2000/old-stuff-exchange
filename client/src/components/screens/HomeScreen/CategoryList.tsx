@@ -17,9 +17,10 @@ const dummyArr = new Array(8).fill('');
 
 interface ICategoryList extends NativeStackScreenProps<any, 'Home', 'mystack'> {
   categories: ICategory[];
+  isLoading: boolean;
 }
 
-const CategoryList = ({ navigation, categories }: ICategoryList) => {
+const CategoryList = ({ navigation, categories, isLoading }: ICategoryList) => {
   const handleNavigateItemList = (item: any) => {
     navigation.navigate('ItemList', {
       category: item,
@@ -35,7 +36,7 @@ const CategoryList = ({ navigation, categories }: ICategoryList) => {
           showsHorizontalScrollIndicator={false}
           style={styles.scroll__container}
         >
-          {categories.length > 0 ? (
+          {!isLoading ? (
             <FlatList
               scrollEnabled={false}
               contentContainerStyle={{
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
     minHeight: 100,
-    backgroundColor: '#eaeaea',
+    backgroundColor: '#fbfbfb',
     marginTop: -28,
     paddingBottom: 10,
   },

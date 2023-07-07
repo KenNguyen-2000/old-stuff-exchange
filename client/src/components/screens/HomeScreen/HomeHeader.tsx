@@ -3,7 +3,7 @@ import React from 'react';
 import { IconButton, Text, TextInput } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 interface IHomeHeader extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
 
@@ -11,7 +11,7 @@ const HomeHeader = ({ navigation }: IHomeHeader) => {
   const insets = useSafeAreaInsets();
 
   const handleCreateItem = async () => {
-    const token = await AsyncStorage.getItem('token');
+    const token = await SecureStore.getItemAsync('token');
     if (token !== null) navigation.navigate('CreateItem');
     else navigation.navigate('Login');
   };
