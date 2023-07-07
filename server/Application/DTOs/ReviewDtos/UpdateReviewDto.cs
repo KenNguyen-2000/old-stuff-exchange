@@ -14,8 +14,6 @@ namespace Application.DTOs.ReviewDtos
         public int Id { get; set; }
         public string Content { get; set; }
         public int Rating { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Updated { get; set; }
         public int ItemId { get; set; }
         [Required]
         public int UserId { get; set; }
