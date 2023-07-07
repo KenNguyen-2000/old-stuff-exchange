@@ -32,6 +32,8 @@ import CreateItemScreen from './src/screens/CreateItemScreen';
 import ItemListScreen from './src/screens/ItemListScreen';
 import OrderDetailScreen from './src/screens/OrderDetailScreen';
 import { ICategory, IItemDto } from './src/interfaces/dtos';
+import { setNavigationRef } from './src/helpers/navigation.service';
+import { IOrderDto } from './src/interfaces/dtos/order.dto';
 
 type RootStackParamList = {
   Home: undefined;
@@ -41,17 +43,15 @@ type RootStackParamList = {
   Register: undefined;
   Login: undefined;
   ItemList: { category: ICategory };
-  OrderDetail: undefined;
+  OrderDetail: {
+    order: IOrderDto;
+  };
   CreateItem: any;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
   const [fontsLoaded] = useFonts({
     Quicksand_Book: require('./assets/fonts/Quicksand_Book.otf'),
     Ubuntu: require('./assets/fonts/Ubuntu-Regular.ttf'),
@@ -74,6 +74,8 @@ export default function App() {
     displayMedium: {
       ...baseVariants.displayMedium,
       fontFamily: 'Ubuntu-Medium',
+      fontSize: 16,
+      lineHeight: 24,
     },
 
     // Add own tokens if required:
@@ -121,7 +123,7 @@ export default function App() {
     <ReduxProvider store={store}>
       <PaperProvider theme={{ ...theme, ...fonts }}>
         <View style={styles.container} onLayout={onLayoutRootView}>
-          <NavigationContainer>
+          <NavigationContainer ref={setNavigationRef}>
             <Stack.Navigator initialRouteName='bottom'>
               <Stack.Screen name='Welcome' component={WelcomeScreen} />
               <Stack.Screen
