@@ -1,36 +1,69 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import React from 'react';
-import { Button, Text } from 'react-native-paper';
+import { Button, MD3Colors, Text } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { IOrderDto } from '../../../interfaces/dtos/order.dto';
+import { OrderStatus } from '../../../interfaces/enums/order.enum';
 
 interface IOrderCard extends NativeStackScreenProps<any, 'Order', 'my-stack'> {
   showBottomSheet: any;
+  data: IOrderDto;
 }
 
-const OrderCard: React.FC<IOrderCard> = ({ showBottomSheet, navigation }) => {
+const statusColor = new Map([
+  [OrderStatus.Accepted, '#20b13f'],
+  [OrderStatus.Cancelled, MD3Colors.error60],
+  [OrderStatus.Finished, MD3Colors.primary50],
+  [OrderStatus.In_Progress, MD3Colors.neutralVariant50],
+]);
+
+const OrderCard: React.FC<IOrderCard> = ({
+  showBottomSheet,
+  navigation,
+  data,
+}) => {
+  const { item, createdDate, status } = data;
+
   const handleRateOrder = () => {
     showBottomSheet();
   };
 
   const handleGoDetail = () => {
-    navigation.navigate('OrderDetail');
+    navigation.navigate('OrderDetail', {
+      order: data,
+    });
   };
-
+  // 30 Jun 2023, 16:03
   return (
     <Pressable onPress={handleGoDetail} style={styles.wrapper}>
-      <View style={styles.right__image}></View>
+      <View style={styles.right__image}>
+        <Image
+          source={{
+            uri:
+              item.images.length > 0
+                ? item.images[0].imageUri
+                : 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png',
+          }}
+          style={styles.image}
+        />
+      </View>
       <View style={styles.content__wrapper}>
         <View style={styles.title__wrapper}>
-          <Text style={styles.text__name}>Trade for something</Text>
-          <Text style={styles.text__date}>30 Jun 2023, 16:03</Text>
+          <Text style={styles.text__name}>Exchange for {item.name}</Text>
+          <Text style={styles.text__date}>
+            {new Date(createdDate).toUTCString()}
+          </Text>
           <View style={styles.action__wrapper}>
             <Pressable onPress={handleRateOrder}>
               <Text>Rate</Text>
             </Pressable>
+            <Pressable onPress={handleRateOrder}>
+              <Text style={{ color: statusColor.get(status) }}>{status}</Text>
+            </Pressable>
           </View>
         </View>
         <View style={styles.price__wrapper}>
-          <Text>91 Points</Text>
+          <Text>{item.price === 0 ? 'Free' : item.price} Points</Text>
           <Text style={styles.price__bonus}>+2 points</Text>
         </View>
       </View>
@@ -52,10 +85,16 @@ const styles = StyleSheet.create({
     maxHeight: 120,
   },
   right__image: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     backgroundColor: '#333',
     borderRadius: 999999,
+    overflow: 'hidden',
+    borderWidth: 1,
+  },
+  image: {
+    width: '100%',
+    aspectRatio: 1 / 1,
   },
   content__wrapper: {
     flexGrow: 1,
@@ -81,6 +120,7 @@ const styles = StyleSheet.create({
   },
   price__wrapper: {
     display: 'flex',
+    alignItems: 'flex-end',
     gap: 6,
   },
   price__bonus: {
