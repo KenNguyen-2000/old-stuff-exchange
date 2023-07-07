@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using System.Net;
 using Application.Contracts;
 using Application.DTOs;
 using Application.DTOs.ItemDtos;
@@ -27,7 +28,7 @@ namespace Application
 
         public async Task<Response<Order>> AddAsync(CreateOrderDtos createOrderDtos)
         {
-            var getItem = await _itemService.GetByIdAsync(createOrderDtos.ItemId);
+            var getItem = await _itemService.GetAsync(i => i.Id == createOrderDtos.ItemId);
             if (getItem.Data == null)
             {
                 return new Response<Order>("Item with id not found");
@@ -40,13 +41,15 @@ namespace Application
             }
 
 
-            item.Status = ItemStatus.Inactive.ToString();
+            item.Status = ItemStatus.Inactive;
             var mappedItem = _mapper.Map<UpdateItemDto>(item);
             var itemUpdatedRes = await _itemService.UpdateAsync(mappedItem);
 
             if (!itemUpdatedRes.Succeeded) return new Response<Order>(itemUpdatedRes.Message);
 
             Order mappedOrderDto = _mapper.Map<Order>(createOrderDtos);
+            mappedOrderDto.CreatedDate = DateTime.Now;
+
             Order order = await _orderRepository.AddAsync(mappedOrderDto);
 
             return new Response<Order>(order, "Create order successfully!");
@@ -62,14 +65,38 @@ namespace Application
             throw new NotImplementedException();
         }
 
-        public Task<Response<OrderDtos>> GetByIdAsync(int id)
+        public async Task<Response<OrderDtos>> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var order = await _orderRepository.GetAsync(o => o.Id == id);
+                if (order == null)
+                {
+                    return new Response<OrderDtos>($"OrderId {id} not found!", status: HttpStatusCode.NotFound);
+                }
+                var orderMapped = _mapper.Map<OrderDtos>(order);
+                return new Response<OrderDtos>(orderMapped, $"Get orderId {id} success");
+            }
+            catch (System.Exception)
+            {
+                return new Response<OrderDtos>($"Get orderId {id} failure", status: HttpStatusCode.InternalServerError);
+            }
         }
 
-        public Task<Response<OrderDtos>> GetListAsync()
+        public async Task<Response<OrderDtos>> GetListAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var orderList = await _orderRepository.GetListAsync();
+                var orderListMapped = _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDtos>>(orderList);
+
+                return new Response<OrderDtos>(orderListMapped, "Get order list success", orderListMapped.Count());
+            }
+            catch (System.Exception)
+            {
+
+                return new Response<OrderDtos>("Get order list failed!");
+            }
         }
 
         public Task<Response<Item>> UpdateAsync(OrderDtos item)
@@ -82,15 +109,15 @@ namespace Application
             var getOrder = await _orderRepository.GetByIdAsync(changeOrderStatusDto.Id);
 
             if (getOrder == null)
-                return new Response<OrderDtos>("Order not found!");
+                return new Response<OrderDtos>("Order not found!", status: HttpStatusCode.NotFound);
 
             switch (changeOrderStatusDto.Status)
             {
                 case OrderStatus.Accepted:
                     {
-                        bool success = await ConfirmOrder(getOrder);
-                        if (!success)
-                            return new Response<OrderDtos>("Accept order failure");
+                        var success = await ConfirmOrder(getOrder);
+                        if (!success.Succeeded)
+                            return new Response<OrderDtos>(success.Message, status: success.Status);
                         getOrder.Status = changeOrderStatusDto.Status;
                         break;
                     }
@@ -98,22 +125,22 @@ namespace Application
                     {
                         if (getOrder.Status == OrderStatus.Accepted)
                         {
-                            bool success = await CancelAcceptedOrder(getOrder);
-                            if (!success) return new Response<OrderDtos>("Cancel failure");
+                            var success = await CancelAcceptedOrder(getOrder);
+                            if (!success.Succeeded) return new Response<OrderDtos>("Cancel failure");
                             getOrder.Status = changeOrderStatusDto.Status;
                         }
                         break;
                     }
                 case OrderStatus.Finished:
                     {
-                        bool success = await FinishOrder(getOrder);
-                        if (!success)
+                        var success = await FinishOrder(getOrder);
+                        if (!success.Succeeded)
                             return new Response<OrderDtos>("Accept order failure");
                         getOrder.Status = changeOrderStatusDto.Status;
                         break;
                     }
             }
-
+            getOrder.UpdatedDate = DateTime.Now;
             var updatedOrder = await _orderRepository.UpdateAsync(getOrder);
             var mappedUpdatedOrder = _mapper.Map<OrderDtos>(updatedOrder);
 
@@ -121,7 +148,7 @@ namespace Application
             return new Response<OrderDtos>(mappedUpdatedOrder);
         }
 
-        private async Task<bool> CancelAcceptedOrder(Order order)
+        private async Task<Response<string>> CancelAcceptedOrder(Order order)
         {
             try
             {
@@ -132,76 +159,80 @@ namespace Application
                 var sellerRes = await _userService.UpdatePointsAsync(getSeller.Id, getItem.Data.Price / 2);
 
                 if (!sellerRes.Succeeded)
-                    return false;
+                    return new Response<string>(sellerRes.Message);
 
                 if (getBuyer.Data.Points < getItem.Data.Price)
-                    return false;
+                    return new Response<string>("Buyer dont have enough points in account");
 
                 await _userService.UpdatePointsAsync(getBuyer.Data.Id, getItem.Data.Price / 2);
 
-                return true;
+                return new Response<string>("Cancel order successfully!", success: true);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                return new Response<string>("Cancel order failure!", status: HttpStatusCode.InternalServerError);
             }
         }
 
-        private async Task<bool> ConfirmOrder(Order order)
+        private async Task<Response<string>> ConfirmOrder(Order order)
         {
             try
             {
-                var getItem = await _itemService.GetByIdAsync(order.ItemId);
+                var getItem = await _itemService.GetAsync(i => i.Id == order.ItemId);
                 var getBuyer = await _userService.GetByIdAsync(order.UserId);
                 var getSeller = getItem.Data.User;
                 ItemDto item = getItem.Data;
 
+                if (order.UserId != item.User.Id)
+                    return new Response<string>("Only seller can confirm order!", status: HttpStatusCode.Forbidden);
+
                 var sellerRes = await _userService.UpdatePointsAsync(getSeller.Id, getItem.Data.Price / 2 * -1);
 
                 if (!sellerRes.Succeeded)
-                    return false;
+                    return new Response<string>(sellerRes.Message, status: HttpStatusCode.BadRequest);
 
                 if (getBuyer.Data.Points < getItem.Data.Price)
-                    return false;
+                    return new Response<string>("Buyer does not have enough deposit points in account!", status: HttpStatusCode.BadRequest);
 
                 await _userService.UpdatePointsAsync(getBuyer.Data.Id, getItem.Data.Price / 2 * -1);
-                item.Status = ItemStatus.Inactive.ToString();
+                item.Status = ItemStatus.Inactive;
                 var mappedItem = _mapper.Map<UpdateItemDto>(item);
                 var itemUpdatedRes = await _itemService.UpdateAsync(mappedItem);
 
-                return true;
+                return new Response<string>("Confirm order successfully!", success: true);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                return new Response<string>("Confirm order failure!", status: HttpStatusCode.InternalServerError);
             }
         }
 
-        private async Task<bool> FinishOrder(Order order)
+        private async Task<Response<string>> FinishOrder(Order order)
         {
             try
             {
-                var getItem = await _itemService.GetByIdAsync(order.ItemId);
+                var getItem = await _itemService.GetAsync(i => i.Id == order.ItemId);
                 var getBuyer = await _userService.GetByIdAsync(order.UserId);
                 var getSeller = getItem.Data.User;
 
-                var sellerRes = await _userService.UpdatePointsAsync(getSeller.Id, getItem.Data.Price / 2 * -1);
+                var sellerRes = await _userService.UpdatePointsAsync(getSeller.Id, getItem.Data.Price / 2 * 1 + getItem.Data.Price);
 
                 if (!sellerRes.Succeeded)
-                    return false;
+                    return new Response<string>(sellerRes.Message);
 
                 if (getBuyer.Data.Points < getItem.Data.Price)
-                    return false;
+                    return new Response<string>("Buyer does not have enough points!");
 
                 await _userService.UpdatePointsAsync(getBuyer.Data.Id, getItem.Data.Price / 2 * -1);
 
-                return true;
+                return new Response<string>("Finish order successfully!", success: true);
             }
             catch (Exception ex)
             {
-                return false;
+                Console.WriteLine(ex.Message);
+                return new Response<string>("Finish order failure!", status: HttpStatusCode.InternalServerError);
             }
         }
     }
