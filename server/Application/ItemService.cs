@@ -108,7 +108,10 @@ namespace Application
                     return new Response<string>("You cannot perform this action", status: HttpStatusCode.Forbidden);
                 }
 
-                await _itemRepository.DeleteAsync(id);
+               bool deleted = await _itemRepository.DeleteAsync(id);
+
+                if (!deleted)
+                    return new Response<string>("Delete item failure", status: HttpStatusCode.BadRequest);
 
                 return new Response<string>($"Delete itemId {id} successfully", success: true, status: HttpStatusCode.OK);
             }
@@ -174,15 +177,15 @@ namespace Application
             }
         }
 
-        public async Task<Response<Item>> UpdateAsync(UpdateItemDto item)
+        public async Task<Response<ItemDto>> UpdateAsync(UpdateItemDto item)
         {
 
             var getItem = await _itemRepository.GetByIdAsync(item.Id);
+          Enum.TryParse<ItemStatus>(item.Status, true, out ItemStatus status);
 
             if (getItem != null)
             {
                 var itemNeedUpdate = _mapper.Map(item, getItem);
-                itemNeedUpdate.UpdatedDate = DateTime.Now;
                 var images = new List<ItemImage>();
                 foreach (var imageUri in item.Images)
                 {
@@ -196,12 +199,15 @@ namespace Application
                 }
 
                 itemNeedUpdate.Images = images;
+                itemNeedUpdate.Status = status;
+                itemNeedUpdate.UpdatedDate = DateTime.Now;
 
                 var itemUpdated = await _itemRepository.UpdateAsync(itemNeedUpdate);
-                return new Response<Item>(itemUpdated, "Update item success");
+                ItemDto itemUpdatedMapped = _mapper.Map<ItemDto>(itemUpdated);
+                return new Response<ItemDto>(itemUpdatedMapped, "Update item success");
             }
 
-            return new Response<Item>("Item not found!", status: HttpStatusCode.NotFound);
+            return new Response<ItemDto>("Item not found!", status: HttpStatusCode.NotFound);
         }
 
     }
