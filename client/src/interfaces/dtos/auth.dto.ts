@@ -11,6 +11,7 @@ export interface IRegisterDto {
   phoneNumber?: string;
   dob: Date;
   address?: string;
+  gender: boolean;
 }
 
 export interface IChangePasswordDto {
