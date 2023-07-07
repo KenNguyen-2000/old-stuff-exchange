@@ -80,11 +80,13 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
     const fetchCategories = async () => {
       try {
         const data = await getListItemCategory();
-        setCategories(data.datas);
-        handleChangeForm(
-          'categoryId',
-          data.datas.find((item: any) => item.name === 'Others').id
-        );
+        if (data.succeeded) {
+          setCategories(data.datas);
+          handleChangeForm(
+            'categoryId',
+            data.datas.find((item: any) => item.name === 'Others').id
+          );
+        }
       } catch (err) {
         console.log(err);
       }
