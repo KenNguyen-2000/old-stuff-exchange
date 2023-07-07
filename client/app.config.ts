@@ -15,6 +15,9 @@ const config: ExpoConfig = {
         NSAllowsArbitraryLoads: true,
       },
     },
+    config: {
+      usesNonExemptEncryption: false,
+    },
   },
 };
 
