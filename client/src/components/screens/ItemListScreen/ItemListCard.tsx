@@ -24,7 +24,10 @@ const ItemListCard: React.FC<IItemListCard> = ({ item, index, navigation }) => {
       <View style={styles.image__wrapper}>
         <Image
           source={{
-            uri: item.images[0].imageUri || item.imageUrl,
+            uri:
+              item.images.length > 0
+                ? item.images[0].imageUri
+                : 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png',
           }}
           style={styles.image}
         />
@@ -46,6 +49,7 @@ export default ItemListCard;
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+    maxWidth: '50%',
     backgroundColor: '#fff',
     borderRadius: 4,
     borderWidth: 0.8,
@@ -53,14 +57,13 @@ const styles = StyleSheet.create({
   },
   image__wrapper: {
     width: '100%',
-    aspectRatio: 4 / 3,
+    aspectRatio: 6 / 7,
     backgroundColor: '#eaeaea',
-    padding: 16,
   },
   image: {
     width: '100%',
-    aspectRatio: 4 / 3,
-    resizeMode: 'contain',
+    aspectRatio: 6 / 7,
+    resizeMode: 'cover',
   },
   content__wrapper: {
     flexGrow: 1,
