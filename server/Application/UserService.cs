@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,26 +77,39 @@ namespace Application
 
         public async Task<Response<UserInfoDto>> GetListAsync()
         {
-            var userList = await _userRepository.GetListAsync();
-            var userListMapped = _mapper.Map<IEnumerable<UserInfoDto>>(userList);
-            return new Response<UserInfoDto>(userListMapped, "Hello", count: userListMapped.Count());
+            try
+            {
+                var userList = await _userRepository.GetListAsync();
+                var userListMapped = _mapper.Map<IEnumerable<UserInfoDto>>(userList);
+                return new Response<UserInfoDto>(userListMapped, "Get list user successfully!", count: userListMapped.Count());
+            }catch(System.Exception ex)
+            {
+                return new Response<UserInfoDto>(ex.Message, status: HttpStatusCode.InternalServerError);
+            }
         }
 
-        public async Task<Response<UserUpdateDto>> UpdateAsync(UserUpdateDto userUpdateDto)
+        public async Task<Response<UserInfoDto>> UpdateAsync(UserUpdateDto userUpdateDto)
         {
-            var getUser = await _userRepository.GetByIdAsync(userUpdateDto.Id);
-
-            if (getUser != null)
+            try
             {
-                var user = _mapper.Map<UserUpdateDto, User>(userUpdateDto, getUser);
+                var getUser = await _userRepository.GetByIdAsync(userUpdateDto.Id);
+
+                if (getUser != null)
+                {
+                    var user = _mapper.Map<UserUpdateDto, User>(userUpdateDto, getUser);
 
 
-                var userUpdate = await _userRepository.UpdateAsync(user);
-                var userMapped = _mapper.Map<UserUpdateDto>(userUpdate);
+                    var userUpdate = await _userRepository.UpdateAsync(user);
+                    var userMapped = _mapper.Map<UserInfoDto>(userUpdate);
 
-                return new Response<UserUpdateDto>(userMapped, "Update user success!");
+                    return new Response<UserInfoDto>(userMapped, "Update user success!");
+                }
+                return new Response<UserInfoDto>("User not found for update");
             }
-            return new Response<UserUpdateDto>("User not found for update");
+            catch (System.Exception ex)
+            {
+                return new Response<UserInfoDto>(ex.Message, success: false, status: HttpStatusCode.InternalServerError);
+            }
         }
 
 
