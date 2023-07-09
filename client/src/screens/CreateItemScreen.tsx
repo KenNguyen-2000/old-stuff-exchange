@@ -6,17 +6,25 @@ import {
   Image,
   ScrollView,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MySafeArea from '../components/MySafeArea';
-import { Text, Button, IconButton } from 'react-native-paper';
+import {
+  Text,
+  Button,
+  IconButton,
+  MD3Colors,
+  Portal,
+} from 'react-native-paper';
 import MyTextInput from '../components/MyTextInput';
 import * as ImagePicker from 'expo-image-picker';
 import { createNewItem, getListItemCategory } from '../services/item.service';
 import { ICreateItem } from '../interfaces/dtos';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MySelector from '../components/MySelector';
+import Carousel from 'react-native-reanimated-carousel';
 
 interface ICreateItemScreen
   extends NativeStackScreenProps<any, 'CreateItem', 'mystack'> {}
@@ -33,24 +41,33 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const [camStatus, requestCameraPermission] =
+    ImagePicker.useCameraPermissions();
+  const [libStatus, requestLibPermission] =
+    ImagePicker.useMediaLibraryPermissions();
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      // allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-      allowsMultipleSelection: true,
-    });
+    if (!libStatus?.granted) {
+      // No permissions request is necessary for launching the image library
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        aspect: [4, 3],
+        quality: 1,
+        allowsMultipleSelection: true,
+      });
 
-    if (!result.canceled) {
-      const uriList = result.assets.map((img) => img.uri);
-      setImages(uriList);
-      handleChangeForm(
-        'images',
-        result.assets.map((img) => img.uri)
-      );
+      if (!result.canceled) {
+        const uriList = result.assets.map((img) => img.uri);
+        setImages(uriList);
+        handleChangeForm(
+          'images',
+          result.assets.map((img) => img.uri)
+        );
+      }
+    } else {
+      await requestLibPermission();
     }
   };
 
@@ -59,6 +76,29 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
       ...prev,
       [key]: value,
     }));
+  };
+
+  const showCamera = async () => {
+    if (camStatus?.granted) {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        aspect: [4, 3],
+        quality: 1,
+        allowsEditing: true,
+      });
+
+      if (!result.canceled) {
+        const uriList = result.assets.map((img) => img.uri);
+        setImages(uriList);
+        handleChangeForm(
+          'images',
+          result.assets.map((img) => img.uri)
+        );
+      }
+    } else {
+      await requestCameraPermission();
+    }
+    // No permissions request is necessary for launching the image library
   };
 
   const handleCreate = async () => {
@@ -99,17 +139,26 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
     <MySafeArea>
       <ScrollView>
         <View style={styles.wrapper}>
-          <View style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 12,
+            }}
+          >
             <IconButton
               icon={'keyboard-backspace'}
               onPress={() => navigation.goBack()}
             />
             <Text variant='displayMedium' style={styles.title}>
-              Add item
+              Add Item
             </Text>
           </View>
 
-          <Pressable style={styles.upload__image__wrapper} onPress={pickImage}>
+          <Pressable
+            style={styles.upload__image__wrapper}
+            onPress={images.length > 0 ? () => setShowPreview(true) : pickImage}
+          >
             {images.length > 0 ? (
               <Image
                 source={{ uri: images[0] }}
@@ -127,6 +176,15 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
                 size={120}
               />
             )}
+
+            <IconButton
+              icon='camera'
+              iconColor={MD3Colors.primary30}
+              style={{ position: 'absolute', right: 10, bottom: 10 }}
+              size={32}
+              onPress={showCamera}
+              mode='contained'
+            />
           </Pressable>
           <MyTextInput
             title='Name'
@@ -178,6 +236,87 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
         </Button>
         <View style={{ height: 20 }} />
       </ScrollView>
+      {showPreview && (
+        <Portal>
+          <View
+            style={{
+              flex: 1,
+              position: 'relative',
+              backgroundColor: 'rgba(0,0,0,.75)',
+            }}
+          >
+            <>
+              <Carousel
+                loop
+                width={Dimensions.get('window').width}
+                autoPlay={images.length > 1 ? true : false}
+                enabled={images.length > 1 ? true : false}
+                autoPlayInterval={3000}
+                data={images}
+                scrollAnimationDuration={2000}
+                mode='parallax'
+                renderItem={({ item, index }) => (
+                  <TouchableWithoutFeedback
+                    onPress={() => setShowPreview(false)}
+                    accessible={false}
+                  >
+                    <View style={styles.preview__wrapper}>
+                      <Pressable
+                        style={{
+                          paddingHorizontal: 15,
+                          paddingVertical: 20,
+                          backgroundColor: '#fff',
+                        }}
+                      >
+                        <Image
+                          key={index}
+                          source={{ uri: item }}
+                          style={{
+                            width: '100%',
+                            aspectRatio: 4 / 3,
+                            resizeMode: 'contain',
+                          }}
+                        />
+                      </Pressable>
+                    </View>
+                  </TouchableWithoutFeedback>
+                )}
+              />
+              <TouchableWithoutFeedback
+                onPress={() => setShowPreview(false)}
+                accessible={false}
+              >
+                <View
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: 90,
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    gap: 10,
+                  }}
+                >
+                  <IconButton
+                    icon={'image-edit'}
+                    iconColor={MD3Colors.primary60}
+                    size={40}
+                    onPress={pickImage}
+                    mode='contained'
+                  />
+                  <IconButton
+                    icon={'camera'}
+                    iconColor={MD3Colors.primary60}
+                    size={40}
+                    onPress={showCamera}
+                    mode='contained'
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            </>
+          </View>
+        </Portal>
+      )}
     </MySafeArea>
   );
 };
@@ -201,9 +340,18 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
   title: {
     fontSize: 32,
     marginBottom: 32,
+  },
+  preview__wrapper: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    position: 'relative',
   },
 });
