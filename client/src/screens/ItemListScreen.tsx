@@ -36,8 +36,8 @@ const ItemListScreen: React.FC<IHomeScreen> = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    const fetchItems = () => {
-      dispatch(fetchItemList());
+    const fetchItems = async () => {
+      await dispatch(fetchItemList());
     };
 
     fetchItems();
