@@ -29,7 +29,7 @@ const HomeBanner = () => {
             }}
           >
             <Text style={{ fontSize: 16 }}>Balance</Text>
-            <Text variant='displayMedium'>{userInfo?.points ?? 0} Points</Text>
+            <Text variant='bodyMedium'>{userInfo?.points ?? 0} Points</Text>
           </View>
           <View style={{ alignSelf: 'flex-end' }}>
             <Entypo name='wallet' size={28} color={'#497fea'} />
@@ -45,7 +45,9 @@ const HomeBanner = () => {
             }}
           >
             <Text style={{ fontSize: 16 }}>Rate</Text>
-            <Text variant='displayMedium'>{orders[0].item.name ?? 0}</Text>
+            <Text variant='bodyMedium'>
+              {orders.length > 0 ? orders[0].item.name : 0}
+            </Text>
           </View>
           <View style={{ alignSelf: 'flex-end' }}>
             <AntDesign
@@ -68,7 +70,7 @@ const HomeBanner = () => {
             }}
           >
             <Text style={{ fontSize: 16 }}>Use Points</Text>
-            <Text variant='displayMedium'>{userInfo?.points ?? 0} Points</Text>
+            <Text variant='bodyMedium'>{userInfo?.points ?? 0} Points</Text>
           </View>
           <View style={{ alignSelf: 'flex-end' }}>
             <FontAwesome5
