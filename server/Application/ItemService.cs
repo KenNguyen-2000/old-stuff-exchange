@@ -201,6 +201,12 @@ namespace Application
 
             if (getItem != null)
             {
+                bool imagesDeleted = true;
+                if (getItem.Images.Count > 0)
+                    imagesDeleted = await _itemRepository.DeleteItemImages(item.Id);
+                if (!imagesDeleted)
+                    return new Response<ItemDto>("Update item failed!", status: HttpStatusCode.InternalServerError);
+
                 var itemNeedUpdate = _mapper.Map(item, getItem);
                 var images = new List<ItemImage>();
                 foreach (var imageUri in item.Images)
