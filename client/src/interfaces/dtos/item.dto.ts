@@ -1,7 +1,7 @@
 import { IAuditable } from './auditable.dto';
 import { IUserInfo } from './user.dto';
 
-enum ItemStatus {
+export enum ItemStatus {
   Default = 'Default',
   Active = 'Active',
   Inactive = 'Inactive',
@@ -42,12 +42,13 @@ export interface ICreateItem {
 
 export interface IUpdateItem {
   id: number;
-  name?: string;
-  description?: string;
-  price?: number;
-  location?: string;
-  status?: ItemStatus;
-  images?: string[];
+  name: string;
+  description: string;
+  price: number;
+  location: string;
+  status: ItemStatus;
+  images: string[];
+  categoryId: number;
 }
 
 export interface IChangeItemStatus {
