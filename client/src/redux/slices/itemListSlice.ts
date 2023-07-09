@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { fetchUserInfo } from '../thunks/user.thunk';
 import { deleteAnItem, fetchItemList } from '../thunks/itemList.thunk';
-import { IItemDto } from '../../interfaces/dtos';
+import { IItemDto, ItemStatus } from '../../interfaces/dtos';
 
 export interface ItemListSlice {
   isLoading: boolean;
@@ -40,7 +40,9 @@ const itemListSlice = createSlice({
       })
       .addCase(fetchItemList.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.oldStuffs = action.payload.datas;
+        state.oldStuffs = action.payload.datas.filter((item: any) =>
+          [ItemStatus.Default, ItemStatus.Active].includes(item.status)
+        );
       })
       .addCase(fetchItemList.rejected, (state) => {
         state.isLoading = false;
