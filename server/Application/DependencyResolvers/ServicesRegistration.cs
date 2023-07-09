@@ -32,6 +32,7 @@ namespace Application.DependencyResolvers
                 };
                 options.MapInboundClaims = false;
             });
+            services.AddSignalR();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
@@ -39,6 +40,7 @@ namespace Application.DependencyResolvers
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IChatService, ChatService>();
         }
     }
 }
