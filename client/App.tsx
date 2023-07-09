@@ -1,20 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
-import {
-  SafeAreaView,
-  StyleSheet,
-  StatusBar,
-  useColorScheme,
-  Platform,
-} from 'react-native';
-import {
-  configureFonts,
-  MD3LightTheme,
-  PaperProvider,
-  customText,
-  useTheme,
-} from 'react-native-paper';
+import { StyleSheet, StatusBar } from 'react-native';
+import { configureFonts, PaperProvider, useTheme } from 'react-native-paper';
 import { BottomNav } from './src/components';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { useCallback } from 'react';
@@ -34,6 +21,7 @@ import OrderDetailScreen from './src/screens/OrderDetailScreen';
 import { ICategory, IItemDto } from './src/interfaces/dtos';
 import { setNavigationRef } from './src/helpers/navigation.service';
 import { IOrderDto } from './src/interfaces/dtos/order.dto';
+import EditItemScreen from './src/screens/EditItemScreen';
 
 type RootStackParamList = {
   Home: undefined;
@@ -47,6 +35,9 @@ type RootStackParamList = {
     order: IOrderDto;
   };
   CreateItem: any;
+  EditItem: {
+    item: IItemDto;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -74,8 +65,6 @@ export default function App() {
     displayMedium: {
       ...baseVariants.displayMedium,
       fontFamily: 'Ubuntu-Medium',
-      fontSize: 16,
-      lineHeight: 24,
     },
 
     // Add own tokens if required:
@@ -92,6 +81,10 @@ export default function App() {
       fontFamily: 'Ubuntu-BoldItalic',
     },
     medium: {
+      ...baseVariants.bodyMedium,
+      fontFamily: 'Ubuntu-Medium',
+    },
+    bodyMedium: {
       ...baseVariants.bodyMedium,
       fontFamily: 'Ubuntu-Medium',
     },
@@ -141,6 +134,13 @@ export default function App() {
               <Stack.Screen
                 name='CreateItem'
                 component={CreateItemScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name='EditItem'
+                component={EditItemScreen}
                 options={{
                   headerShown: false,
                 }}
