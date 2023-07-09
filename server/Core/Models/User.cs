@@ -39,7 +39,11 @@ namespace Core.Models
         public string Address { get; set; }
         public double Points { get; set; }
         public UserRole Role { get; set; }
-        public string ImageUri {get;set;}
+        public string ImageUri { get; set; }
+
+        // Relationship
+        public virtual ICollection<RoomChat> RoomChats { get; set; }
+        public virtual ICollection<UserRoomChat> UserRoomChats { get; set; }
         public virtual ICollection<Item> Items { get; set; } = new List<Item>();
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
         public virtual ICollection<Bill> Bills { get; set; } = new List<Bill>();
