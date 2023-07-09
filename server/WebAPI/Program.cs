@@ -1,4 +1,5 @@
 using Application.DependencyResolvers;
+using Application.Hubs;
 using Application.Profiles;
 using AutoMapper;
 using Infrastructure;
@@ -13,6 +14,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -61,6 +63,7 @@ var mapperConfig = new MapperConfiguration(mc =>
   mc.AddProfile(new ItemProfile());
   mc.AddProfile(new ReviewProfile());
   mc.AddProfile(new OrderProfile());
+  mc.AddProfile(new ChatProfile());
 });
 
 var mapper = mapperConfig.CreateMapper();
@@ -101,5 +104,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/hub");
 
 app.Run();
