@@ -15,7 +15,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using System.Net;
 
 namespace Application
 {
@@ -33,44 +33,60 @@ namespace Application
         }
         public Response<UserInfoDto> Login(LoginRequest loginRequest)
         {
-            var res = _userService.GetByUsername(loginRequest.Username);
-            if (res.Data == null)
+            try
             {
-                return new Response<UserInfoDto>("Bad credentials", success: false);
-            }
+                var res = _userService.GetByUsername(loginRequest.Username);
+                if (res.Data == null)
+                {
+                    return new Response<UserInfoDto>("Bad credentials", status: HttpStatusCode.BadRequest);
+                }
 
-            if (!VerifyPasswordHash(loginRequest.Password, res.Data.PasswordHash, res.Data.PasswordSalt))
+                if (!VerifyPasswordHash(loginRequest.Password, res.Data.PasswordHash, res.Data.PasswordSalt))
+                {
+                    return new Response<UserInfoDto>("Bad credentials", status: HttpStatusCode.BadRequest);
+                }
+
+                return new Response<UserInfoDto>(_mapper.Map<UserInfoDto>(res.Data), "Login successfully!");
+            }
+            catch (System.Exception ex)
             {
-                return new Response<UserInfoDto>("Bad credentials", success: false);
-            }
 
-            return new Response<UserInfoDto>(_mapper.Map<UserInfoDto>(res.Data), "Login successfully!");
+                return new Response<UserInfoDto>(ex.Message, status: HttpStatusCode.InternalServerError);
+            }
         }
 
         public async Task<Response<User>> Register(RegisterRequest registerRequest)
         {
-            var user = await _userService.GetAsync(u => u.Username == registerRequest.Username);
-            if (user.Data != null)
+            try
             {
-                return new Response<User>($"Username {registerRequest.Username} already existed!");
+                var user = await _userService.GetAsync(u => u.Username == registerRequest.Username);
+                if (user.Data != null)
+                {
+                    return new Response<User>($"Username {registerRequest.Username} already existed!", status: HttpStatusCode.BadRequest);
+                }
+                HashPassword(registerRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
+                var newUser = new User()
+                {
+                    FullName = registerRequest.FullName,
+                    Username = registerRequest.Username,
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt,
+                    Email = registerRequest.Email,
+                    IsEmailConfirmed = false,
+                    PhoneNumber = registerRequest.PhoneNumber,
+                    Dob = registerRequest.Dob,
+                    Address = registerRequest.Address,
+                    Points = 100,
+                    Role = registerRequest.Username.ToLower().Contains("admin") ? UserRole.Admin : UserRole.User
+                };
+                _userService.Add(newUser);
+                return new Response<User>(newUser, "Register successfully!");
             }
-            HashPassword(registerRequest.Password, out byte[] passwordHash, out byte[] passwordSalt);
-            var newUser = new User()
+            catch (System.Exception ex)
             {
-                FullName = registerRequest.FullName,
-                Username = registerRequest.Username,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                Email = registerRequest.Email,
-                IsEmailConfirmed = false,
-                PhoneNumber = registerRequest.PhoneNumber,
-                Dob = registerRequest.Dob,
-                Address = registerRequest.Address,
-                Points = 100,
-                Role = registerRequest.Username.ToLower().Contains("admin") ? UserRole.Admin : UserRole.User
-            };
-            _userService.Add(newUser);
-            return new Response<User>(newUser, "Register successfully!");
+
+                return new Response<User>(ex.Message, status: HttpStatusCode.InternalServerError);
+            }
         }
 
         private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
@@ -89,6 +105,11 @@ namespace Application
 
         private static void HashPassword(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
+            if (password is null)
+            {
+                throw new ArgumentNullException(nameof(password));
+            }
+
             using var algorithm = SHA512.Create();
             passwordSalt = new HMACSHA512().Key;
             var passwordBytes = Encoding.UTF8.GetBytes(password);
