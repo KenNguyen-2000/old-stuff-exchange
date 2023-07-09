@@ -30,6 +30,7 @@ const HomeHeader = ({ navigation }: IHomeHeader) => {
         icon={'plus'}
         style={{ position: 'absolute', right: 20, top: 30 }}
         onPress={handleCreateItem}
+        iconColor='#fff'
       />
     </View>
   );
