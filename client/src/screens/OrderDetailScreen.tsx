@@ -2,7 +2,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, Dialog, MD3Colors, Portal, Text } from 'react-native-paper';
-import MySafeArea from '../components/MySafeArea';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { IOrderDto } from '../interfaces/dtos/order.dto';
@@ -10,7 +9,6 @@ import { OrderStatus } from '../interfaces/enums/order.enum';
 import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
 import { changeOrderStatus } from '../services/order.service';
-import { AlertDialog } from '../components';
 import { setOrderStatus } from '../redux/slices/ordersSlice';
 
 type RootStackParamrs = {
@@ -36,8 +34,10 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
         id: order.id,
         status: newStatus,
       });
-      if (!res.suceeded)
+      if (!res.succeeded)
         dispatch(setOrderStatus({ id: order.id, status: curStatus }));
+
+      setVisible(false);
     } catch (error) {
       console.log(error);
     }
@@ -73,6 +73,26 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
     else return null;
   };
 
+  const IsActive = (type: string): boolean => {
+    let arr: OrderStatus[] = [];
+    switch (type) {
+      case OrderStatus.In_Progress:
+        arr = [
+          OrderStatus.Accepted,
+          OrderStatus.Finished,
+          OrderStatus.In_Progress,
+        ];
+        break;
+      case OrderStatus.Accepted:
+        arr = [OrderStatus.Accepted, OrderStatus.Finished];
+        break;
+      case OrderStatus.Finished:
+        arr = [OrderStatus.Finished];
+        break;
+    }
+    return arr.includes(order.status);
+  };
+
   useEffect(() => {
     if (!userInfo) dispatch(fetchUserInfo());
   }, []);
@@ -98,25 +118,26 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
         <View style={styles.body__wrapper}>
           <View style={styles.section}>
             <View style={styles.order__header}>
-              <AntDesign
-                name='checkcircle'
-                size={36}
-                color={
-                  [
-                    OrderStatus.In_Progress,
-                    OrderStatus.Accepted,
-                    OrderStatus.Finished,
-                  ].includes(order.status)
-                    ? '#000'
-                    : 'gray'
-                }
-              />
+              <View
+                style={[
+                  styles.icon__wrapper,
+                  !IsActive(OrderStatus.In_Progress)
+                    ? { backgroundColor: 'transparent' }
+                    : {},
+                ]}
+              >
+                <AntDesign
+                  name='checkcircle'
+                  size={36}
+                  color={IsActive(OrderStatus.In_Progress) ? '#fff' : 'gray'}
+                />
+              </View>
               <Text variant='titleLarge'>Order Placed</Text>
             </View>
             <View style={styles.order__content}>
               <View
                 style={{
-                  width: 36,
+                  width: 60,
                   display: 'flex',
                   alignItems: 'center',
                 }}
@@ -125,9 +146,7 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
                   style={[
                     styles.progress__line,
                     {
-                      backgroundColor: [OrderStatus.Finished].includes(
-                        order.status
-                      )
+                      backgroundColor: IsActive(OrderStatus.In_Progress)
                         ? '#000'
                         : 'gray',
                     },
@@ -145,25 +164,26 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
           {/* ********************Processing*************************** */}
           <View style={styles.section}>
             <View style={styles.order__header}>
-              <MaterialCommunityIcons
-                name='clock'
-                size={36}
-                color={
-                  [
-                    OrderStatus.In_Progress,
-                    OrderStatus.Accepted,
-                    OrderStatus.Finished,
-                  ].includes(order.status)
-                    ? '#000'
-                    : 'gray'
-                }
-              />
+              <View
+                style={[
+                  styles.icon__wrapper,
+                  !IsActive(OrderStatus.In_Progress)
+                    ? { backgroundColor: 'transparent' }
+                    : {},
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name='clock'
+                  size={36}
+                  color={IsActive(OrderStatus.In_Progress) ? '#fff' : 'gray'}
+                />
+              </View>
               <Text variant='titleLarge'>Processing</Text>
             </View>
             <View style={styles.order__content}>
               <View
                 style={{
-                  width: 36,
+                  width: 60,
                   display: 'flex',
                   alignItems: 'center',
                 }}
@@ -172,9 +192,7 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
                   style={[
                     styles.progress__line,
                     {
-                      backgroundColor: [OrderStatus.Finished].includes(
-                        order.status
-                      )
+                      backgroundColor: IsActive(OrderStatus.In_Progress)
                         ? '#000'
                         : 'gray',
                     },
@@ -193,23 +211,26 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
           {/* ********************Confirm*************************** */}
           <View style={styles.section}>
             <View style={styles.order__header}>
-              <MaterialCommunityIcons
-                name='truck-delivery'
-                size={36}
-                color={
-                  [OrderStatus.Finished, OrderStatus.Accepted].includes(
-                    order.status
-                  )
-                    ? '#000'
-                    : 'gray'
-                }
-              />
+              <View
+                style={[
+                  styles.icon__wrapper,
+                  !IsActive(OrderStatus.Accepted)
+                    ? { backgroundColor: 'transparent' }
+                    : {},
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name='truck-delivery'
+                  size={36}
+                  color={IsActive(OrderStatus.Accepted) ? '#fff' : 'gray'}
+                />
+              </View>
               <Text variant='titleLarge'>Confirm</Text>
             </View>
             <View style={styles.order__content}>
               <View
                 style={{
-                  width: 36,
+                  width: 60,
                   display: 'flex',
                   alignItems: 'center',
                 }}
@@ -218,9 +239,7 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
                   style={[
                     styles.progress__line,
                     {
-                      backgroundColor: [OrderStatus.Finished].includes(
-                        order.status
-                      )
+                      backgroundColor: IsActive(OrderStatus.Accepted)
                         ? '#000'
                         : 'gray',
                     },
@@ -238,21 +257,26 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
           {/* ********************Delivered*************************** */}
           <View style={styles.section}>
             <View style={styles.order__header}>
-              <AntDesign
-                name='checkcircle'
-                size={36}
-                color={
-                  [OrderStatus.Finished].includes(order.status)
-                    ? '#000'
-                    : 'gray'
-                }
-              />
+              <View
+                style={[
+                  styles.icon__wrapper,
+                  !IsActive(OrderStatus.Finished)
+                    ? { backgroundColor: 'transparent' }
+                    : {},
+                ]}
+              >
+                <AntDesign
+                  name='checkcircle'
+                  size={36}
+                  color={IsActive(OrderStatus.Finished) ? '#fff' : 'gray'}
+                />
+              </View>
               <Text variant='titleLarge'>Delivered</Text>
             </View>
             <View style={styles.order__content}>
               <View
                 style={{
-                  width: 36,
+                  width: 60,
                   display: 'flex',
                   alignItems: 'center',
                 }}
@@ -261,9 +285,7 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
                   style={[
                     styles.progress__line,
                     {
-                      backgroundColor: [OrderStatus.Finished].includes(
-                        order.status
-                      )
+                      backgroundColor: IsActive(OrderStatus.Finished)
                         ? '#000'
                         : 'gray',
                     },
@@ -364,4 +386,14 @@ const styles = StyleSheet.create({
   },
   confirm__btn: { paddingVertical: 4 },
   back__btn: { paddingVertical: 4 },
+  icon__wrapper: {
+    borderRadius: 9999,
+    backgroundColor: MD3Colors.primary50,
+    padding: 12,
+    width: 60,
+    aspectRatio: 1 / 1,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
