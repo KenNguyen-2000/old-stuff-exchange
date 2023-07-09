@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/reduxHook';
 import { useIsFocused } from '@react-navigation/native';
 import { fetchOrderList } from '../../../redux/thunks/orders.thunk';
 import { IOrderDto } from '../../../interfaces/dtos/order.dto';
-import { ActivityIndicator } from 'react-native-paper';
+import LoadingPortal from '../../LoadingPortal';
 
 interface IOrderList extends NativeStackScreenProps<any, 'Order', 'my-stack'> {
   showBottomSheet: any;
@@ -22,16 +22,20 @@ const OrderList: React.FC<IOrderList> = ({
 
   const orders = useAppSelector((state) => state.orders.orders);
   const ordersLoading = useAppSelector((state) => state.orders.isLoading);
+
   useEffect(() => {
-    const fetchOrders = () => {
-      dispatch(fetchOrderList());
+    const fetchOrders = async () => {
+      try {
+        await dispatch(fetchOrderList());
+      } catch (error) {}
     };
     if (isFocused) fetchOrders();
   }, [isFocused]);
+
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       {ordersLoading ? (
-        <ActivityIndicator animating={true} />
+        <LoadingPortal />
       ) : (
         <ScrollView>
           {orders?.map((order: IOrderDto) => (
