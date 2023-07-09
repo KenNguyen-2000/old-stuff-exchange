@@ -9,5 +9,6 @@ namespace Application.Contracts
 {
     public interface IItemRepository : IBaseRepository<Item>
     {
+        public Task<bool> DeleteItemImages(int itemId);
     }
 }
