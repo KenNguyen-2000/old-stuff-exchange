@@ -1,12 +1,12 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import React from 'react';
-import { Text } from 'react-native-paper';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MD3Colors, Text } from 'react-native-paper';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-const noImage = require('../../../../assets/images/No-Image-Placeholder.png');
+import { IItemDto } from '../../../interfaces/dtos';
 
 interface IItemCard extends NativeStackScreenProps<any, 'Home', 'mystack'> {
-  item: any;
+  item: IItemDto;
 }
 
 const ItemCard = ({ item, navigation }: IItemCard) => {
@@ -19,16 +19,16 @@ const ItemCard = ({ item, navigation }: IItemCard) => {
   return (
     <>
       <Pressable style={styles.wrapper} onPress={handleGoDetail}>
-        <View style={{ width: '100%', aspectRatio: 4 / 3, overflow: 'hidden' }}>
+        <View style={styles.card__image}>
           {item.images.length > 0 ? (
             <Image
-              style={styles.card__img}
+              style={styles.image}
               source={{ uri: `${item.images[0].imageUri}` }}
               alt='Item card'
             />
           ) : (
             <Image
-              style={styles.card__img}
+              style={styles.image}
               source={{
                 uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png',
               }}
@@ -37,12 +37,10 @@ const ItemCard = ({ item, navigation }: IItemCard) => {
           )}
         </View>
 
-        <Text style={styles.item__name} numberOfLines={1}>
-          {item.name}
-        </Text>
+        <Text style={styles.item__name}>{item.name}</Text>
         <View style={styles.card__footer}>
-          <MaterialIcons name='shopping-cart' size={24} />
-          <Text adjustsFontSizeToFit style={{ fontSize: 16 }}>
+          <FontAwesome5 name='coins' size={24} color={'#fab339'} />
+          <Text adjustsFontSizeToFit style={{ fontSize: 16, color: '#000' }}>
             {item.price === 0 ? 'FREE' : item.price} points
           </Text>
         </View>
@@ -56,24 +54,29 @@ export default ItemCard;
 
 const styles = StyleSheet.create({
   wrapper: {
-    minWidth: 100,
+    width: 240,
     minHeight: 80,
-    maxWidth: 180,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#e9e9e996',
     borderRadius: 12,
     padding: 10,
   },
-  card__img: {
+  card__image: {
     width: '100%',
     aspectRatio: 4 / 3,
-    resizeMode: 'contain',
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  image: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    resizeMode: 'cover',
     borderRadius: 12,
-    marginBottom: 6,
   },
   item__name: {
     marginBottom: 20,
     flex: 1,
     textAlign: 'left',
+    fontSize: 18,
   },
   card__footer: {
     display: 'flex',
