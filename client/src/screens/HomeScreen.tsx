@@ -30,12 +30,10 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
   };
 
   const onRefresh = async () => {
-    console.log('Refresh');
     try {
       setRefreshing(true);
       setLoading(true);
-      const data = await getListItemCategory();
-      setCategories(data.datas);
+      await dispatch(fetchItemList());
       setRefreshing(false);
       setLoading(false);
     } catch (error) {
@@ -57,8 +55,12 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
       }
     };
 
+    const fetchItems = async () => {
+      await dispatch(fetchItemList());
+    };
+
     fetchCategories();
-    dispatch(fetchItemList());
+    fetchItems();
   }, [setLoading]);
 
   return (
