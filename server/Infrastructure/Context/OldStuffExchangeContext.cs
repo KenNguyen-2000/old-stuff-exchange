@@ -24,6 +24,8 @@ namespace Infrastructure.Context
         public DbSet<Order> Orders { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ItemImage> ItemImages { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<RoomChat> RoomChats { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

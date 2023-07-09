@@ -218,6 +218,42 @@ namespace Infrastructure.Migrations
                     b.ToTable("item_images");
                 });
 
+            modelBuilder.Entity("Core.Models.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("Core.Models.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -295,6 +331,20 @@ namespace Infrastructure.Migrations
                     b.ToTable("reviews");
                 });
 
+            modelBuilder.Entity("Core.Models.RoomChat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoomChats");
+                });
+
             modelBuilder.Entity("Core.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -349,6 +399,42 @@ namespace Infrastructure.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("Core.Models.UserRoomChat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomChatId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRoomChat");
+                });
+
+            modelBuilder.Entity("RoomChatUser", b =>
+                {
+                    b.Property<int>("RoomChatsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoomChatsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("RoomChatUser");
+                });
+
             modelBuilder.Entity("Core.Models.Bill", b =>
                 {
                     b.HasOne("Core.Models.Item", "Item")
@@ -398,6 +484,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("Item");
                 });
 
+            modelBuilder.Entity("Core.Models.Message", b =>
+                {
+                    b.HasOne("Core.Models.RoomChat", "RoomChat")
+                        .WithMany("Messages")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoomChat");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Core.Models.Order", b =>
                 {
                     b.HasOne("Core.Models.Item", "Item")
@@ -436,6 +541,40 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Core.Models.UserRoomChat", b =>
+                {
+                    b.HasOne("Core.Models.RoomChat", "RoomChat")
+                        .WithMany("UserRoomChats")
+                        .HasForeignKey("RoomChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", "User")
+                        .WithMany("UserRoomChats")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RoomChat");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RoomChatUser", b =>
+                {
+                    b.HasOne("Core.Models.RoomChat", null)
+                        .WithMany()
+                        .HasForeignKey("RoomChatsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Core.Models.Category", b =>
                 {
                     b.Navigation("Items");
@@ -452,6 +591,13 @@ namespace Infrastructure.Migrations
                     b.Navigation("Reviews");
                 });
 
+            modelBuilder.Entity("Core.Models.RoomChat", b =>
+                {
+                    b.Navigation("Messages");
+
+                    b.Navigation("UserRoomChats");
+                });
+
             modelBuilder.Entity("Core.Models.User", b =>
                 {
                     b.Navigation("Bills");
@@ -461,6 +607,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("UserRoomChats");
                 });
 #pragma warning restore 612, 618
         }
