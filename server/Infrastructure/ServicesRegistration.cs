@@ -23,6 +23,8 @@ namespace Infrastructure
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IChatRepository, ChatRepository>();
+            services.AddScoped<IRoomChatRepository, RoomChatRepository>();
         }
 
     }
