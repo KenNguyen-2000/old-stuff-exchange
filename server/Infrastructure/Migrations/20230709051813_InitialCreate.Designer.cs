@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(OldStuffExchangeContext))]
-    [Migration("20230706195716_InitialCreate")]
+    [Migration("20230709051813_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -320,6 +320,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<bool>("Gender")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ImageUri")
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("tinyint(1)");

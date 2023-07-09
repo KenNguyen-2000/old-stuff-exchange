@@ -49,7 +49,8 @@ namespace Infrastructure.Migrations
                     Dob = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Address = table.Column<string>(type: "longtext", nullable: false),
                     Points = table.Column<double>(type: "double", nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false)
+                    Role = table.Column<int>(type: "int", nullable: false),
+                    ImageUri = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {

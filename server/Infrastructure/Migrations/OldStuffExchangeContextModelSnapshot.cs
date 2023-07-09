@@ -318,6 +318,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Gender")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("ImageUri")
+                        .HasColumnType("longtext");
+
                     b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
