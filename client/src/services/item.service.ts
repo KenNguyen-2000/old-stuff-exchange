@@ -17,7 +17,7 @@ export const getListItemCategory = async () => {
   return res.data;
 };
 
-export const getItemById = async (itemId: string) => {
+export const getItemById = async (itemId: number) => {
   const res = await interceptor.get(`/items/${itemId}`);
 
   return res.data;
