@@ -20,7 +20,7 @@ const CategoryCard = ({ category }: ICategoryCard) => {
           style={{
             width: '100%',
             aspectRatio: 1 / 1,
-            resizeMode: 'cover',
+            resizeMode: 'contain',
           }}
         />
       </View>
