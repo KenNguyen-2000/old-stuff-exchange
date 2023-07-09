@@ -32,7 +32,12 @@ const StuffSections = ({ navigation, route, categories }: IStuffSections) => {
           <View key={category.id} style={styles.category__section}>
             <Text
               variant='displayMedium'
-              style={{ marginBottom: 0, fontSize: 22, color: '#737373' }}
+              style={{
+                marginBottom: 0,
+                fontSize: 22,
+                color: '#497fea',
+                textTransform: 'uppercase',
+              }}
             >
               {category.name}
             </Text>
