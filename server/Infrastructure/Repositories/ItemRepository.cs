@@ -44,7 +44,7 @@ namespace Infrastructure.Repositories
             existingItem.Status = ItemStatus.Deleted;
             existingItem.UpdatedDate = DateTime.Now;
             await _context.SaveChangesAsync();
-            
+
             return true;
         }
 
@@ -58,6 +58,7 @@ namespace Infrastructure.Repositories
             return await _context.Items
                 .Include(item => item.User)
                 .Include(item => item.Category)
+                .Include(i => i.Images)
                 .FirstOrDefaultAsync(predicate);
         }
 
@@ -78,6 +79,14 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
 
             return item;
+        }
+
+        public async Task<bool> DeleteItemImages(int itemId)
+        {
+            var imagesToDelete = _context.ItemImages.Where(e => e.ItemId == itemId);
+            _context.ItemImages.RemoveRange(imagesToDelete);
+            var data = await _context.SaveChangesAsync();
+            return data > 0;
         }
     }
 }
