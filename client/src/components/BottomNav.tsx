@@ -3,7 +3,7 @@ import React from 'react';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { ChatScreen, HomeScreen, OrderScreen, ProfileScreen } from '../screens';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useTheme } from 'react-native-paper';
+import { IconButton, useTheme } from 'react-native-paper';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -16,7 +16,6 @@ const BottomNav = () => {
       activeColor={theme.colors.primary}
       barStyle={styles.bar__wrapper}
       shifting={true}
-
       // compact={false}
     >
       <Tab.Screen
