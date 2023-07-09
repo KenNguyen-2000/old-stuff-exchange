@@ -14,6 +14,7 @@ import * as SecureStore from 'expo-secure-store';
 import jwtDecode from 'jwt-decode';
 import { useAppDispatch } from '../redux/reduxHook';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
+import AlertDialog from '../components/AlertDialog';
 
 interface ILoginScreen
   extends NativeStackScreenProps<any, 'Login', 'mystack'> {}
@@ -31,22 +32,38 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showDialog, setShowDialog] = useState(false);
+  const [message, setMessage] = useState('Notification');
 
   const handleSignIn = async () => {
     try {
       const res = await loginRequest({ username, password });
       if (res.succeeded) {
         const decoded: any = jwtDecode(res.data);
-        dispatch(fetchUserInfo());
+        await dispatch(fetchUserInfo());
         await SecureStore.setItemAsync('token', res.data);
         navigation.navigate('Home');
+      } else {
+        setMessage('Username or password incorrect!');
+        handleShowDialog();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      setMessage('Username or password incorrect!');
+      handleShowDialog();
     }
   };
 
   const handleNavigateRegister = () => navigation.navigate('Register');
+
+  const handleShowDialog = () => {
+    setShowDialog(true);
+
+    // After 2 seconds, hide the dialog
+    setTimeout(() => {
+      setShowDialog(false);
+    }, 2600);
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -55,58 +72,70 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
   }, [navigation]);
 
   return (
-    <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
-      <View style={styles.wrapper}>
-        <ImageBackground source={bgPath} style={styles.background__image} />
-        <View>
-          <View style={styles.title__wrapper}>
-            <Text style={styles.title}>Good</Text>
-            <Text style={styles.title}> {greetingText}</Text>
+    <>
+      <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
+        <View style={styles.wrapper}>
+          <ImageBackground source={bgPath} style={styles.background__image} />
+          <View>
+            <View style={styles.title__wrapper}>
+              <Text style={styles.title}>Good</Text>
+              <Text style={styles.title}> {greetingText}</Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.footer}>
-          <TextInput
-            mode='flat'
-            value={username}
-            onChangeText={setUsername}
-            placeholder='Username'
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
+          <View style={styles.footer}>
+            <TextInput
+              mode='flat'
+              value={username}
+              onChangeText={setUsername}
+              placeholder='Username'
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
+            />
+            <TextInput
+              mode='flat'
+              value={password}
+              onChangeText={setPassword}
+              placeholder='Password'
+              secureTextEntry={true}
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
+            />
+            <Button
+              mode='outlined'
+              onPress={handleSignIn}
+              style={styles.button}
+            >
+              <Text style={{ color: '#fff', fontSize: 18 }}>Sign in</Text>
+            </Button>
+          </View>
+          <View style={styles.end__wrapper}>
+            <Text style={{ color: '#fff' }}>Don't have an accout?</Text>
+            <Pressable onPress={handleNavigateRegister}>
+              <Text style={styles.forget__pwd__text}> Sign up</Text>
+            </Pressable>
+          </View>
+          <IconButton
+            icon={'keyboard-backspace'}
+            iconColor='#fff'
+            style={{ position: 'absolute', top: 20, left: 20 }}
+            size={24}
+            onPress={handleShowDialog}
           />
-          <TextInput
-            mode='flat'
-            value={password}
-            onChangeText={setPassword}
-            placeholder='Password'
-            secureTextEntry={true}
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
-          />
-          <Button mode='outlined' onPress={handleSignIn} style={styles.button}>
-            <Text style={{ color: '#fff', fontSize: 18 }}>Sign in</Text>
-          </Button>
+          {showDialog && (
+            <AlertDialog
+              message={message}
+              onDismiss={() => setShowDialog(false)}
+            />
+          )}
         </View>
-        <View style={styles.end__wrapper}>
-          <Text style={{ color: '#fff' }}>Don't have an accout?</Text>
-          <Pressable onPress={handleNavigateRegister}>
-            <Text style={styles.forget__pwd__text}> Sign up</Text>
-          </Pressable>
-        </View>
-        <IconButton
-          icon={'keyboard-backspace'}
-          iconColor='#fff'
-          style={{ position: 'absolute', top: 20, left: 20 }}
-          size={24}
-          onPress={() => navigation.goBack()}
-        />
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </>
   );
 };
 

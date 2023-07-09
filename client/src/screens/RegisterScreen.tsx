@@ -45,6 +45,7 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
     try {
       const res = await registerRequest(credentials);
       console.log(res);
+      if (res.status === 200) navigation.navigate('Login');
     } catch (error: any) {
       console.log(error.data);
     }

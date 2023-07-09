@@ -11,12 +11,15 @@ import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { setUser } from '../redux/slices/userSlice';
 import { useIsFocused } from '@react-navigation/native';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
+import LoadingPortal from '../components/LoadingPortal';
 
 interface IProfileScreen
   extends NativeStackScreenProps<any, 'Profile', 'mystack'> {}
 
 const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
   const userInfo = useAppSelector((state) => state.user.user);
+  const userLoading = useAppSelector((state) => state.user.isLoading);
+
   const isFocused = useIsFocused();
   const theme = useTheme();
 
@@ -29,16 +32,20 @@ const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
   };
 
   useEffect(() => {
-    if (userInfo === null) {
-      dispatch(fetchUserInfo());
-    }
-  }, []);
+    const fetchUser = async () => await dispatch(fetchUserInfo());
+
+    fetchUser();
+  }, [isFocused]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, [navigation]);
+
+  if (userLoading) {
+    return <LoadingPortal />;
+  }
 
   return (
     <View style={styles.wrapper}>
@@ -49,7 +56,7 @@ const ProfileScreen = ({ navigation, route }: IProfileScreen) => {
         <View style={styles.container}>
           <ProfileHeader navigation={navigation} route={route} />
           <ProfileSection />
-          {userInfo !== null && (
+          {userInfo && (
             <Button
               mode='contained'
               style={{ marginHorizontal: 8, borderRadius: 4 }}
