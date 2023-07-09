@@ -23,7 +23,7 @@ const ProfileHeader = ({ navigation }: IProfileHeader) => {
       ]}
     >
       <Avatar.Icon size={42} icon='account' />
-      {userInfo === null ? (
+      {!userInfo ? (
         <View style={styles.button__wrapper}>
           <Button
             mode='outlined'
