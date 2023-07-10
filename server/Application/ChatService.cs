@@ -1,17 +1,14 @@
 ﻿using Application.Contracts;
 using Application.DTOs;
 using Application.DTOs.ChatDtos;
-using Application.Hubs;
 using Application.Interfaces;
+using Application.Hubs;
 using AutoMapper;
 using Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
+using AutoMapper.Execution;
 
 namespace Application
 {
@@ -72,10 +69,9 @@ namespace Application
             var getReceiver = await _userRepository.GetByIdAsync(recieverId);
 
             RoomChat room = await _roomChatRepository.GetAsync(r => r.Users.Any(u => u.Id == getSender.Id) && r.Users.Any(u => u.Id == getReceiver.Id)); ;
-
             if (room == null)
             {
-                room ??= new RoomChat()
+                room = new RoomChat()
                 {
                     Name = $"{sendMessageDto.SenderId}-{recieverId}",
                     Users = new List<User> { _userRepository.Get(u => u.Id == sendMessageDto.SenderId), _userRepository.Get(u => u.Id == recieverId) }
@@ -88,12 +84,12 @@ namespace Application
                     UserId = sendMessageDto.SenderId,
                 };
 
-                sendMessageDto.RoomId = room.Id;
             }
+            sendMessageDto.RoomId = room.Id;
 
-            await _chatRepository.SendMessageAsync(_mapper.Map<Message>(sendMessageDto));
+            var savedMessage = await _chatRepository.SendMessageAsync(_mapper.Map<Message>(sendMessageDto));
 
-            return _mapper.Map<MessageDto>(sendMessageDto);
+            return _mapper.Map<MessageDto>(savedMessage);
         }
 
         private string GetCurrentConnectionId()
