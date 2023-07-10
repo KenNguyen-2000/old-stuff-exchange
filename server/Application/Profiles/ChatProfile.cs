@@ -26,6 +26,9 @@ namespace Application.Profiles
 
 
             CreateMap<Message, RoomChatMessageDto>();
+
+            CreateMap<Message, MessageDto>();
+            CreateMap<MessageDto, Message>();
         }
     }
 }
