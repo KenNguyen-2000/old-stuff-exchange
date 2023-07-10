@@ -26,10 +26,11 @@ namespace Application
             _mapper = mapper;
         }
 
-        public void Add(User user)
+        public async Task Add(User user)
         {
-            _userRepository.AddAsync(user);
+            await _userRepository.AddAsync(user);
         }
+
 
         public async Task<Response<string>> DeleteAsync(int id)
         {
@@ -82,7 +83,8 @@ namespace Application
                 var userList = await _userRepository.GetListAsync();
                 var userListMapped = _mapper.Map<IEnumerable<UserInfoDto>>(userList);
                 return new Response<UserInfoDto>(userListMapped, "Get list user successfully!", count: userListMapped.Count());
-            }catch(System.Exception ex)
+            }
+            catch (System.Exception ex)
             {
                 return new Response<UserInfoDto>(ex.Message, status: HttpStatusCode.InternalServerError);
             }
