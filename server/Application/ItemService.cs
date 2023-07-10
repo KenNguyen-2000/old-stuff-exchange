@@ -51,7 +51,6 @@ namespace Application
                     };
                     newItem.Images.Add(itemImage);
                 }
-                Console.WriteLine("New Item " + JsonSerializer.Serialize(newItem));
                 var itemCreated = await _itemRepository.AddAsync(newItem);
                 if (itemCreated == null)
                 {
