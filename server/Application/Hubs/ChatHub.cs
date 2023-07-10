@@ -1,13 +1,10 @@
-﻿using Application.DTOs.ChatDtos;
+using Application.DTOs.ChatDtos;
+using Application.DTOs.MessageDtos;
 using Application.Interfaces;
-using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,44 +14,59 @@ namespace Application.Hubs
     public class ChatHub : Hub
     {
         private readonly IChatService _chatService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHubContext _hubContext;
+        private readonly IMessageService _messageService;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public ChatHub(IChatService chatService, IHttpContextAccessor httpContextAccessor, IHubContext hubContext)
+
+        public ChatHub(IChatService chatService, IMessageService messageService, IHttpContextAccessor contextAccessor)
         {
             _chatService = chatService;
-            _httpContextAccessor = httpContextAccessor;
-            _hubContext = hubContext;
+            _messageService = messageService;
+            _contextAccessor = contextAccessor;
         }
-        public async Task NewMessage(int userId, string message)
+        // public async Task NewMessage(int userId, string message)
+        // {
+        //     await Clients.All.SendAsync("messageReceived", userId, message);
+        // }
+
+        // public override async Task OnConnectedAsync()
+        // {
+        //     var userId = GetUserId();
+        //     var roomId = GetRoomId();
+
+        //     var messages = await _chatService.GetListAsync(roomId, userId);
+
+        //     foreach (var message in messages)
+        //     {
+        //         await Clients.Client(Context.ConnectionId).SendAsync("ReceiveMessage", message.RoomChat.Id, message.Sender.Id, message.Content);
+        //     }
+
+        //     await base.OnConnectedAsync();
+        // }
+
+        [Authorize]
+        public async Task SendMessage([FromBody] CreateMessageDto createMessageDto)
         {
-            await Clients.All.SendAsync("messageReceived", userId, message);
-        }
-
-        public override async Task OnConnectedAsync()
-        {
-            var userId = GetUserId();
-            var roomId = GetRoomId();
-
-            var messages = await _chatService.GetListAsync(roomId, userId);
-
-            foreach (var message in messages)
+            try
             {
-                await Clients.Client(Context.ConnectionId).SendAsync("ReceiveMessage", message.RoomChat.Id, message.Sender.Id, message.Content);
+                var userId = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+
+                createMessageDto.SenderId = int.Parse(userId);
+
+                await Clients.User(createMessageDto.RecieverId.ToString()).SendAsync("ReceiveMessage", createMessageDto.SenderId, createMessageDto.RecieverId, createMessageDto.Content);
+
+                var newMessage = await _messageService.AddAsync(createMessageDto);
+
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e);
             }
 
-            await base.OnConnectedAsync();
         }
 
-        public async Task SendMessage([FromBody] SendMessageDto sendMessageDto)
-        {
-            await _chatService.SendMessage(sendMessageDto, GetUserId());
-
-            await Clients.Group(sendMessageDto.RoomId.ToString()).SendAsync("ReceiveMessage", sendMessageDto.RoomId, sendMessageDto.SenderId, sendMessageDto.Content);
-            await _hubContext.Clients.Group(sendMessageDto.RoomId.ToString()).SendAsync("ReceiveMessage", sendMessageDto.RoomId, sendMessageDto.SenderId, sendMessageDto.Content);
-        }
-
-        private int GetUserId()
+        private int GetUserId(IHttpContextAccessor _httpContextAccessor)
         {
             // Implement your logic to retrieve the user ID
             var httpContext = _httpContextAccessor.HttpContext;
@@ -67,16 +79,6 @@ namespace Application.Hubs
             }
             // Return a default value or throw an exception if the user ID is not available
             throw new InvalidOperationException("User ID not found.");
-        }
-
-        private int GetRoomId()
-        {
-            // Implement your logic to retrieve the room ID
-            var httpContext = _httpContextAccessor.HttpContext;
-            // Example: Retrieve the room ID from query string
-            var roomId = httpContext.Request.Query["roomId"].ToString();
-            // Return the room ID as an integer
-            return Convert.ToInt32(roomId);
         }
     }
 }
