@@ -105,34 +105,50 @@ const ItemDetailScreen = ({ navigation, route }: IItemDetailScreen) => {
   return (
     <ScrollView style={styles.wrapper}>
       <Pressable style={styles.header__wrapper}>
-        <Carousel
-          loop
-          width={Dimensions.get('window').width}
-          height={(Dimensions.get('window').width * 4) / 3}
-          autoPlay={true}
-          autoPlayInterval={3000}
-          data={item.images}
-          scrollAnimationDuration={2000}
-          renderItem={({ item, index }) => (
-            <View
-              style={[
-                {
-                  flex: 1,
-                  justifyContent: 'center',
-                },
-              ]}
-              key={item.id}
-            >
-              <Image
-                source={{
-                  uri: item.imageUri,
-                }}
-                resizeMode='cover'
-                style={styles.header__image}
-              />
-            </View>
-          )}
-        />
+        {item.images.length > 0 ? (
+          <Carousel
+            loop
+            width={Dimensions.get('window').width}
+            height={(Dimensions.get('window').width * 4) / 3}
+            autoPlay={true}
+            autoPlayInterval={3000}
+            data={item.images}
+            scrollAnimationDuration={2000}
+            renderItem={({ item, index }) => (
+              <View
+                style={[
+                  {
+                    flex: 1,
+                    justifyContent: 'center',
+                  },
+                ]}
+                key={item.id}
+              >
+                <Image
+                  source={{
+                    uri: item.imageUri,
+                  }}
+                  resizeMode='cover'
+                  style={styles.header__image}
+                />
+              </View>
+            )}
+          />
+        ) : (
+          <Image
+            source={{
+              uri:
+                item.images.length > 0
+                  ? item.images[0].imageUri
+                  : 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png',
+            }}
+            resizeMode='cover'
+            style={{
+              width: '100%',
+              aspectRatio: 3 / 4,
+            }}
+          />
+        )}
         <IconButton
           icon={'keyboard-backspace'}
           mode='outlined'
