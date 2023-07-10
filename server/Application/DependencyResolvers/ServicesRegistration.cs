@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Hubs;
+using Application.Interfaces;
 using Core.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +32,24 @@ namespace Application.DependencyResolvers
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
                 };
                 options.MapInboundClaims = false;
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ")[1];
+
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/api/v1/hub")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+
+                };
             });
             services.AddSignalR();
 
@@ -41,6 +60,7 @@ namespace Application.DependencyResolvers
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IMessageService, MessageService>();
         }
     }
 }
