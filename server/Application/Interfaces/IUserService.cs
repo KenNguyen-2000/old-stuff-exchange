@@ -12,7 +12,7 @@ namespace Application.Interfaces
 {
     public interface IUserService
     {
-        void Add(User user);
+        Task Add(User user);
         Task<Response<UserInfoDto>> GetListAsync();
         Task<Response<UserInfoDto>> GetByIdAsync(int id);
         Response<User> GetByUsername(string username);
