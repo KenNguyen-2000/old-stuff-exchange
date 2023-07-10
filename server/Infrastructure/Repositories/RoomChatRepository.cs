@@ -14,9 +14,12 @@ namespace Infrastructure.Repositories
         {
             _context = context;
         }
-        public Task<RoomChat> AddAsync(RoomChat entity)
+        public async Task<RoomChat> AddAsync(RoomChat roomChat)
         {
-            throw new NotImplementedException();
+            _context.Add(roomChat);
+            await _context.SaveChangesAsync();
+
+            return roomChat;
         }
 
         public Task<bool> DeleteAsync(int id)
