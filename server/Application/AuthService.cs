@@ -79,7 +79,7 @@ namespace Application
                     Points = 100,
                     Role = registerRequest.Username.ToLower().Contains("admin") ? UserRole.Admin : UserRole.User
                 };
-                _userService.Add(newUser);
+                await _userService.Add(newUser);
                 return new Response<User>(newUser, "Register successfully!");
             }
             catch (System.Exception ex)
