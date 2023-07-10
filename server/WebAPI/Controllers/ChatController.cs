@@ -1,53 +1,35 @@
-﻿using Application.DTOs.ChatDtos;
-using Application.Hubs;
-using Application.Interfaces;
-using Core.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
+    [Route("api/v1/chats")]
     [ApiController]
-    [Route("/api/v1/chats")]
-    public class ChatController : Controller
+    public class ChatController : ControllerBase
     {
-        private readonly IChatService _chatService;
+        private readonly IMessageService _messageService;
 
-        public ChatController(IChatService chatService)
+        public ChatController(IMessageService messageService)
         {
-            _chatService = chatService;
+            _messageService = messageService;
         }
 
-
-
-        [HttpPost("send")]
-        public async Task<IActionResult> SendMessage([FromBody] SendMessageDto sendMessageDto)
+        [Authorize]
+        [HttpGet("rooms")]
+        public async Task<IActionResult> GetUserRoomChats()
         {
-            if (HttpContext.User.Identity is ClaimsIdentity claimsIdentity)
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
             {
-                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-                await _chatService.SendMessage(sendMessageDto, int.Parse(userId));
+                var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+                var userList = await _messageService.GetListRoomChatAsync(int.Parse(userId));
+
+                return Ok(userList);
             }
-            // Save the message to the database
-
-
-            return Ok();
+            return BadRequest();
         }
 
-        [HttpPost("join/{roomId:int}")]
-        public async Task<IActionResult> JoinRoom(int roomId)
-        {
-            await _chatService.JoinRoom(roomId);
-            return Ok();
-        }
-
-        [HttpPost("leave/{roomId:int}")]
-        public async Task<IActionResult> LeaveRoom(int roomId)
-        {
-            await _chatService.LeaveRoom(roomId);
-            return Ok();
-        }
     }
 }
