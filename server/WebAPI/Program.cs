@@ -23,6 +23,13 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+ {
+   builder
+   .AllowAnyMethod()
+   .AllowAnyHeader()
+   .AllowCredentials();
+ }));
 builder.Services.AddSwaggerGen(options =>
 {
   options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -105,6 +112,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<ChatHub>("/hub");
+app.MapHub<ChatHub>("/api/v1/hub");
 
 app.Run();
