@@ -5,6 +5,7 @@ using Application.Interfaces;
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Net;
 using System.Security.Claims;
 
@@ -15,10 +16,12 @@ namespace WebAPI.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IHubContext _hubContext;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IHubContext hubContext)
         {
             _orderService = orderService;
+            _hubContext = hubContext;
         }
 
         [Authorize]
@@ -117,6 +120,8 @@ namespace WebAPI.Controllers
 
                 if (orderRes.Succeeded)
                     return Ok(orderRes);
+
+                // await _hubContext.Clients.User().SendAsync()
 
                 return orderRes.Status switch
                 {
