@@ -10,7 +10,7 @@ namespace Application.Contracts
 {
     public interface IChatRepository : IBaseRepository<Message>
     {
-        public Task SendMessageAsync(Message message);
+        public Task<Message> SendMessageAsync(Message message);
         public Task<RoomChat> FindRoomChatAsync(FindRoomChatDto findRoomChatDto);
         public Task AddRoomChat(RoomChat roomChat);
     }
