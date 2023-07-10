@@ -25,6 +25,8 @@ namespace Infrastructure
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IChatRepository, ChatRepository>();
             services.AddScoped<IRoomChatRepository, RoomChatRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
+
         }
 
     }
