@@ -64,10 +64,16 @@ namespace Infrastructure.Repositories
             return roomChat;
         }
 
-        public async Task SendMessageAsync(Message message)
+        public async Task<Message> SendMessageAsync(Message message)
         {
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();
+
+            await _context.Entry(message).Reference(i => i.Sender).LoadAsync();
+            await _context.Entry(message)
+                        .Reference(m => m.RoomChat)
+                        .LoadAsync();
+            return message;
         }
 
         public Task<Message> UpdateAsync(Message entity)
