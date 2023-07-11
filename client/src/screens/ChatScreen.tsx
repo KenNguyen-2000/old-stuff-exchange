@@ -1,14 +1,19 @@
-import { StyleSheet, AppState } from 'react-native';
-import { Button, Text } from 'react-native-paper';
-import React, { useEffect, useState, useRef } from 'react';
+import { StyleSheet, AppState, FlatList, View } from 'react-native';
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import MySafeArea from '../components/MySafeArea';
 import * as signalR from '@microsoft/signalr';
 import interceptor from '../services/interceptor';
 import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
 import * as SecureStorage from 'expo-secure-store';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import ChatHeader from '../components/screens/ChatScreen/ChatHeader';
+import data from './rooms.json';
+import RoomChatCard from '../components/screens/ChatScreen/RoomChatCard';
 
-const ChatScreen = ({ navigation }: any) => {
+interface IChatScreen extends NativeStackScreenProps<any, 'Chat', 'mystack'> {}
+
+const ChatScreen = ({ navigation }: IChatScreen) => {
   const [chatConnection, setChatConnection] = useState<signalR.HubConnection>();
   const [message, setMessage] = useState('');
   const appState = useRef(AppState.currentState);
@@ -115,10 +120,28 @@ const ChatScreen = ({ navigation }: any) => {
     };
   }, []);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, []);
+
   return (
     <MySafeArea>
-      <Text>ChatScreen</Text>
-      <Button onPress={handleSendMessage}>Send Message </Button>
+      <ChatHeader />
+      <View
+        style={{
+          paddingTop: 20,
+        }}
+      >
+        <FlatList
+          data={data}
+          renderItem={({ item }) => (
+            <RoomChatCard data={item} navigation={navigation} />
+          )}
+          ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+        />
+      </View>
     </MySafeArea>
   );
 };
