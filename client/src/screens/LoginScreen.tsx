@@ -5,6 +5,8 @@ import {
   Pressable,
   TouchableWithoutFeedback,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import React, { useState, useLayoutEffect } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -72,7 +74,10 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
   }, [navigation]);
 
   return (
-    <>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
       <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
         <View style={styles.wrapper}>
           <ImageBackground source={bgPath} style={styles.background__image} />
@@ -135,7 +140,7 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
           )}
         </View>
       </TouchableWithoutFeedback>
-    </>
+    </KeyboardAvoidingView>
   );
 };
 
