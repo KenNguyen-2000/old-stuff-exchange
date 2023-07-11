@@ -22,6 +22,7 @@ import { ICategory, IItemDto } from './src/interfaces/dtos';
 import { setNavigationRef } from './src/helpers/navigation.service';
 import { IOrderDto } from './src/interfaces/dtos/order.dto';
 import EditItemScreen from './src/screens/EditItemScreen';
+import ChatDetailScreen from './src/screens/ChatDetailScreen';
 
 type RootStackParamList = {
   Home: undefined;
@@ -38,6 +39,7 @@ type RootStackParamList = {
   EditItem: {
     item: IItemDto;
   };
+  ChatDetail: any;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -131,6 +133,7 @@ export default function App() {
               <Stack.Screen name='ItemDetail' component={ItemDetailScreen} />
               <Stack.Screen name='ItemList' component={ItemListScreen} />
               <Stack.Screen name='OrderDetail' component={OrderDetailScreen} />
+              <Stack.Screen name='ChatDetail' component={ChatDetailScreen} />
               <Stack.Screen
                 name='CreateItem'
                 component={CreateItemScreen}
