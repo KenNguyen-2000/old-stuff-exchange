@@ -7,6 +7,7 @@ import {
   Platform,
   ScrollView,
   TextInput as OldTextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import React, { useState, useLayoutEffect, useRef } from 'react';
 import { Button, TextInput, IconButton } from 'react-native-paper';
@@ -96,125 +97,129 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
   return (
     <View style={styles.wrapper}>
       <ImageBackground source={bgPath} style={styles.background__image} />
-      <ScrollView
-        style={styles.scroll_wrapper}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps='handled'
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
-        <View>
-          <View style={styles.title__wrapper}>
-            <Text style={styles.title}>Good</Text>
-            <Text style={styles.title}> {greetingText}</Text>
+        <ScrollView
+          style={styles.scroll_wrapper}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps='handled'
+        >
+          <View>
+            <View style={styles.title__wrapper}>
+              <Text style={styles.title}>Good</Text>
+              <Text style={styles.title}> {greetingText}</Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.content}>
-          <TextInput
-            value={credentials.fullName}
-            onChangeText={(text) => onChangeCredentials('fullName', text)}
-            placeholder='Fullname'
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
-          />
-          <TextInput
-            value={credentials.username}
-            onChangeText={(text) => onChangeCredentials('username', text)}
-            placeholder='Username'
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
-          />
-          <TextInput
-            value={credentials.password}
-            onChangeText={(text) => onChangeCredentials('password', text)}
-            placeholder='Password'
-            secureTextEntry={true}
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
-          />
-          <TextInput
-            value={credentials.email}
-            onChangeText={(text) => onChangeCredentials('email', text)}
-            placeholder='Email'
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
-          />
-          <TextInput
-            value={credentials.phoneNumber}
-            onChangeText={(text) => onChangeCredentials('phoneNumber', text)}
-            placeholder='Phone Number'
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
-          />
-          <Pressable
-            onPress={showDatepicker}
-            style={styles.date__text__pressable}
-          >
-            <Text style={styles.date__text}>
-              {credentials.dob.toDateString()}
-            </Text>
-          </Pressable>
-          {show && (
-            <DateTimePicker
-              testID='dateTimePicker'
-              value={credentials.dob}
-              mode={'date'}
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              is24Hour={true}
-              onChange={onChange}
-              style={{
-                marginTop: -30,
-                zIndex: 30,
-              }}
-              maximumDate={new Date(2022, 0, 1)}
-              minimumDate={new Date(1950, 0, 1)}
+          <View style={styles.content}>
+            <TextInput
+              value={credentials.fullName}
+              onChangeText={(text) => onChangeCredentials('fullName', text)}
+              placeholder='Fullname'
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
             />
-          )}
-          <TextInput
-            value={credentials.address}
-            onChangeText={(text) => onChangeCredentials('address', text)}
-            placeholder='Address'
-            style={styles.text__input}
-            textColor='#fff'
-            underlineColor='#e1e1e1'
-            activeUnderlineColor='#fff'
-            placeholderTextColor='#e1e1e1'
-          />
-          <View style={styles.button__wrapper}>
-            <Button
-              mode='outlined'
-              onPress={handleSignUp}
-              style={styles.button}
-              textColor='#e1e1e1'
+            <TextInput
+              value={credentials.username}
+              onChangeText={(text) => onChangeCredentials('username', text)}
+              placeholder='Username'
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
+            />
+            <TextInput
+              value={credentials.password}
+              onChangeText={(text) => onChangeCredentials('password', text)}
+              placeholder='Password'
+              secureTextEntry={true}
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
+            />
+            <TextInput
+              value={credentials.email}
+              onChangeText={(text) => onChangeCredentials('email', text)}
+              placeholder='Email'
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
+            />
+            <TextInput
+              value={credentials.phoneNumber}
+              onChangeText={(text) => onChangeCredentials('phoneNumber', text)}
+              placeholder='Phone Number'
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
+            />
+            <Pressable
+              onPress={showDatepicker}
+              style={styles.date__text__pressable}
             >
-              Sign up
-            </Button>
-          </View>
-          <View style={styles.end__wrapper}>
-            <Pressable onPress={handleNavigateLogin}>
-              <Text style={styles.forget__pwd__text}>
-                {' '}
-                Alread have an account?
+              <Text style={styles.date__text}>
+                {credentials.dob.toDateString()}
               </Text>
             </Pressable>
+            {show && (
+              <DateTimePicker
+                testID='dateTimePicker'
+                value={credentials.dob}
+                mode={'date'}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                is24Hour={true}
+                onChange={onChange}
+                style={{
+                  marginTop: -30,
+                  zIndex: 30,
+                }}
+                maximumDate={new Date(2022, 0, 1)}
+                minimumDate={new Date(1950, 0, 1)}
+              />
+            )}
+            <TextInput
+              value={credentials.address}
+              onChangeText={(text) => onChangeCredentials('address', text)}
+              placeholder='Address'
+              style={styles.text__input}
+              textColor='#fff'
+              underlineColor='#e1e1e1'
+              activeUnderlineColor='#fff'
+              placeholderTextColor='#e1e1e1'
+            />
+            <View style={styles.button__wrapper}>
+              <Button
+                mode='outlined'
+                onPress={handleSignUp}
+                style={styles.button}
+                textColor='#e1e1e1'
+              >
+                Sign up
+              </Button>
+            </View>
+            <View style={styles.end__wrapper}>
+              <Pressable onPress={handleNavigateLogin}>
+                <Text style={styles.forget__pwd__text}>
+                  {' '}
+                  Alread have an account?
+                </Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-
+        </ScrollView>
+      </KeyboardAvoidingView>
       <IconButton
         icon={'keyboard-backspace'}
         iconColor='#fff'
