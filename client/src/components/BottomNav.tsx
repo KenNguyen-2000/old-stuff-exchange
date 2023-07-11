@@ -16,6 +16,7 @@ const BottomNav = () => {
       activeColor={theme.colors.primary}
       barStyle={styles.bar__wrapper}
       shifting={true}
+
       // compact={false}
     >
       <Tab.Screen
