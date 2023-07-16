@@ -37,7 +37,12 @@ const AlertDialog = ({ message, onDismiss }: IAlertDialog) => {
       <Animated.View style={[styles.wrapper, { opacity: fadeAnim }]}>
         <View style={styles.message__wrapper}>
           <Entypo name='info-with-circle' color={'#fff'} size={30} />
-          <Text style={{ color: '#fff', textAlign: 'left' }}>{message}</Text>
+          <Text
+            variant='bodyLarge'
+            style={{ color: '#fff', textAlign: 'left' }}
+          >
+            {message}
+          </Text>
         </View>
       </Animated.View>
     </TouchableWithoutFeedback>
@@ -61,10 +66,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     paddingBottom: 18,
-    backgroundColor: 'rgba(0,0,0,.5)',
+    backgroundColor: 'rgba(0,0,0,.7)',
     minWidth: 200,
     minHeight: 100,
-    maxWidth: '70%',
+    maxWidth: '80%',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 12,

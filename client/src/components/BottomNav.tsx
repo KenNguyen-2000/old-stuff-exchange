@@ -1,14 +1,16 @@
 import { StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { ChatScreen, HomeScreen, OrderScreen, ProfileScreen } from '../screens';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { IconButton, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
+import { useAppSelector } from '../redux/reduxHook';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const BottomNav = () => {
   const theme = useTheme();
+  const messageState = useAppSelector((state) => state.bottomTab.messageState);
 
   return (
     <Tab.Navigator
@@ -63,6 +65,7 @@ const BottomNav = () => {
               size={24}
             />
           ),
+          tabBarBadge: messageState,
         }}
       />
       <Tab.Screen

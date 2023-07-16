@@ -34,36 +34,45 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showDialog, setShowDialog] = useState(false);
-  const [message, setMessage] = useState('Notification');
+  const [showDialog, setShowDialog] = useState({
+    isShow: false,
+    message: '',
+  });
 
   const handleSignIn = async () => {
     try {
+      if (username === '' || password === '') {
+        handleShowDialog('Username and Password are required!');
+      }
       const res = await loginRequest({ username, password });
       if (res.succeeded) {
         const decoded: any = jwtDecode(res.data);
-        await dispatch(fetchUserInfo());
         await SecureStore.setItemAsync('token', res.data);
+        await dispatch(fetchUserInfo());
         navigation.navigate('Home');
       } else {
-        setMessage('Username or password incorrect!');
-        handleShowDialog();
+        handleShowDialog('Username or password incorrect!');
       }
     } catch (error: any) {
       console.log(error);
-      setMessage('Username or password incorrect!');
-      handleShowDialog();
+      handleShowDialog('Username or password incorrect!');
     }
   };
 
   const handleNavigateRegister = () => navigation.navigate('Register');
 
-  const handleShowDialog = () => {
-    setShowDialog(true);
+  const handleShowDialog = (message: string) => {
+    setShowDialog({
+      isShow: true,
+      message: message,
+    });
 
     // After 2 seconds, hide the dialog
     setTimeout(() => {
-      setShowDialog(false);
+      setShowDialog({
+        isShow: false,
+        message: '',
+      });
     }, 2600);
   };
 
@@ -130,12 +139,12 @@ const LoginScreen = ({ navigation }: ILoginScreen) => {
             iconColor='#fff'
             style={{ position: 'absolute', top: 20, left: 20 }}
             size={24}
-            onPress={handleShowDialog}
+            onPress={() => navigation.navigate('Home')}
           />
-          {showDialog && (
+          {showDialog.isShow && (
             <AlertDialog
-              message={message}
-              onDismiss={() => setShowDialog(false)}
+              message={showDialog.message}
+              onDismiss={() => setShowDialog({ isShow: false, message: '' })}
             />
           )}
         </View>

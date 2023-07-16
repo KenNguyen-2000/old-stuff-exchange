@@ -1,8 +1,17 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
-import { Button, MD3Colors, Text } from 'react-native-paper';
+import { Avatar, Button, MD3Colors, Text } from 'react-native-paper';
+import useUserInfo from '../../../hooks/useUserInfo';
+import formatDate from '../../../helpers/dateFormatter';
+import { useAppSelector } from '../../../redux/reduxHook';
 
 const RoomChatCard = ({ data, navigation }: any) => {
+  const userInfo = useAppSelector((state) => state.user.user);
+
+  const sender = data
+    ? data.users.find((u: any) => u.id !== userInfo!.id)
+    : null;
+
   const handleGoDetail = () => {
     navigation.navigate('ChatDetail', {
       data: data,
@@ -11,16 +20,38 @@ const RoomChatCard = ({ data, navigation }: any) => {
 
   return (
     <TouchableOpacity style={styles.wrapper} onPress={handleGoDetail}>
-      <View style={styles.avatar__wrapper}></View>
+      <View style={styles.avatar__wrapper}>
+        {!sender?.imageUri ? (
+          <Avatar.Icon size={50} icon='account' />
+        ) : (
+          <Image
+            source={{
+              uri: sender.imageUri,
+            }}
+            style={{
+              width: '100%',
+              aspectRatio: 1 / 1,
+              resizeMode: 'cover',
+            }}
+          />
+        )}
+      </View>
       <View style={styles.content__wrapper}>
         <View style={styles.content__top}>
-          <Text>{data.name}</Text>
-          <Text style={{ color: MD3Colors.secondary60 }}>{data.time}</Text>
+          <Text>
+            {data &&
+              data.users.find((user: any) => user.id !== userInfo?.id).fullName}
+          </Text>
+          <Text style={{ color: MD3Colors.secondary60 }}>
+            {formatDate(
+              new Date(data.messages[data.messages.length - 1].updatedDate)
+            )}
+          </Text>
         </View>
         <View style={styles.content__bottom}>
           <View style={{ flexShrink: 1 }}>
             <Text numberOfLines={1} ellipsizeMode='tail' style={styles.message}>
-              {data.message}
+              {data.messages[data.messages.length - 1].content}
             </Text>
           </View>
 

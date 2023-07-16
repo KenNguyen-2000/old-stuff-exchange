@@ -7,6 +7,7 @@ import {
   ScrollView,
   Pressable,
   Dimensions,
+  Platform,
 } from 'react-native';
 import React, { useEffect, useCallback, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -35,6 +36,8 @@ import {
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MySelector from '../components/MySelector';
 import Carousel from 'react-native-reanimated-carousel';
+import { storage } from '../../firebaseConfig';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 type RootStackParamList = {
   EditItem: {
@@ -122,11 +125,36 @@ const EditItemScreen = ({ navigation, route }: IEditItemScreen) => {
     // No permissions request is necessary for launching the image library
   };
 
+  const uploadImageAsync = async (uri: string) => {
+    const acceptedUri =
+      Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    const blobRes = await fetch(acceptedUri);
+    const blob = await blobRes.blob();
+    const storageRef = ref(storage, `images/${Date.now()}`);
+
+    await uploadBytesResumable(storageRef, blob);
+    const downLoadUrl = await getDownloadURL(storageRef);
+    return downLoadUrl;
+  };
+
   const handleUpdate = useCallback(async () => {
     setIsLoading(true);
     try {
+      let downloadUrls: string[] = [];
+      if (newItem.images) {
+        const values = await Promise.all(
+          newItem.images.map(async (item) => {
+            return await uploadImageAsync(item);
+          })
+        );
+        downloadUrls = values;
+      }
+
       setTimeout(async () => {
-        const data = await updateItem(newItem);
+        const data = await updateItem({
+          ...newItem,
+          images: [...downloadUrls],
+        });
         if (data.succeeded) {
           navigation.popToTop();
         }

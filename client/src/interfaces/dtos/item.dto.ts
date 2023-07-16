@@ -37,7 +37,7 @@ export interface ICreateItem {
   price: number;
   location: string;
   categoryId: string;
-  images?: string[];
+  images?: any[];
 }
 
 export interface IUpdateItem {

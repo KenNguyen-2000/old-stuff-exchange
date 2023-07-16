@@ -4,6 +4,7 @@ import { Button, MD3Colors, Text } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { IOrderDto } from '../../../interfaces/dtos/order.dto';
 import { OrderStatus } from '../../../interfaces/enums/order.enum';
+import formatDate from '../../../helpers/dateFormatter';
 
 interface IOrderCard extends NativeStackScreenProps<any, 'Order', 'my-stack'> {
   showBottomSheet: any;
@@ -33,7 +34,7 @@ const OrderCard: React.FC<IOrderCard> = ({
       order: data,
     });
   };
-  // 30 Jun 2023, 16:03
+
   return (
     <Pressable onPress={handleGoDetail} style={styles.wrapper}>
       <View style={styles.right__image}>
@@ -51,7 +52,7 @@ const OrderCard: React.FC<IOrderCard> = ({
         <View style={styles.title__wrapper}>
           <Text style={styles.text__name}>Exchange for {item.name}</Text>
           <Text style={styles.text__date}>
-            {new Date(createdDate).toUTCString()}
+            {formatDate(new Date(createdDate))}
           </Text>
           <View style={styles.action__wrapper}>
             <Pressable onPress={handleRateOrder}>

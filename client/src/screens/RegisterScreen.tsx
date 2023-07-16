@@ -16,6 +16,7 @@ import { IRegisterDto } from '../interfaces/dtos';
 import { registerRequest } from '../services/auth.service';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import AlertDialog from '../components/AlertDialog';
 
 interface IRegisterScreen
   extends NativeStackScreenProps<any, 'Register', 'mystack'> {}
@@ -32,24 +33,58 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
   const dobInputRef = useRef<OldTextInput>(null);
 
   const [mode, setMode] = useState<any>('date');
+  const [dialog, setDialog] = useState({
+    isShow: false,
+    message: '',
+  });
   const [show, setShow] = useState(false);
+  const [signupLoading, setSignupLoading] = useState(false);
   const [credentials, setCredentials] = useState<IRegisterDto>({
     fullName: '',
     username: '',
     password: '',
-    dob: new Date(),
+    dob: new Date(2005, 1, 1),
     address: '',
     gender: false,
   });
 
   const handleSignUp = async () => {
     try {
-      const res = await registerRequest(credentials);
-      console.log(res);
-      if (res.status === 200) navigation.navigate('Login');
+      if (
+        credentials.fullName === '' ||
+        credentials.username === '' ||
+        credentials.password === '' ||
+        credentials.address === ''
+      ) {
+        handleShowDialog(
+          'Please fill all required fields: FullName, Username, Password, Address'
+        );
+      } else {
+        setSignupLoading(true);
+        const res = await registerRequest(credentials);
+        console.log(res);
+        if (res.status === 200) navigation.navigate('Login');
+
+        setSignupLoading(false);
+      }
     } catch (error: any) {
       console.log(error.data);
+      handleShowDialog('Signup Failure!');
+      setSignupLoading(false);
     }
+  };
+
+  const handleShowDialog = (message: string) => {
+    setDialog({
+      isShow: true,
+      message: message,
+    });
+    setTimeout(() => {
+      setDialog({
+        isShow: false,
+        message: '',
+      });
+    }, 2600);
   };
 
   const onChangeCredentials = (key: string, value: any) => {
@@ -73,7 +108,7 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
         onChange,
         mode: currentMode,
         is24Hour: true,
-        maximumDate: new Date(),
+        maximumDate: new Date(new Date().getFullYear() - 8, 0, 1),
         minimumDate: new Date(1950, 0, 1),
       });
     } else {
@@ -96,137 +131,149 @@ const RegisterScreen = ({ navigation }: IRegisterScreen) => {
 
   return (
     <View style={styles.wrapper}>
-      <ImageBackground source={bgPath} style={styles.background__image} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          style={styles.scroll_wrapper}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps='handled'
+      <ImageBackground source={bgPath} style={styles.background__image}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
         >
-          <View>
-            <View style={styles.title__wrapper}>
-              <Text style={styles.title}>Good</Text>
-              <Text style={styles.title}> {greetingText}</Text>
+          <ScrollView
+            style={styles.scroll_wrapper}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps='handled'
+          >
+            <View style={{ height: 80 }} />
+            <View>
+              <View style={styles.title__wrapper}>
+                <Text style={styles.title}>Good</Text>
+                <Text style={styles.title}> {greetingText}</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.content}>
-            <TextInput
-              value={credentials.fullName}
-              onChangeText={(text) => onChangeCredentials('fullName', text)}
-              placeholder='Fullname'
-              style={styles.text__input}
-              textColor='#fff'
-              underlineColor='#e1e1e1'
-              activeUnderlineColor='#fff'
-              placeholderTextColor='#e1e1e1'
-            />
-            <TextInput
-              value={credentials.username}
-              onChangeText={(text) => onChangeCredentials('username', text)}
-              placeholder='Username'
-              style={styles.text__input}
-              textColor='#fff'
-              underlineColor='#e1e1e1'
-              activeUnderlineColor='#fff'
-              placeholderTextColor='#e1e1e1'
-            />
-            <TextInput
-              value={credentials.password}
-              onChangeText={(text) => onChangeCredentials('password', text)}
-              placeholder='Password'
-              secureTextEntry={true}
-              style={styles.text__input}
-              textColor='#fff'
-              underlineColor='#e1e1e1'
-              activeUnderlineColor='#fff'
-              placeholderTextColor='#e1e1e1'
-            />
-            <TextInput
-              value={credentials.email}
-              onChangeText={(text) => onChangeCredentials('email', text)}
-              placeholder='Email'
-              style={styles.text__input}
-              textColor='#fff'
-              underlineColor='#e1e1e1'
-              activeUnderlineColor='#fff'
-              placeholderTextColor='#e1e1e1'
-            />
-            <TextInput
-              value={credentials.phoneNumber}
-              onChangeText={(text) => onChangeCredentials('phoneNumber', text)}
-              placeholder='Phone Number'
-              style={styles.text__input}
-              textColor='#fff'
-              underlineColor='#e1e1e1'
-              activeUnderlineColor='#fff'
-              placeholderTextColor='#e1e1e1'
-            />
-            <Pressable
-              onPress={showDatepicker}
-              style={styles.date__text__pressable}
-            >
-              <Text style={styles.date__text}>
-                {credentials.dob.toDateString()}
-              </Text>
-            </Pressable>
-            {show && (
-              <DateTimePicker
-                testID='dateTimePicker'
-                value={credentials.dob}
-                mode={'date'}
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                is24Hour={true}
-                onChange={onChange}
-                style={{
-                  marginTop: -30,
-                  zIndex: 30,
-                }}
-                maximumDate={new Date(2022, 0, 1)}
-                minimumDate={new Date(1950, 0, 1)}
+            <View style={styles.content}>
+              <TextInput
+                value={credentials.fullName}
+                onChangeText={(text) => onChangeCredentials('fullName', text)}
+                placeholder='Fullname'
+                style={styles.text__input}
+                textColor='#fff'
+                underlineColor='#e1e1e1'
+                activeUnderlineColor='#fff'
+                placeholderTextColor='#e1e1e1'
               />
-            )}
-            <TextInput
-              value={credentials.address}
-              onChangeText={(text) => onChangeCredentials('address', text)}
-              placeholder='Address'
-              style={styles.text__input}
-              textColor='#fff'
-              underlineColor='#e1e1e1'
-              activeUnderlineColor='#fff'
-              placeholderTextColor='#e1e1e1'
-            />
-            <View style={styles.button__wrapper}>
-              <Button
-                mode='outlined'
-                onPress={handleSignUp}
-                style={styles.button}
-                textColor='#e1e1e1'
+              <TextInput
+                value={credentials.username}
+                onChangeText={(text) => onChangeCredentials('username', text)}
+                placeholder='Username'
+                style={styles.text__input}
+                textColor='#fff'
+                underlineColor='#e1e1e1'
+                activeUnderlineColor='#fff'
+                placeholderTextColor='#e1e1e1'
+              />
+              <TextInput
+                value={credentials.password}
+                onChangeText={(text) => onChangeCredentials('password', text)}
+                placeholder='Password'
+                secureTextEntry={true}
+                style={styles.text__input}
+                textColor='#fff'
+                underlineColor='#e1e1e1'
+                activeUnderlineColor='#fff'
+                placeholderTextColor='#e1e1e1'
+              />
+              <TextInput
+                value={credentials.email}
+                onChangeText={(text) => onChangeCredentials('email', text)}
+                placeholder='Email'
+                style={styles.text__input}
+                textColor='#fff'
+                underlineColor='#e1e1e1'
+                activeUnderlineColor='#fff'
+                placeholderTextColor='#e1e1e1'
+              />
+              <TextInput
+                value={credentials.phoneNumber}
+                onChangeText={(text) =>
+                  onChangeCredentials('phoneNumber', text)
+                }
+                placeholder='Phone Number'
+                style={styles.text__input}
+                textColor='#fff'
+                underlineColor='#e1e1e1'
+                activeUnderlineColor='#fff'
+                placeholderTextColor='#e1e1e1'
+              />
+              <Pressable
+                onPress={showDatepicker}
+                style={styles.date__text__pressable}
               >
-                Sign up
-              </Button>
-            </View>
-            <View style={styles.end__wrapper}>
-              <Pressable onPress={handleNavigateLogin}>
-                <Text style={styles.forget__pwd__text}>
-                  {' '}
-                  Alread have an account?
+                <Text style={styles.date__text}>
+                  {credentials.dob.toDateString()}
                 </Text>
               </Pressable>
+              {show && (
+                <DateTimePicker
+                  testID='dateTimePicker'
+                  value={credentials.dob}
+                  mode={'date'}
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  is24Hour={true}
+                  onChange={onChange}
+                  style={{
+                    marginTop: -30,
+                    zIndex: 30,
+                  }}
+                  maximumDate={new Date(2005, 0, 1)}
+                  minimumDate={new Date(1950, 0, 1)}
+                />
+              )}
+              <TextInput
+                value={credentials.address}
+                onChangeText={(text) => onChangeCredentials('address', text)}
+                placeholder='Address'
+                style={styles.text__input}
+                textColor='#fff'
+                underlineColor='#e1e1e1'
+                activeUnderlineColor='#fff'
+                placeholderTextColor='#e1e1e1'
+              />
+              <View style={styles.button__wrapper}>
+                <Button
+                  mode='outlined'
+                  onPress={handleSignUp}
+                  style={styles.button}
+                  textColor='#e1e1e1'
+                  loading={signupLoading}
+                >
+                  Sign up
+                </Button>
+              </View>
+              <View style={styles.end__wrapper}>
+                <Pressable onPress={handleNavigateLogin}>
+                  <Text style={styles.forget__pwd__text}>
+                    {' '}
+                    Alread have an account?
+                  </Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      <IconButton
-        icon={'keyboard-backspace'}
-        iconColor='#fff'
-        style={{ position: 'absolute', top: 20, left: 20 }}
-        size={24}
-        onPress={() => navigation.goBack()}
-      />
+            <View style={{ height: 100 }} />
+          </ScrollView>
+        </KeyboardAvoidingView>
+        <IconButton
+          icon={'keyboard-backspace'}
+          iconColor='#fff'
+          style={{ position: 'absolute', top: 20, left: 20 }}
+          size={24}
+          onPress={() => navigation.goBack()}
+        />
+        {dialog.isShow && (
+          <AlertDialog
+            message={dialog.message}
+            onDismiss={() => setDialog((prev) => ({ ...prev, isShow: false }))}
+          />
+        )}
+      </ImageBackground>
     </View>
   );
 };
@@ -238,10 +285,7 @@ const styles = StyleSheet.create({
     flex: 1,
     display: 'flex',
     alignItems: 'center',
-    // justifyContent: 'space-between',
     position: 'relative',
-    paddingTop: 80,
-    paddingBottom: 100,
   },
   scroll_wrapper: {
     flex: 1,

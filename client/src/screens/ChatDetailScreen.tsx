@@ -1,29 +1,120 @@
+import { StyleSheet, View, Platform, KeyboardAvoidingView } from 'react-native';
+import React, { useLayoutEffect, useState, useEffect } from 'react';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { TextInput } from 'react-native-paper';
+import * as signalR from '@microsoft/signalr';
+import { useAppSelector } from '../redux/reduxHook';
 import {
-  StyleSheet,
-  View,
-  StatusBar,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
-  Pressable,
-} from 'react-native';
-import React, { useLayoutEffect } from 'react';
-import {
-  NativeStackHeaderProps,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
-import { IconButton, Text, TextInput } from 'react-native-paper';
-import MySafeArea from '../components/MySafeArea';
-
-import MessagesContent from '../components/screens/ChatDetailScreen/MessagesContent';
-import ChatDetailHeader from '../components/screens/ChatDetailScreen/ChatDetailHeader';
+  ChatDetailHeader,
+  MessagesContent,
+} from '../components/screens/ChatDetailScreen';
+import signalRService from '../helpers/signalRConnection';
+import { useIsFocused } from '@react-navigation/native';
+import AlertDialog from '../components/AlertDialog';
 
 interface IChatDetailScreen
   extends NativeStackScreenProps<any, 'ChatDetail', 'mystack'> {}
 
 const ChatDetailScreen = ({ navigation, route }: IChatDetailScreen) => {
+  const connection = signalRService.getConnection();
   const { data }: any = route.params;
+  const userInfo = useAppSelector((state) => state.user.user);
+
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState(
+    data.messages.sort((a: any, b: any) =>
+      new Date(a.updatedDate).getTime() > new Date(b.updatedDate).getTime()
+        ? -1
+        : 1
+    )
+  );
+  const [showDialog, setShowDialog] = useState({
+    isShow: false,
+    message: '',
+  });
+
+  const isFocused = useIsFocused();
+
+  const handleSendMessage = () => {
+    // console.log(userInfo, connection, connection.state, message);
+    if (
+      !userInfo ||
+      !connection ||
+      connection.state !== signalR.HubConnectionState.Connected ||
+      message === ''
+    ) {
+      return;
+    }
+    const sendMessageDto = {
+      roomId: data.id ? data.id : 0,
+      senderId: userInfo.id,
+      recieverId: data.users.find((u: any) => u.id !== userInfo.id).id,
+      content: message,
+    };
+
+    console.log(sendMessageDto);
+
+    if (connection) {
+      connection
+        .invoke('SendMessage', sendMessageDto)
+        .then((res) => {
+          console.log(res);
+          console.log('New Id: ', messages[0].id + 1);
+          setMessages((prev: any) => [
+            {
+              id: messages[0].id + 1,
+              content: message,
+              sender: {
+                id: userInfo.id,
+              },
+              updatedDate: new Date(),
+            },
+            ...prev,
+          ]);
+          setMessage('');
+        })
+        .catch(function (err: any) {
+          handleShowDialog(err.toString());
+          return console.error(err.toString());
+        });
+    }
+  };
+
+  const handleShowDialog = (message: string) => {
+    setShowDialog({
+      isShow: true,
+      message: message,
+    });
+
+    // After 2 seconds, hide the dialog
+    setTimeout(() => {
+      setShowDialog({
+        isShow: false,
+        message: '',
+      });
+    }, 2600);
+  };
+
+  useEffect(() => {
+    signalRService.startConnection();
+    connection.on('ReceiveMessage', (sender, reciever, message) => {
+      setMessages((prev: any) => [
+        {
+          id: messages.length + messages[0].id + 1,
+          content: message,
+          sender: {
+            id: sender,
+          },
+          updatedDate: new Date(),
+        },
+        ...prev,
+      ]);
+    });
+
+    return () => {
+      signalRService.stopConnection();
+    };
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -38,8 +129,11 @@ const ChatDetailScreen = ({ navigation, route }: IChatDetailScreen) => {
     >
       {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
       <View style={{ flex: 1, justifyContent: 'space-between' }}>
-        <ChatDetailHeader navigation={navigation} user={data} />
-        <MessagesContent />
+        <ChatDetailHeader
+          navigation={navigation}
+          sender={data.users.find((u: any) => u.id !== userInfo!.id)}
+        />
+        {messages.length > 0 && <MessagesContent messages={messages} />}
 
         <View style={styles.footer__wrapper}>
           <View>
@@ -50,10 +144,12 @@ const ChatDetailScreen = ({ navigation, route }: IChatDetailScreen) => {
               outlineStyle={{ borderRadius: 999 }}
               placeholder='Type your message here'
               placeholderTextColor={'grey'}
+              onChangeText={(text) => setMessage(text)}
+              value={message}
               right={
                 <TextInput.Icon
                   icon={'send'}
-                  onPress={() => console.log('send')}
+                  onPress={handleSendMessage}
                   forceTextInputFocus={false}
                 />
               }
@@ -61,6 +157,12 @@ const ChatDetailScreen = ({ navigation, route }: IChatDetailScreen) => {
           </View>
         </View>
       </View>
+      {showDialog.isShow && (
+        <AlertDialog
+          message={showDialog.message}
+          onDismiss={() => setShowDialog({ isShow: false, message: '' })}
+        />
+      )}
       {/* </TouchableWithoutFeedback> */}
     </KeyboardAvoidingView>
   );

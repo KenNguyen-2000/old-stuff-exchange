@@ -13,6 +13,7 @@ interface IMySelector extends TextInputProps {
   datas: any[];
   value: any;
   onValueChange?: any;
+  isRequire?: boolean;
 }
 
 const MySelector = (props: IMySelector) => {
@@ -27,7 +28,10 @@ const MySelector = (props: IMySelector) => {
 
   return (
     <View style={{ position: 'relative', zIndex: 5 }}>
-      <Text style={styles.title}>{props.title}</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <Text style={styles.title}>{props.title}</Text>
+        {props.isRequire && <Text style={{ color: 'red' }}>*</Text>}
+      </View>
       <TextInput
         outlineStyle={{ borderRadius: 24 }}
         mode='outlined'

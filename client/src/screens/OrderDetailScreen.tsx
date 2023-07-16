@@ -10,6 +10,8 @@ import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
 import { changeOrderStatus } from '../services/order.service';
 import { setOrderStatus } from '../redux/slices/ordersSlice';
+import signalRService from '../helpers/signalRConnection';
+import AlertDialog from '../components/AlertDialog';
 
 type RootStackParamrs = {
   OrderDetail: {
@@ -22,24 +24,33 @@ interface IOrderDetailScreen
 const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
   const { order } = route.params;
 
+  const [curOrder, setCurOrder] = useState(order);
+  const [showDialog, setShowDialog] = useState({
+    isShow: false,
+    message: '',
+  });
+
+  const connection = signalRService.getConnection();
+
   const dispatch = useAppDispatch();
   const userInfo = useAppSelector((state) => state.user.user);
   const [visible, setVisible] = useState(false);
 
   const handleChangeOrderStatus = async (newStatus: OrderStatus) => {
     try {
-      const curStatus = order.status;
-      dispatch(setOrderStatus({ id: order.id, status: newStatus }));
+      const curStatus = curOrder.status;
+      dispatch(setOrderStatus({ id: curOrder.id, status: newStatus }));
       const res = await changeOrderStatus({
-        id: order.id,
+        id: curOrder.id,
         status: newStatus,
       });
       if (!res.succeeded)
-        dispatch(setOrderStatus({ id: order.id, status: curStatus }));
+        dispatch(setOrderStatus({ id: curOrder.id, status: curStatus }));
 
       setVisible(false);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      handleShowDialog(error.data.message);
     }
   };
 
@@ -47,7 +58,10 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
     if (!userInfo) return null;
     console.log('user', userInfo);
 
-    if (userInfo.id === order.user.id && order.status === OrderStatus.Accepted)
+    if (
+      userInfo.id === curOrder.user.id &&
+      curOrder.status === OrderStatus.Accepted
+    )
       return (
         <Button
           mode='contained'
@@ -58,8 +72,8 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
         </Button>
       );
     else if (
-      userInfo.id === order.item.user.id &&
-      order.status === OrderStatus.In_Progress
+      userInfo.id === curOrder.item.user.id &&
+      curOrder.status === OrderStatus.In_Progress
     )
       return (
         <Button
@@ -90,11 +104,40 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
         arr = [OrderStatus.Finished];
         break;
     }
-    return arr.includes(order.status);
+    return arr.includes(curOrder.status);
+  };
+
+  const handleShowDialog = (message: string) => {
+    setShowDialog({
+      isShow: true,
+      message: message,
+    });
+
+    // After 2 seconds, hide the dialog
+    setTimeout(() => {
+      setShowDialog({
+        isShow: false,
+        message: '',
+      });
+    }, 2600);
   };
 
   useEffect(() => {
+    signalRService.startConnection();
+
+    connection.on('OrderStatusUpdate', (status) => {
+      setCurOrder((prev) => ({
+        ...prev,
+        status: status,
+      }));
+      console.log('New Status ', status);
+    });
+
     if (!userInfo) dispatch(fetchUserInfo());
+
+    return () => {
+      signalRService.stopConnection();
+    };
   }, []);
 
   // useLayoutEffect(() => {
@@ -112,7 +155,7 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
             marginBottom: 24,
           }}
         >
-          Order #{2000 + order.id} details
+          Order #{2000 + curOrder.id} details
         </Text>
 
         <View style={styles.body__wrapper}>
@@ -156,7 +199,7 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
               <View style={{ flex: 1 }}>
                 <Text style={styles.order__description}>
                   Your item have been reserved.{' '}
-                  {new Date(order.createdDate).toUTCString()}
+                  {new Date(curOrder.createdDate).toUTCString()}
                 </Text>
               </View>
             </View>
@@ -203,7 +246,7 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
                 <Text style={styles.order__description}>
                   Your item is being prepared for delivery. Estimate delivery
                   time: 2-3 business days.{' '}
-                  {new Date(order.createdDate).toUTCString()}
+                  {new Date(curOrder.createdDate).toUTCString()}
                 </Text>
               </View>
             </View>
@@ -304,14 +347,16 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
             style={{ display: 'flex', gap: 8, marginTop: 16, marginBottom: 24 }}
           >
             {getOrderAction()}
-            <Button
-              mode='contained'
-              style={styles.confirm__btn}
-              buttonColor={MD3Colors.error60}
-              onPress={() => setVisible(true)}
-            >
-              Cancel Order
-            </Button>
+            {curOrder.status !== OrderStatus.Finished && (
+              <Button
+                mode='contained'
+                style={styles.confirm__btn}
+                buttonColor={MD3Colors.error60}
+                onPress={() => setVisible(true)}
+              >
+                Cancel Order
+              </Button>
+            )}
           </View>
         </View>
         <View style={{ height: 24 }}></View>
@@ -339,6 +384,13 @@ const OrderDetailScreen = ({ navigation, route }: IOrderDetailScreen) => {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      {showDialog.isShow && (
+        <AlertDialog
+          message={showDialog.message}
+          onDismiss={() => setShowDialog({ isShow: false, message: '' })}
+        />
+      )}
     </View>
   );
 };

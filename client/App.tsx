@@ -23,6 +23,7 @@ import { setNavigationRef } from './src/helpers/navigation.service';
 import { IOrderDto } from './src/interfaces/dtos/order.dto';
 import EditItemScreen from './src/screens/EditItemScreen';
 import ChatDetailScreen from './src/screens/ChatDetailScreen';
+import useUserInfo from './src/hooks/useUserInfo';
 
 type RootStackParamList = {
   Home: undefined;
@@ -53,6 +54,7 @@ export default function App() {
     'Ubuntu-Italic': require('./assets/fonts/Ubuntu-Italic.ttf'),
     'Ubuntu-BoldItalic': require('./assets/fonts/Ubuntu-BoldItalic.ttf'),
   });
+  const userInfo = useUserInfo();
 
   const baseFont = {
     fontFamily: 'Ubuntu',

@@ -1,107 +1,40 @@
 import { StyleSheet, AppState, FlatList, View } from 'react-native';
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import MySafeArea from '../components/MySafeArea';
-import * as signalR from '@microsoft/signalr';
 import interceptor from '../services/interceptor';
-import { useAppDispatch, useAppSelector } from '../redux/reduxHook';
+import { useAppDispatch } from '../redux/reduxHook';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
-import * as SecureStorage from 'expo-secure-store';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ChatHeader from '../components/screens/ChatScreen/ChatHeader';
-import data from './rooms.json';
 import RoomChatCard from '../components/screens/ChatScreen/RoomChatCard';
+import signalRService from '../helpers/signalRConnection';
+import { useIsFocused } from '@react-navigation/native';
 
 interface IChatScreen extends NativeStackScreenProps<any, 'Chat', 'mystack'> {}
 
 const ChatScreen = ({ navigation }: IChatScreen) => {
-  const [chatConnection, setChatConnection] = useState<signalR.HubConnection>();
-  const [message, setMessage] = useState('');
+  const [roomChats, setRoomChats] = useState();
   const appState = useRef(AppState.currentState);
 
+  const isFocused = useIsFocused();
+
   const dispatch = useAppDispatch();
-  const userInfo = useAppSelector((state) => state.user.user);
-
-  const handleSendMessage = () => {
-    console.log(userInfo, chatConnection?.state);
-    if (
-      !userInfo ||
-      !chatConnection ||
-      chatConnection.state !== signalR.HubConnectionState.Connected
-    ) {
-      return;
-    }
-
-    const sendMessageDto = {
-      SenderId: userInfo.id,
-      RecieverId: 2,
-      Content: 'Hello World',
-    };
-    if (chatConnection) {
-      chatConnection
-        .invoke('SendMessage', sendMessageDto)
-        .catch(function (err) {
-          return console.error(err.toString());
-        });
-    }
-  };
-
-  const reconnect = async () => {
-    if (
-      chatConnection &&
-      chatConnection.state === signalR.HubConnectionState.Disconnected
-    ) {
-      try {
-        await chatConnection.start();
-        console.log('SignalR reconnected');
-        setChatConnection(chatConnection);
-      } catch (error) {
-        console.log('SignalR reconnection error: ', error);
-      }
-    }
-  };
 
   useEffect(() => {
-    const initialConnection = async () => {
-      const getToken = await SecureStorage.getItemAsync('token');
-      if (getToken == null) navigation.navigate('Login');
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(interceptor.getUri() + '/hub', {
-          accessTokenFactory: () => getToken as string,
-        })
-        .build();
-
-      setChatConnection(connection);
-
-      try {
-        await connection.start();
-        console.log('Connection started!');
-
-        connection.on('ReceiveMessage', (sender, reciever, message) => {
-          console.log('Recieved message', sender, reciever, message);
-          console.warn(
-            `SenderId ${sender} send to RecieverId ${reciever} message: ${message}`
-          );
-        });
-      } catch (error) {
-        console.log('Error while establishing connection :(', error);
-      }
-    };
-
-    const fetchUser = async () => {
-      await dispatch(fetchUserInfo());
-    };
-
     const fetchRoomChats = async () => {
       try {
         const res = await interceptor.get('/chats/rooms');
         console.log(res.data);
+        if (res.data.succeeded) {
+          setRoomChats(res.data.datas);
+        }
       } catch (error) {
         console.log(error);
       }
     };
 
-    fetchUser();
-    initialConnection();
+    // signalRService.startConnection();
+
     fetchRoomChats();
 
     const subscription = AppState.addEventListener('change', (nextAppState) => {
@@ -110,15 +43,15 @@ const ChatScreen = ({ navigation }: IChatScreen) => {
         nextAppState === 'active'
       ) {
         console.log('Reconnect');
-        reconnect();
       }
       appState.current = nextAppState;
     });
 
     return () => {
       subscription.remove();
+      // signalRService.stopConnection();
     };
-  }, []);
+  }, [isFocused]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -134,13 +67,16 @@ const ChatScreen = ({ navigation }: IChatScreen) => {
           paddingTop: 20,
         }}
       >
-        <FlatList
-          data={data}
-          renderItem={({ item }) => (
-            <RoomChatCard data={item} navigation={navigation} />
-          )}
-          ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
-        />
+        {roomChats && (
+          <FlatList
+            data={roomChats}
+            renderItem={({ item }) => (
+              <RoomChatCard data={item} navigation={navigation} />
+            )}
+            keyExtractor={(item) => item.id}
+            ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+          />
+        )}
       </View>
     </MySafeArea>
   );

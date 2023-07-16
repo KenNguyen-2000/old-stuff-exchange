@@ -4,12 +4,16 @@ import { TextInputProps, TextInput, Text } from 'react-native-paper';
 
 interface IMyTextInput extends TextInputProps {
   title: string;
+  isRequired?: boolean;
 }
 
 const MyTextInput = (props: IMyTextInput) => {
   return (
     <View>
-      <Text style={styles.title}>{props.title}</Text>
+      <View style={{ display: 'flex', flexDirection: 'row' }}>
+        <Text style={styles.title}>{props.title}</Text>
+        {props.isRequired && <Text style={{ color: 'red' }}>*</Text>}
+      </View>
       <TextInput
         outlineStyle={{ borderRadius: 24 }}
         mode='outlined'

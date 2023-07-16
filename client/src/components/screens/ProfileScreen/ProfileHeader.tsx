@@ -1,9 +1,26 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import {
+  Image,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import React, { useState } from 'react';
 import { useTheme, Avatar, Button } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from '../../../redux/reduxHook';
+import * as ImagePicker from 'expo-image-picker';
+import { updateAvatar, updateUserInfo } from '../../../services/user.service';
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+} from 'firebase/storage';
+import { storage } from '../../../../firebaseConfig';
+import formatDate from '../../../helpers/dateFormatter';
 
 interface IProfileHeader
   extends NativeStackScreenProps<any, 'Profile', 'mystack'> {}
@@ -12,6 +29,57 @@ const ProfileHeader = ({ navigation }: IProfileHeader) => {
   const userInfo = useAppSelector((state) => state.user.user);
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const [image, setImage] = useState(
+    userInfo?.imageUri ? userInfo.imageUri : ''
+  );
+
+  const [camStatus, requestCameraPermission] =
+    ImagePicker.useCameraPermissions();
+  const [libStatus, requestLibPermission] =
+    ImagePicker.useMediaLibraryPermissions();
+
+  const pickImage = async () => {
+    try {
+      if (!libStatus?.granted) {
+        // No permissions request is necessary for launching the image library
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          aspect: [4, 3],
+          quality: 1,
+        });
+
+        if (!result.canceled) {
+          if (userInfo) {
+            const downloaduri = await uploadImageAsync(result.assets[0].uri);
+            const data = await updateAvatar({
+              imageUri: downloaduri,
+            });
+            setImage(downloaduri);
+            console.log(data);
+          }
+        }
+
+        console.log(userInfo);
+      } else {
+        await requestLibPermission();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const uploadImageAsync = async (uri: string) => {
+    const acceptedUri =
+      Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    const blobRes = await fetch(acceptedUri);
+    const blob = await blobRes.blob();
+    const storageRef = ref(storage, `images/${Date.now()}`);
+
+    await uploadBytesResumable(storageRef, blob);
+    const downLoadUrl = await getDownloadURL(storageRef);
+    return downLoadUrl;
+  };
+
   return (
     <View
       style={[
@@ -22,7 +90,27 @@ const ProfileHeader = ({ navigation }: IProfileHeader) => {
         },
       ]}
     >
-      <Avatar.Icon size={42} icon='account' />
+      <Pressable
+        onPress={pickImage}
+        style={{
+          width: 42,
+          aspectRatio: 1 / 1,
+          backgroundColor: '#333',
+          borderRadius: 999,
+          overflow: 'hidden',
+        }}
+      >
+        {image === '' ? (
+          <Avatar.Icon size={42} icon='account' />
+        ) : (
+          <Image
+            source={{
+              uri: image,
+            }}
+            style={{ width: '100%', aspectRatio: 1 / 1, resizeMode: 'cover' }}
+          />
+        )}
+      </Pressable>
       {!userInfo ? (
         <View style={styles.button__wrapper}>
           <Button
@@ -48,7 +136,11 @@ const ProfileHeader = ({ navigation }: IProfileHeader) => {
         <View>
           <Text style={{ fontSize: 20 }}>{userInfo.fullName}</Text>
           <Text style={{ fontSize: 20 }}>
-            {new Date(userInfo.dob).toUTCString()}
+            Dob:{' '}
+            {formatDate(new Date(userInfo.dob))
+              .split(' ')
+              .slice(0, 3)
+              .join(' ')}
           </Text>
         </View>
       )}

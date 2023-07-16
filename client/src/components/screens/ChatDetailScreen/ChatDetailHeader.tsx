@@ -1,9 +1,10 @@
-import { StyleSheet, View, Platform, StatusBar } from 'react-native';
+import { StyleSheet, View, Platform, StatusBar, Image } from 'react-native';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconButton, Text } from 'react-native-paper';
+import { Avatar, IconButton, Text } from 'react-native-paper';
 
-const ChatDetailHeader = ({ navigation, user }: any) => {
+const ChatDetailHeader = ({ navigation, sender }: any) => {
+  console.log('Header', sender);
   const insets = useSafeAreaInsets();
   const currentPaddingTop =
     Platform.OS === 'ios' ? insets.top : StatusBar.currentHeight;
@@ -16,10 +17,25 @@ const ChatDetailHeader = ({ navigation, user }: any) => {
         onPress={() => navigation.goBack()}
       />
       <View style={styles.content__wrapper}>
-        <View style={styles.avatar__wrapper}></View>
+        <View style={styles.avatar__wrapper}>
+          {!sender?.imageUri ? (
+            <Avatar.Icon size={40} icon='account' />
+          ) : (
+            <Image
+              source={{
+                uri: sender.imageUri,
+              }}
+              style={{
+                width: '100%',
+                aspectRatio: 1 / 1,
+                resizeMode: 'cover',
+              }}
+            />
+          )}
+        </View>
         <View style={{ justifyContent: 'space-between' }}>
-          <Text variant='bodyMedium'>{user.name}</Text>
-          <Text>{user.time}</Text>
+          <Text variant='bodyMedium'>{sender.fullName}</Text>
+          <Text>{sender.address}</Text>
         </View>
       </View>
     </View>

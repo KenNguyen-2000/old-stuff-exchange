@@ -1,5 +1,4 @@
 import {
-  Keyboard,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
@@ -7,6 +6,8 @@ import {
   ScrollView,
   Pressable,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -25,6 +26,15 @@ import { ICreateItem } from '../interfaces/dtos';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MySelector from '../components/MySelector';
 import Carousel from 'react-native-reanimated-carousel';
+import AlertDialog from '../components/AlertDialog';
+import axios from 'axios';
+import { firebase, storage } from '../../firebaseConfig';
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+} from 'firebase/storage';
 
 interface ICreateItemScreen
   extends NativeStackScreenProps<any, 'CreateItem', 'mystack'> {}
@@ -42,7 +52,10 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [showPreview, setShowPreview] = useState(false);
-
+  const [dialog, setDialog] = useState({
+    isShow: false,
+    message: '',
+  });
   const [camStatus, requestCameraPermission] =
     ImagePicker.useCameraPermissions();
   const [libStatus, requestLibPermission] =
@@ -61,6 +74,7 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
       if (!result.canceled) {
         const uriList = result.assets.map((img) => img.uri);
         setImages(uriList);
+
         handleChangeForm(
           'images',
           result.assets.map((img) => img.uri)
@@ -103,17 +117,56 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
 
   const handleCreate = async () => {
     setIsLoading(true);
+
+    let downloadUrls: string[] = [];
+    if (newItem.images) {
+      const values = await Promise.all(
+        newItem.images.map(async (item) => {
+          return await uploadImageAsync(item);
+        })
+      );
+      downloadUrls = values;
+    }
+
     try {
       setTimeout(async () => {
-        const data = await createNewItem(newItem);
+        const data = await createNewItem({
+          ...newItem,
+          images: downloadUrls,
+        });
         if (data.succeeded) {
           navigation.goBack();
         }
         setIsLoading(false);
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      handleShowDialog(error.data.message);
     }
+  };
+  const uploadImageAsync = async (uri: string) => {
+    const acceptedUri =
+      Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    const blobRes = await fetch(acceptedUri);
+    const blob = await blobRes.blob();
+    const storageRef = ref(storage, `images/${Date.now()}`);
+
+    await uploadBytesResumable(storageRef, blob);
+    const downLoadUrl = await getDownloadURL(storageRef);
+    return downLoadUrl;
+  };
+
+  const handleShowDialog = (message: string) => {
+    setDialog({
+      isShow: true,
+      message: message,
+    });
+    setTimeout(() => {
+      setDialog({
+        isShow: false,
+        message: '',
+      });
+    }, 2600);
   };
 
   useEffect(() => {
@@ -137,105 +190,116 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
 
   return (
     <MySafeArea>
-      <ScrollView>
-        <View style={styles.wrapper}>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 12,
-            }}
-          >
-            <IconButton
-              icon={'keyboard-backspace'}
-              onPress={() => navigation.goBack()}
-            />
-            <Text variant='displayMedium' style={styles.title}>
-              Add Item
-            </Text>
-          </View>
-
-          <Pressable
-            style={styles.upload__image__wrapper}
-            onPress={images.length > 0 ? () => setShowPreview(true) : pickImage}
-          >
-            {images.length > 0 ? (
-              <Image
-                source={{ uri: images[0] }}
-                style={{
-                  // width: '100%',
-                  height: '100%',
-                  aspectRatio: 4 / 3,
-                  resizeMode: 'contain',
-                }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView keyboardShouldPersistTaps='handled'>
+          <View style={styles.wrapper}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 12,
+              }}
+            >
+              <IconButton
+                icon={'keyboard-backspace'}
+                onPress={() => navigation.goBack()}
               />
-            ) : (
-              <MaterialCommunityIcons
-                name='image-plus'
-                color={'gray'}
-                size={120}
-              />
-            )}
+              <Text variant='displayMedium' style={styles.title}>
+                Add Item
+              </Text>
+            </View>
 
-            <IconButton
-              icon='camera'
-              iconColor={MD3Colors.primary30}
-              style={{ position: 'absolute', right: 10, bottom: 10 }}
-              size={32}
-              onPress={showCamera}
-              mode='contained'
+            <Pressable
+              style={styles.upload__image__wrapper}
+              onPress={
+                images.length > 0 ? () => setShowPreview(true) : pickImage
+              }
+            >
+              {images.length > 0 ? (
+                <Image
+                  source={{ uri: images[0] }}
+                  style={{
+                    // width: '100%',
+                    height: '100%',
+                    aspectRatio: 4 / 3,
+                    resizeMode: 'contain',
+                  }}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name='image-plus'
+                  color={'gray'}
+                  size={120}
+                />
+              )}
+
+              <IconButton
+                icon='camera'
+                iconColor={MD3Colors.primary30}
+                style={{ position: 'absolute', right: 10, bottom: 10 }}
+                size={32}
+                onPress={showCamera}
+                mode='contained'
+              />
+            </Pressable>
+            <MyTextInput
+              title='Name'
+              onChangeText={(text) => handleChangeForm('name', text)}
+              placeholder='Guitar, bicycle,...'
+              isRequired={true}
             />
-          </Pressable>
-          <MyTextInput
-            title='Name'
-            onChangeText={(text) => handleChangeForm('name', text)}
-            placeholder='Guitar, bicycle,...'
-          />
-          <MyTextInput
-            title='Description'
-            multiline
-            style={{ height: 100, backgroundColor: 'rgba(231,224,236,1)' }}
-            onChangeText={(text) => handleChangeForm('description', text)}
-            placeholder='It have been used for 5 years.
+            <MyTextInput
+              title='Description'
+              multiline
+              style={{ height: 100, backgroundColor: 'rgba(231,224,236,1)' }}
+              onChangeText={(text) => handleChangeForm('description', text)}
+              placeholder='It have been used for 5 years.
             It have a small scratch.
             '
-          />
-          {categories.length > 0 ? (
-            <MySelector
-              title='Type'
-              onValueChange={(itemValue: any, index: number) =>
-                handleChangeForm('categoryId', itemValue)
-              }
-              value={categories.find((item) => item.name === 'Others').name}
-              editable={false}
-              datas={categories || []}
+              isRequired={true}
             />
-          ) : (
-            <MyTextInput title='Type' placeholder='Item Type' />
-          )}
-          <MyTextInput
-            title='Price'
-            inputMode='numeric'
-            onChangeText={(text) => handleChangeForm('price', text)}
-            placeholder='10'
-          />
-          <MyTextInput
-            title='Location'
-            style={{ backgroundColor: 'rgba(231,224,236,1)' }}
-            onChangeText={(text) => handleChangeForm('location', text)}
-            placeholder='Da Nang city'
-          />
-        </View>
-        <Button
-          mode='contained'
-          style={{ marginHorizontal: 12, marginTop: 12, paddingVertical: 4 }}
-          onPress={handleCreate}
-          loading={isLoading}
-        >
-          {isLoading ? '' : 'Create Item'}
-        </Button>
-        <View style={{ height: 20 }} />
-      </ScrollView>
+            {categories.length > 0 ? (
+              <MySelector
+                title='Type'
+                onValueChange={(itemValue: any, index: number) =>
+                  handleChangeForm('categoryId', itemValue)
+                }
+                value={categories.find((item) => item.name === 'Others').name}
+                editable={false}
+                datas={categories || []}
+              />
+            ) : (
+              <MyTextInput title='Type' placeholder='Item Type' />
+            )}
+            <MyTextInput
+              title='Price'
+              inputMode='numeric'
+              onChangeText={(text) => handleChangeForm('price', text)}
+              placeholder='10'
+              isRequired={true}
+            />
+            <MyTextInput
+              title='Location'
+              style={{ backgroundColor: 'rgba(231,224,236,1)' }}
+              onChangeText={(text) => handleChangeForm('location', text)}
+              placeholder='Da Nang city'
+              isRequired={true}
+            />
+          </View>
+          <Button
+            mode='contained'
+            style={{ marginHorizontal: 12, marginTop: 12, paddingVertical: 4 }}
+            onPress={handleCreate}
+            loading={isLoading}
+          >
+            {isLoading ? '' : 'Create Item'}
+          </Button>
+          <View style={{ height: 20 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
       {showPreview && (
         <Portal>
           <View
@@ -316,6 +380,12 @@ const CreateItemScreen = ({ navigation }: ICreateItemScreen) => {
             </>
           </View>
         </Portal>
+      )}
+      {dialog.isShow && (
+        <AlertDialog
+          message={dialog.message}
+          onDismiss={() => setDialog({ message: '', isShow: false })}
+        />
       )}
     </MySafeArea>
   );

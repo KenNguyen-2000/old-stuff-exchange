@@ -5,11 +5,14 @@ import { OrderList } from '../components/screens/OrderScreen';
 import { Button, Portal, Text } from 'react-native-paper';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useAppSelector } from '../redux/reduxHook';
 
 interface IOrderScreen
   extends NativeStackScreenProps<any, 'Order', 'my-stack'> {}
 
 const OrderScreen: React.FC<IOrderScreen> = ({ navigation, route }) => {
+  const userInfo = useAppSelector((state) => state.user.user);
+
   // ref
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -30,11 +33,31 @@ const OrderScreen: React.FC<IOrderScreen> = ({ navigation, route }) => {
       <Text style={styles.title__h1}>Activity</Text>
       <Text style={styles.title__h2}>Recent</Text>
 
-      <OrderList
-        showBottomSheet={showBottomSheet}
-        navigation={navigation}
-        route={route}
-      />
+      {userInfo ? (
+        <OrderList
+          showBottomSheet={showBottomSheet}
+          navigation={navigation}
+          route={route}
+        />
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 10,
+          }}
+        >
+          <Text>Login Is Required</Text>
+          <Button
+            mode='outlined'
+            style={{ borderRadius: 8 }}
+            onPress={() => navigation.navigate('Login')}
+          >
+            Login
+          </Button>
+        </View>
+      )}
       <Portal>
         <BottomSheet
           ref={bottomSheetRef}

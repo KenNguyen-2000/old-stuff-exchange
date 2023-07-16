@@ -16,6 +16,8 @@ const HomeBanner = () => {
     if (!userInfo) dispatch(fetchUserInfo());
   }, []);
 
+  if (!userInfo) return null;
+
   return (
     <View style={styles.wrapper}>
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>

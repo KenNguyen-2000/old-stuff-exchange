@@ -15,11 +15,14 @@ import { fetchItemList } from '../redux/thunks/itemList.thunk';
 import { fetchUserInfo } from '../redux/thunks/user.thunk';
 import { ICategory } from '../interfaces/dtos';
 import { RefreshControl } from 'react-native-gesture-handler';
+import { useIsFocused } from '@react-navigation/native';
 
 interface IHomeScreen extends NativeStackScreenProps<any, 'Home', 'mystack'> {}
 
 const HomeScreen = ({ navigation, route }: IHomeScreen) => {
   const dispatch = useAppDispatch();
+
+  const isFocused = useIsFocused();
 
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<ICategory[]>([]);
@@ -60,8 +63,10 @@ const HomeScreen = ({ navigation, route }: IHomeScreen) => {
     };
 
     fetchCategories();
-    fetchItems();
-  }, [setLoading]);
+    if (isFocused) {
+      fetchItems();
+    }
+  }, [isFocused]);
 
   return (
     <View style={styles.wrapper}>
