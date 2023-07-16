@@ -20,6 +20,7 @@ namespace Application.Interfaces
         Task<Response<string>> DeleteAsync(int id);
         Task<Response<UserInfoDto>> GetAsync(Expression<Func<User, bool>> filter);
         Task<Response<string>> UpdatePointsAsync(int userId, double points);
+        Task<Response<UserInfoDto>> UpdateAvatar(UpdateAvatarDto updateAvatarDto);
 
         Task<bool> IsOwner(int userId, Item item);
     }

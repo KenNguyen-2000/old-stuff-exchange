@@ -23,5 +23,6 @@ namespace Application.DTOs.UserDtos
         public string Address { get; set; }
         public double Points { get; set; }
         public string Role { get; set; }
+        public string ImageUri { get; set; }
     }
 }

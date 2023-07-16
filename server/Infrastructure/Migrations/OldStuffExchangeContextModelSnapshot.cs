@@ -233,6 +233,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<bool>("IsSeen")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 

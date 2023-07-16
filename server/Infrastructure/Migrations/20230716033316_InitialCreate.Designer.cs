@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(OldStuffExchangeContext))]
-    [Migration("20230709160327_InitialCreate")]
+    [Migration("20230716033316_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -235,6 +235,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsSeen")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");

@@ -13,6 +13,7 @@ namespace Core.Models
         public string Content { get; set; }
         public int RoomId { get; set; }
         public int SenderId { get; set; }
+        public bool IsSeen { get; set; }
 
         // Relationship
         [ForeignKey(nameof(SenderId))]

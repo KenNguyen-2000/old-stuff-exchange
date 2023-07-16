@@ -29,6 +29,7 @@ namespace Application
         public async Task<Response<Order>> AddAsync(CreateOrderDtos createOrderDtos)
         {
             var getItem = await _itemService.GetAsync(i => i.Id == createOrderDtos.ItemId);
+            var getBuyer = await _userService.GetByIdAsync(createOrderDtos.UserId);
             if (getItem.Data == null)
             {
                 return new Response<Order>("Item with id not found");
@@ -39,6 +40,10 @@ namespace Application
             {
                 return new Response<Order>("Owner of item cannot make the order");
             }
+
+
+            if (getBuyer.Data.Points < getItem.Data.Price)
+                return new Response<Order>("Buyer does not have enough deposit points in account!", status: HttpStatusCode.BadRequest);
 
 
             item.Status = ItemStatus.Inactive;

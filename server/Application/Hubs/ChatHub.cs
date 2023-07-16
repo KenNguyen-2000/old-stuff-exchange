@@ -47,6 +47,7 @@ namespace Application.Hubs
         [Authorize]
         public async Task SendMessage([FromBody] CreateMessageDto createMessageDto)
         {
+            Console.WriteLine("Invoke Send Message");
             try
             {
                 var userId = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -54,8 +55,8 @@ namespace Application.Hubs
 
                 createMessageDto.SenderId = int.Parse(userId);
 
-                await Clients.User(createMessageDto.RecieverId.ToString()).SendAsync("ReceiveMessage", createMessageDto.SenderId, createMessageDto.RecieverId, createMessageDto.Content);
 
+                await Clients.User(createMessageDto.RecieverId.ToString()).SendAsync("ReceiveMessage", createMessageDto.SenderId, createMessageDto.RecieverId, createMessageDto.Content);
                 var newMessage = await _messageService.AddAsync(createMessageDto);
 
             }

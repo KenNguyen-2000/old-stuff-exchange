@@ -6,8 +6,8 @@ namespace Application.Interfaces
 {
     public interface IMessageService
     {
-        Task<MessageDto> AddAsync(CreateMessageDto createMessageDto);
-        Task<MessageDto> UpdateAsync(UpdateMessageDto updateMessagedto);
-        Task<IEnumerable<RoomChatDto>> GetListRoomChatAsync(int userId);
+        Task<Response<MessageDto>> AddAsync(CreateMessageDto createMessageDto);
+        Task<Response<MessageDto>> UpdateAsync(UpdateMessageDto updateMessagedto);
+        Task<Response<RoomChatDto>> GetListRoomChatAsync(int userId);
     }
 }

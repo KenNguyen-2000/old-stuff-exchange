@@ -14,7 +14,7 @@ namespace Core.Models
         Default,
         [Display(Name = "Active")]
         Active,
-        [Display(Name ="Inactive")]
+        [Display(Name = "Inactive")]
         Inactive,
         [Display(Name = "Deleted")]
         Deleted
@@ -47,10 +47,9 @@ namespace Core.Models
         public virtual User User { get; set; } = null;
         public virtual Order Order { get; set; } = null;
         public virtual Bill Bill { get; set; } = null;
-       
+
         [ForeignKey(nameof(CategoryId))]
         public virtual Category Category { get; set; }
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
-

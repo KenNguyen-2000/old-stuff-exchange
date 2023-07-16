@@ -117,6 +117,7 @@ namespace Infrastructure.Migrations
                     Content = table.Column<string>(type: "longtext", nullable: true),
                     RoomId = table.Column<int>(type: "int", nullable: false),
                     SenderId = table.Column<int>(type: "int", nullable: false),
+                    IsSeen = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedBy = table.Column<int>(type: "int", nullable: true),

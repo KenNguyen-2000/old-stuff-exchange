@@ -137,5 +137,18 @@ namespace Application
             var user = await GetByIdAsync(userId);
             return item.UserId == user.Data.Id;
         }
+
+        public async Task<Response<UserInfoDto>> UpdateAvatar(UpdateAvatarDto userUpdateDto)
+        {
+            User getUser = await _userRepository.GetByIdAsync(userUpdateDto.Id);
+            if (getUser == null)
+                return new Response<UserInfoDto>("User not found", status: HttpStatusCode.BadRequest);
+
+            getUser.ImageUri = userUpdateDto.ImageUri;
+
+            User updatedUser = await _userRepository.UpdateAsync(getUser);
+
+            return new Response<UserInfoDto>(_mapper.Map<UserInfoDto>(updatedUser));
+        }
     }
 }

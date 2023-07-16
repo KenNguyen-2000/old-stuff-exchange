@@ -51,6 +51,7 @@ namespace Application
                     };
                     newItem.Images.Add(itemImage);
                 }
+                Console.WriteLine("New Item " + JsonSerializer.Serialize(newItem));
                 var itemCreated = await _itemRepository.AddAsync(newItem);
                 if (itemCreated == null)
                 {
@@ -68,7 +69,6 @@ namespace Application
                 return new Response<ItemDto>("Something went wrong");
             }
         }
-
         public async Task<Response<string>> ChangeItemStatusAsync(ChangeItemStatusDto changeItemStatusDto)
         {
             try
@@ -230,6 +230,5 @@ namespace Application
 
             return new Response<ItemDto>("Item not found!", status: HttpStatusCode.NotFound);
         }
-
     }
 }

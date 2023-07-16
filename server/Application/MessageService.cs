@@ -23,7 +23,7 @@ namespace Application
             _userRepository = userRepository;
         }
 
-        public async Task<MessageDto> AddAsync(CreateMessageDto createMessageDto)
+        public async Task<Response<MessageDto>> AddAsync(CreateMessageDto createMessageDto)
         {
             var newMessage = new Message()
             {
@@ -53,10 +53,10 @@ namespace Application
 
             await _messageRepository.AddAsync(newMessage);
             var mappedMessage = _mapper.Map<MessageDto>(newMessage);
-            return mappedMessage;
+            return new Response<MessageDto>(mappedMessage, "Add message successfully!");
         }
 
-        public async Task<MessageDto> UpdateAsync(UpdateMessageDto updateMessagedto)
+        public async Task<Response<MessageDto>> UpdateAsync(UpdateMessageDto updateMessagedto)
         {
             var getMessage = await _messageRepository.GetByIdAsync(updateMessagedto.Id);
 
@@ -64,19 +64,19 @@ namespace Application
             {
                 getMessage.Content = updateMessagedto.Content;
                 var updatedMessage = await _messageRepository.UpdateAsync(getMessage);
-
-                return _mapper.Map<MessageDto>(updatedMessage);
+                var mappedMessage = _mapper.Map<MessageDto>(updatedMessage);
+                return new Response<MessageDto>(mappedMessage, "Update message successfully!");
             }
 
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<RoomChatDto>> GetListRoomChatAsync(int userId)
+        public async Task<Response<RoomChatDto>> GetListRoomChatAsync(int userId)
         {
             var roomList = await _roomChatRepository.GetListAsync(r => r.Users.Any(u => u.Id == userId));
             var mappedRoomList = _mapper.Map<IEnumerable<RoomChatDto>>(roomList);
 
-            return mappedRoomList;
+            return new Response<RoomChatDto>(mappedRoomList, "Get list room chat successfully!", mappedRoomList.Count());
         }
     }
 }

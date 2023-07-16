@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.ChatDtos
 {
-    public class MessageDto
+    public class MessageDto : AuditableEntity
     {
-        public int Id { get; set; }
         public string Content { get; set; }
+        public bool IsSeen { get; set; }
         public UserInfoDto Sender { get; set; }
         public RoomChat RoomChat { get; set; }
     }

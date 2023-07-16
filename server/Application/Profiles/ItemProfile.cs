@@ -28,7 +28,7 @@ namespace Application.Profiles
             CreateMap<ChangeItemStatusDto, Item>();
             CreateMap<Item, ChangeItemStatusDto>();
 
-            CreateMap<Item, UpdateItemDto>();
+            CreateMap<Item, UpdateItemDto>().ForMember(dest => dest.Images, opt => opt.MapFrom((src) => src.Images.Select(i => i.ImageUri).ToArray()));
             CreateMap<UpdateItemDto, Item>()
              .ForMember(dest => dest.Images, opt => opt.MapFrom((src, dest, destMember, context) =>
              {
@@ -44,7 +44,7 @@ namespace Application.Profiles
              }))
              .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<ItemDto, UpdateItemDto>();
+            CreateMap<ItemDto, UpdateItemDto>().ForMember(dest => dest.Images, opt => opt.MapFrom((src) => src.Images.Select(i => i.ImageUri).ToArray()));
 
 
             CreateMap<Item, Item>();

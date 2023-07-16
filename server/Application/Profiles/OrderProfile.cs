@@ -16,7 +16,6 @@ namespace Application.Profiles
             CreateMap<Order, CreateOrderDtos>();
             CreateMap<CreateOrderDtos, Order>();
 
-
         }
     }
 }
