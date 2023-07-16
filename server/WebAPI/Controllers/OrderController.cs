@@ -1,6 +1,8 @@
 using Application;
 using Application.DTOs;
+using Application.DTOs.MessageDtos;
 using Application.DTOs.OrderDtos;
+using Application.Hubs;
 using Application.Interfaces;
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -16,12 +18,14 @@ namespace WebAPI.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
-        private readonly IHubContext _hubContext;
+        private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IMessageService _messageService;
 
-        public OrderController(IOrderService orderService, IHubContext hubContext)
+        public OrderController(IOrderService orderService, IHubContext<ChatHub> hubContext, IMessageService messageService)
         {
             _orderService = orderService;
             _hubContext = hubContext;
+            _messageService = messageService;
         }
 
         [Authorize]
@@ -82,18 +86,38 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAnOrder(CreateOrderDtos createOrderDtos)
         {
-            if (HttpContext.User.Identity is ClaimsIdentity identity)
+            try
             {
-                int userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                createOrderDtos.UserId = userId;
+                if (HttpContext.User.Identity is ClaimsIdentity identity)
+                {
+                    int userId = int.Parse(identity.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                    createOrderDtos.UserId = userId;
 
-                var orderRes = await _orderService.AddAsync(createOrderDtos);
+                    var orderRes = await _orderService.AddAsync(createOrderDtos);
+                    if (orderRes.Succeeded)
+                    {
+                        CreateMessageDto newMessage = new()
+                        {
+                            RecieverId = orderRes.Data.Item.User.Id,
+                            SenderId = userId,
+                            Content = $"User with Id {userId} have purchase item: {orderRes.Data.Item.Name}!"
+                        };
 
-                return Ok(orderRes);
+                        await _hubContext.Clients.User(userId.ToString()).SendAsync("RecieveMessage", newMessage.SenderId, newMessage.RecieverId, newMessage.Content);
+                        await _messageService.AddAsync(newMessage);
+                        return Ok(orderRes);
+                    }
+                    return BadRequest(orderRes);
+                }
+                else
+                {
+                    return Unauthorized("Token invalid");
+                }
             }
-            else
+            catch (System.Exception e)
             {
-                return Unauthorized("Token invalid");
+                Console.WriteLine(e);
+                return StatusCode(500);
             }
         }
 
@@ -119,7 +143,19 @@ namespace WebAPI.Controllers
                 var orderRes = await _orderService.UpdateStatusAsync(newOrderStatus);
 
                 if (orderRes.Succeeded)
+                {
+                    CreateMessageDto newMessage = new()
+                    {
+                        RecieverId = orderRes.Data.Item.User.Id,
+                        SenderId = userId,
+                        Content = $"User with Id {userId} have update order status! Please check the information!"
+                    };
+
+                    await _hubContext.Clients.User(userId.ToString()).SendAsync("RecieveMessage", newMessage.SenderId, newMessage.RecieverId, newMessage.Content);
+                    await _hubContext.Clients.Users(userId.ToString(), orderRes.Data.Item.User.Id.ToString()).SendAsync("OrderStatusUpdate", orderRes.Data.Status.ToString());
+                    await _messageService.AddAsync(newMessage);
                     return Ok(orderRes);
+                }
 
                 // await _hubContext.Clients.User().SendAsync()
 

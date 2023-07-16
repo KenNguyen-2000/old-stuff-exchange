@@ -4,6 +4,7 @@ using Application.Profiles;
 using AutoMapper;
 using Infrastructure;
 using Infrastructure.Context;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
@@ -30,6 +31,11 @@ builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
    .AllowAnyHeader()
    .AllowCredentials();
  }));
+builder.Services.Configure<FormOptions>(options =>
+   {
+     options.MultipartBodyLengthLimit = int.MaxValue;
+   });
+
 builder.Services.AddSwaggerGen(options =>
 {
   options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -67,9 +73,9 @@ builder.Services.AddSwaggerGen(options =>
 var mapperConfig = new MapperConfiguration(mc =>
 {
   mc.AddProfile(new UserProfile());
+  mc.AddProfile(new OrderProfile());
   mc.AddProfile(new ItemProfile());
   mc.AddProfile(new ReviewProfile());
-  mc.AddProfile(new OrderProfile());
   mc.AddProfile(new ChatProfile());
 });
 

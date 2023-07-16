@@ -26,9 +26,12 @@ namespace WebAPI.Controllers
                 var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
                 var userList = await _messageService.GetListRoomChatAsync(int.Parse(userId));
 
-                return Ok(userList);
+                if (userList.Succeeded)
+                    return Ok(userList);
+                else
+                    return BadRequest(userList);
             }
-            return BadRequest();
+            return Unauthorized("Invalid token");
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.UserDtos;
+﻿using System.Security.Claims;
+using Application.DTOs.UserDtos;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -34,7 +35,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetUserById(int userId)
         {
             var userRes = await _userService.GetByIdAsync(userId);
-            if(!userRes.Succeeded)
+            if (!userRes.Succeeded)
             {
                 return NotFound(userRes);
             }
@@ -60,12 +61,31 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
         {
             var result = await _userService.UpdateAsync(userUpdateDto);
-            if(!result.Succeeded)
+            if (!result.Succeeded)
             {
                 return BadRequest(result);
             }
 
             return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPatch("update-avatar")]
+        public async Task<IActionResult> UpdateAvatar([FromBody] UpdateAvatarDto userUpdateDto)
+        {
+            if (HttpContext.User.Identity is ClaimsIdentity identity)
+            {
+                var userId = identity.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+                userUpdateDto.Id = int.Parse(userId);
+                var result = await _userService.UpdateAvatar(userUpdateDto);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+            }
+
+
+            return Unauthorized("Token invalid");
         }
     }
 }

@@ -83,10 +83,12 @@ namespace WebAPI.Controllers
                 if (result.Status == HttpStatusCode.NotFound)
                 {
                     return NotFound(result);
-                } else if (result.Status == HttpStatusCode.Forbidden)
+                }
+                else if (result.Status == HttpStatusCode.Forbidden)
                 {
                     return StatusCode(403, result);
-                }else if (!result.Succeeded)
+                }
+                else if (!result.Succeeded)
                 {
                     return BadRequest(result);
                 }
